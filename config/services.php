@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    /*
+    | URL base de la API Laravel del otro proyecto (la misma que uses en Postman).
+    | Ej.: http://localhost:8000 — evita 127.0.0.1 si tus rutas usan dominio "localhost".
+    */
+    'zalo_api' => [
+        'base_url' => rtrim(env('ZALO_API_BASE_URL', 'http://localhost:8000'), '/'),
+    ],
+
 ];
