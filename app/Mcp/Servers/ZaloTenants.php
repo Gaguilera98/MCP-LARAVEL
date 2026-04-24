@@ -12,11 +12,12 @@ use App\Mcp\Tools\ListarFormulariosTenant;
 use App\Mcp\Tools\ListarTenants;
 use App\Mcp\Tools\ListarUsuariosCuentaTenant;
 use App\Mcp\Tools\ObtenerEnvioFormularioTenant;
+use App\Mcp\Tools\GeneracionesUsuario;
 use App\Mcp\Tools\UsoCuentaTenant;
 
 #[Name('Zalo Tenants')]
 #[Version('0.0.1')]
-#[Instructions('Este MCP permite consultar la API de Zalo: tenants, cuentas, uso por cuenta y fechas, formularios, envíos de formularios y usuarios por cuenta. La URL base y el token se configuran en el entorno (ZALO_API_BASE_URL, ZALO_API_TOKEN).')]
+#[Instructions('Este MCP permite consultar la API de Zalo: tenants, cuentas, uso por cuenta y fechas, formularios, envíos de formularios, usuarios por cuenta y generaciones del asistente creativo. La URL base y el token se configuran en el entorno (ZALO_API_BASE_URL, ZALO_API_TOKEN).')]
 class ZaloTenants extends Server
 {
     protected array $tools = [
@@ -27,6 +28,7 @@ class ZaloTenants extends Server
         ListarEnviosFormularioTenant::class,
         ObtenerEnvioFormularioTenant::class,
         ListarUsuariosCuentaTenant::class,
+        GeneracionesUsuario::class,
     ];
 
     protected array $resources = [
