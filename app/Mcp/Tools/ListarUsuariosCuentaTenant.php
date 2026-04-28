@@ -12,19 +12,19 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('listar-usuarios-cuenta-tenant')]
-#[Description('Lista los usuarios de una cuenta dentro de un tenant. Incluye meta (cuenta, tenant_id, pagination) y links si la API los envía; count es la cantidad de usuarios en la página actual.')]
+#[Description('Lista los usuarios de una cuenta dentro de un tenant con paginación y filtros opcionales (area_id, area). Devuelve meta (cuenta, tenant_id, filters, pagination), data (array de usuarios) y links de paginación.')]
 class ListarUsuariosCuentaTenant extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
     {
         try {
-            $tenantId = $request->get('tenant_id');
+            $tenantId  = $request->get('tenant_id');
             $accountId = $request->get('account_id');
             $url = config('services.zalo_api.base_url')
                 .'/api/v1/tenants/'.$tenantId.'/accounts/'.$accountId.'/users';
 
             $query = [];
-            foreach (['page', 'per_page'] as $key) {
+            foreach (['page', 'per_page', 'area_id', 'area'] as $key) {
                 $v = $request->get($key);
                 if ($v !== null && $v !== '') {
                     $query[$key] = $v;
@@ -34,28 +34,20 @@ class ListarUsuariosCuentaTenant extends Tool
             $response = Http::timeout(15)
                 ->connectTimeout(5)
                 ->withHeaders([
-                    'Accept' => '*/*',
-                    'Connection' => 'keep-alive',
+                    'Accept'        => '*/*',
+                    'Connection'    => 'keep-alive',
                     'Authorization' => 'Bearer '.env('ZALO_API_TOKEN'),
                 ])
                 ->get($url, $query);
 
             if ($response->successful()) {
-                $usuarios = $response->json('data') ?? [];
-                $payload = [
-                    'usuarios' => $usuarios,
-                    'count' => count($usuarios),
-                ];
-                $meta = $response->json('meta');
-                if (is_array($meta)) {
-                    $payload['meta'] = $meta;
-                }
-                $links = $response->json('links');
-                if (is_array($links)) {
-                    $payload['links'] = $links;
-                }
+                $json = $response->json();
 
-                return Response::structured($payload);
+                return Response::structured([
+                    'meta'  => $json['meta']  ?? [],
+                    'data'  => $json['data']  ?? [],
+                    'links' => $json['links'] ?? [],
+                ]);
             }
 
             $body = $response->body();
@@ -83,10 +75,14 @@ class ListarUsuariosCuentaTenant extends Tool
             'account_id' => $schema->string()
                 ->description('Id numérico de la cuenta.')
                 ->required(),
-            'page' => $schema->string()
-                ->description('Página de resultados (opcional), p. ej. "2".'),
-            'per_page' => $schema->string()
-                ->description('Tamaño de página (opcional), si la API lo soporta.'),
+            'page' => $schema->integer()
+                ->description('Número de página (mínimo 1, por defecto: 1).'),
+            'per_page' => $schema->integer()
+                ->description('Resultados por página, entre 1 y 100 (por defecto: 25).'),
+            'area_id' => $schema->string()
+                ->description('Filtra usuarios por el ID exacto de su área.'),
+            'area' => $schema->string()
+                ->description('Búsqueda parcial por nombre de área (LIKE %valor%).'),
         ];
     }
 }
