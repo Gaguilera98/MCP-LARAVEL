@@ -14,6 +14,8 @@ use App\Mcp\Tools\ListarUsuariosCuentaTenant;
 use App\Mcp\Tools\ObtenerEnvioFormularioTenant;
 use App\Mcp\Tools\GeneracionesUsuario;
 use App\Mcp\Tools\UsoCuentaTenant;
+use App\Mcp\Tools\GetAccountGenerations;
+use App\Mcp\Tools\GetAccountFilters;
 
 #[Name('Zalo Tenants')]
 #[Version('0.0.1')]
@@ -29,6 +31,8 @@ class ZaloTenants extends Server
         ObtenerEnvioFormularioTenant::class,
         ListarUsuariosCuentaTenant::class,
         GeneracionesUsuario::class,
+        GetAccountGenerations::class,
+        GetAccountFilters::class,
     ];
 
     protected array $resources = [
