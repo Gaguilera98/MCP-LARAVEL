@@ -11,9 +11,9 @@ use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
-#[Name('get_account_chat')]
-#[Description('Bulk chat por cuenta (laragent_messages, agrupado por sesión): filtros organizacionales iguales que get_account_generations. Fechas filtran sesiones por actividad. Paginar; include_messages solo si hace falta el texto (límite por conversación en meta cuando aplica).')]
-class GetAccountChat extends Tool
+#[Name('get_account_usage_by_user')]
+#[Description('Uso y costo por usuario (UsageRecord), desglosado por herramienta (by_tool: tool, count, subtotal_cost_usd) con total_uses y total_cost_usd. Mismos filtros organizacionales que get_account_generations; date_from/date_to filtran created_at de UsageRecord. Pagina usuarios (meta.pagination, links). Para total agregado de cuenta usar uso-cuenta-tenant.')]
+class GetAccountUsageByUser extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
     {
@@ -24,7 +24,7 @@ class GetAccountChat extends Tool
             $url = config('services.zalo_api.base_url')
                 .'/api/v1/tenants/'.$tenantId
                 .'/accounts/'.$accountId
-                .'/chat';
+                .'/usage/by-user';
 
             $query = [];
             foreach ([
@@ -48,16 +48,6 @@ class GetAccountChat extends Tool
                     $query[$key] = $key === 'per_page'
                         ? min(100, max(1, (int) $v))
                         : max(1, (int) $v);
-                }
-            }
-
-            $includeMessages = $request->get('include_messages');
-            if ($includeMessages !== null) {
-                if (is_bool($includeMessages)) {
-                    $query['include_messages'] = $includeMessages ? '1' : '0';
-                } else {
-                    $parsed = filter_var($includeMessages, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-                    $query['include_messages'] = ($parsed === true) ? '1' : '0';
                 }
             }
 
@@ -100,7 +90,7 @@ class GetAccountChat extends Tool
                 ->description('ID numérico de la cuenta.')
                 ->required(),
             'area_id' => $schema->integer()
-                ->description('Filtrar por ID de área.'),
+                ->description('Filtrar usuarios por ID de área (exacto).'),
             'area' => $schema->string()
                 ->description('Nombre parcial de área (LIKE).'),
             'company_id' => $schema->integer()
@@ -108,17 +98,15 @@ class GetAccountChat extends Tool
             'position_id' => $schema->integer()
                 ->description('ID de cargo.'),
             'user_id' => $schema->integer()
-                ->description('Un solo usuario dentro de la cuenta.'),
+                ->description('Limitar a un usuario concreto.'),
             'date_from' => $schema->string()
-                ->description('YYYY-MM-DD. Filtro sobre last_message_at de la conversación (inicio del día).'),
+                ->description('YYYY-MM-DD. Inicio del rango sobre created_at de UsageRecord (opcional).'),
             'date_to' => $schema->string()
-                ->description('YYYY-MM-DD. Hasta fin del día.'),
+                ->description('YYYY-MM-DD. Fin del rango (opcional).'),
             'page' => $schema->integer()
-                ->description('Página de conversaciones (por defecto en API: 1).'),
+                ->description('Página de usuarios (por defecto en API: 1).'),
             'per_page' => $schema->integer()
-                ->description('Conversaciones por página (por defecto en API: 25, máximo 100).'),
-            'include_messages' => $schema->boolean()
-                ->description('Si true, cada conversación incluye messages (hasta ~100 más recientes; ver messages_truncated). Omitir o false para respuestas más livianas.'),
+                ->description('Usuarios por página (por defecto en API: 25, máximo 100).'),
         ];
     }
 }

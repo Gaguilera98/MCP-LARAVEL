@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('get_account_filters')]
-#[Description('Obtiene filtros organizacionales disponibles de una cuenta (areas, companies, positions). Retorna el payload completo (meta, data).')]
+#[Description('Catálogos de áreas, empresas y cargos de la cuenta para armar filtros válidos. Conviene llamarlo antes de get_account_generations y get_account_chat (bulk). Payload completo (meta, data).')]
 class GetAccountFilters extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory

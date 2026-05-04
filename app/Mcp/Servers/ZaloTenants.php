@@ -18,15 +18,20 @@ use App\Mcp\Tools\UsoCuentaTenant;
 use App\Mcp\Tools\GetAccountGenerations;
 use App\Mcp\Tools\GetAccountFilters;
 use App\Mcp\Tools\GetAccountChat;
+use App\Mcp\Tools\GetAccountUsageByUser;
 
 #[Name('Zalo Tenants')]
 #[Version('0.0.1')]
 #[Instructions(
-    'Este MCP consulta la API de Zalo: tenants, cuentas, uso por cuenta y fechas, formularios y envíos, usuarios por cuenta, generaciones creativas (por usuario o por cuenta) y chat (por usuario, por cuenta en bulk). '.
-    'La URL base y el token están en el entorno (ZALO_API_BASE_URL, ZALO_API_TOKEN). '.
-    'Flujo recomendado por cuenta: primero get_account_filters para obtener áreas, empresas y cargos (ids y nombres); luego usa los mismos filtros organizacionales en get_account_generations y/o get_account_chat (area_id, area, company_id, position_id, user_id) para alinear consultas. '.
-    'Para evaluar creativo más chat en la misma área o segmento, combina get_account_generations y get_account_chat con los mismos tenantId, accountId y filtros de organización y fechas. '.
-    'En chat por cuenta, empieza sin include_messages o con false y pagina; activa include_messages=true solo si necesitas el texto de los mensajes.'
+    'API bajo /api/v1 con Bearer (ZALO_API_BASE_URL, ZALO_API_TOKEN). Fechas de filtro en query: YYYY-MM-DD. '.
+    'Nombres de argumentos: tools bulk get_account_* usan tenantId y accountId (camelCase). El resto (listar-*, generaciones-usuario, chat-usuario, uso-cuenta-tenant) usan tenant_id, account_id (snake_case). '.
+    'Flujo segmento (creativo + chat + costo): listar-tenants → listar-cuentas-tenants → get_account_filters → en paralelo get_account_generations y get_account_chat con los mismos filtros; costo agregado de cuenta: uso-cuenta-tenant (incluye user_distribution: % usuarios por área/cargo/empresa sobre el total registrado; esa parte no depende de date_from/date_to; costos y by_tool sí); desglose por usuario: get_account_usage_by_user. '.
+    'Flujo usuario puntual: listar-usuarios-cuenta-tenant → generaciones-usuario y chat-usuario; costo de cuenta con uso-cuenta-tenant si hace falta. '.
+    'get_account_generations (bulk): solo historial creativo y presentaciones; si tools incluye chat, la API lo ignora (nota en meta.notes). Para conversaciones reales usa get_account_chat o chat-usuario. '.
+    'generaciones-usuario con tools=chat devuelve resumen de facturación (UsageRecord), no mensajes de chat; texto de chat → chat-usuario. '.
+    'get_account_chat: paginar con include_messages ausente o false; true solo para leer texto. '.
+    'get_account_filters: llamar antes de bulks para ids y nombres válidos. '.
+    'listar-envios-formulario-tenant: la API no pagina envíos; en tenants con mucho volumen la respuesta puede ser muy grande.'
 )]
 class ZaloTenants extends Server
 {
@@ -43,6 +48,7 @@ class ZaloTenants extends Server
         GetAccountGenerations::class,
         GetAccountFilters::class,
         GetAccountChat::class,
+        GetAccountUsageByUser::class,
     ];
 
     protected array $resources = [

@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('listar-envios-formulario-tenant')]
-#[Description('Lista los envíos (submissions) de un formulario concreto de un tenant.')]
+#[Description('Lista todos los envíos (submissions) de un formulario; la API no pagina y puede devolver un payload muy grande en tenants con alto volumen.')]
 class ListarEnviosFormularioTenant extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory

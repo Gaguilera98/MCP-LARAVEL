@@ -12,7 +12,13 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('uso-cuenta-tenant')]
-#[Description('Obtiene el uso de una cuenta de un tenant en un rango de fechas (date_from / date_to, formato YYYY-MM-DD).')]
+#[Description(
+    'Resumen de uso/costos por cuenta (UsageRecord) más distribución estadística de usuarios registrados. '.
+    'Devuelve entre otros: total_records, total_cost_real_usd, total_cost_final_usd, by_tool[] (tool, count, total_cost_usd) y user_distribution con total_users, by_area[], by_position[] y by_company[] — cada uno con user_count y percentage del total de usuarios registrados en la cuenta. '.
+    'Útil para ver composición del equipo (qué porcentaje pertenece a cada área/cargo/empresa) junto con el consumo. '.
+    'NOTA: user_distribution refleja todos los usuarios registrados, independiente del período de fechas; by_tool y costos sí respetan el rango. '.
+    'date_from y date_to son opcionales: sin ambos devuelve histórico completo de UsageRecord; con ambos aplica rango por created_at.'
+)]
 class UsoCuentaTenant extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -26,6 +32,13 @@ class UsoCuentaTenant extends Tool
             $url = config('services.zalo_api.base_url')
                 .'/api/v1/tenants/'.$tenantId.'/accounts/'.$accountId.'/usage';
 
+            $query = [];
+            foreach (['date_from' => $dateFrom, 'date_to' => $dateTo] as $key => $value) {
+                if ($value !== null && $value !== '') {
+                    $query[$key] = $value;
+                }
+            }
+
             $response = Http::timeout(15)
                 ->connectTimeout(5)
                 ->withHeaders([
@@ -33,10 +46,7 @@ class UsoCuentaTenant extends Tool
                     'Connection' => 'keep-alive',
                     'Authorization' => 'Bearer '.env('ZALO_API_TOKEN'),
                 ])
-                ->get($url, [
-                    'date_from' => $dateFrom,
-                    'date_to' => $dateTo,
-                ]);
+                ->get($url, $query);
 
             if ($response->successful()) {
                 return Response::structured([
@@ -70,11 +80,9 @@ class UsoCuentaTenant extends Tool
                 ->description('Id numérico de la cuenta.')
                 ->required(),
             'date_from' => $schema->string()
-                ->description('Fecha inicio (YYYY-MM-DD).')
-                ->required(),
+                ->description('Fecha inicio (YYYY-MM-DD). Filtra UsageRecord por created_at. No afecta user_distribution.'),
             'date_to' => $schema->string()
-                ->description('Fecha fin (YYYY-MM-DD).')
-                ->required(),
+                ->description('Fecha fin (YYYY-MM-DD). Filtra UsageRecord por created_at. No afecta user_distribution.'),
         ];
     }
 }

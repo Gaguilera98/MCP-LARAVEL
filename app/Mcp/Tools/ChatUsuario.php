@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('chat-usuario')]
-#[Description('Historial de chat por usuario: conversaciones con resumen en meta (totales, by_agent) y paginación. Opcionalmente incluye mensajes por conversación con include_messages=true. Filtra por last_message_at con date_from/date_to (YYYY-MM-DD).')]
+#[Description('Chat por usuario (sesiones/conversaciones desde laragent_messages): meta.summary, paginación. include_messages=true para texto; false o omitido para respuesta liviana. Fechas date_from/date_to sobre última actividad de sesión.')]
 class ChatUsuario extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory

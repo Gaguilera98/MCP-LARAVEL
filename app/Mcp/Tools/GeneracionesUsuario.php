@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('generaciones-usuario')]
-#[Description('Consulta las generaciones del asistente creativo de un usuario (image_generator, image_editor, video_generator, video_editor, prompt_generator, presentation_generator, chat). Soporta filtro por fechas, paginación y selector de herramientas (tools) para reducir el tamaño de la respuesta.')]
+#[Description('Historial creativo por usuario (imágenes, videos, prompts, presentaciones). Paginación y tools en CSV. Con tools=chat, data.chat es solo resumen de facturación (UsageRecord), no conversaciones; para mensajes usar chat-usuario. Sin tools: creativo + presentaciones, sin bloque chat.')]
 class GeneracionesUsuario extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -103,10 +103,9 @@ class GeneracionesUsuario extends Tool
                 ->description('Resultados por página del historial creativo, entre 1 y 100 (por defecto: 25).'),
             'tools' => $schema->string()
                 ->description(
-                    'Lista de herramientas separadas por coma para recortar la respuesta (modo estricto). '.
+                    'CSV estricto. chat aquí solo añade resumen de uso para facturación, no texto de conversaciones (eso es chat-usuario). '.
                     'Valores: image_generator, image_editor, video_generator, video_editor, prompt_generator, presentation_generator, chat. '.
-                    'Sin este parámetro se devuelven las 6 herramientas de by_tool sin chat. '.
-                    'Ejemplo: "image_generator,chat"'
+                    'Sin tools: seis herramientas en by_tool sin chat. Ejemplo: "image_generator,chat"'
                 ),
         ];
     }

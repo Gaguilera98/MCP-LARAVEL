@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('get_account_generations')]
-#[Description('Consulta generaciones por cuenta filtradas por organizacion y otros criterios. Soporta paginacion con page/per_page y retorna el payload completo (meta, data, links).')]
+#[Description('Bulk creativo por cuenta (historial creativo + presentaciones), filtrable por organización y fechas. Paginación con page/per_page. Si tools incluye chat, la API lo ignora en este endpoint (revisar meta.notes); para chat real usar get_account_chat. Retorna el payload completo (meta, data, links).')]
 class GetAccountGenerations extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -102,7 +102,7 @@ class GetAccountGenerations extends Tool
             'date_to' => $schema->string()
                 ->description('Fecha fin del rango (YYYY-MM-DD).'),
             'tools' => $schema->string()
-                ->description('Herramientas en CSV. Ej: image_generator,image_editor,video_generator,video_editor,prompt_generator,presentation_generator'),
+                ->description('CSV estricto. En bulk no uses chat: se ignora. Ej: image_generator,image_editor,video_generator,video_editor,prompt_generator,presentation_generator'),
             'page' => $schema->integer()
                 ->description('Pagina a consultar (default: 1).'),
             'per_page' => $schema->integer()
