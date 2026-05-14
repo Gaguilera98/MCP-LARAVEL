@@ -9,6 +9,7 @@ use Laravel\Mcp\Server\Attributes\Version;
 use App\Mcp\Tools\ListarCuentasTenants;
 use App\Mcp\Tools\ListarEnviosFormularioTenant;
 use App\Mcp\Tools\ListarFormulariosTenant;
+use App\Mcp\Tools\ListarUsuariosFormularioTenant;
 use App\Mcp\Tools\ListarTenants;
 use App\Mcp\Tools\ListarUsuariosCuentaTenant;
 use App\Mcp\Tools\ObtenerEnvioFormularioTenant;
@@ -31,6 +32,7 @@ use App\Mcp\Tools\GetAccountUsageByUser;
     'generaciones-usuario con tools=chat devuelve resumen de facturación (UsageRecord), no mensajes de chat; texto de chat → chat-usuario. '.
     'get_account_chat: paginar con include_messages ausente o false; true solo para leer texto. '.
     'get_account_filters: llamar antes de bulks para ids y nombres válidos. '.
+    'Flujo formulario: listar-tenants → listar-formularios-tenant → listar-usuarios-formulario-tenant (alcance assigned_users; no es listar-usuarios-cuenta-tenant) → listar-envios-formulario-tenant u obtener-envio-formulario-tenant; intersectar usuario_ids de solicitud con assigned_users si aplica. '.
     'listar-envios-formulario-tenant: la API no pagina envíos; en tenants con mucho volumen la respuesta puede ser muy grande.'
 )]
 class ZaloTenants extends Server
@@ -40,6 +42,7 @@ class ZaloTenants extends Server
         ListarCuentasTenants::class,
         UsoCuentaTenant::class,
         ListarFormulariosTenant::class,
+        ListarUsuariosFormularioTenant::class,
         ListarEnviosFormularioTenant::class,
         ObtenerEnvioFormularioTenant::class,
         ListarUsuariosCuentaTenant::class,
