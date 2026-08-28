@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('generaciones-usuario')]
-#[Description('Historial creativo por usuario (imágenes, videos, prompts, presentaciones). Paginación y tools en CSV. Con tools=chat, data.chat es solo resumen de facturación (UsageRecord), no conversaciones; para mensajes usar chat-usuario. Sin tools: creativo + presentaciones, sin bloque chat.')]
+#[Description('Historial creativo por usuario (imágenes, videos, prompts, presentaciones). Ítems nuevos pueden traer usage_record_id y cost_usd (T1). Filtros tools, model, platform, status. Con tools=chat, data.chat es solo resumen UsageRecord; mensajes → chat-usuario. Sin tools: creativo + presentaciones, sin bloque chat.')]
 class GeneracionesUsuario extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -30,7 +30,7 @@ class GeneracionesUsuario extends Tool
 
             // Construir query solo con params no vacíos
             $query = [];
-            foreach (['date_from', 'date_to', 'page', 'per_page', 'tools'] as $key) {
+            foreach (['date_from', 'date_to', 'page', 'per_page', 'tools', 'model', 'platform', 'status'] as $key) {
                 $v = $request->get($key);
                 if ($v !== null && $v !== '') {
                     $query[$key] = $v;
@@ -107,6 +107,12 @@ class GeneracionesUsuario extends Tool
                     'Valores: image_generator, image_editor, video_generator, video_editor, prompt_generator, presentation_generator, chat. '.
                     'Sin tools: seis herramientas en by_tool sin chat. Ejemplo: "image_generator,chat"'
                 ),
+            'model' => $schema->string()
+                ->description('Filtro por modelo (slug o nombre parcial).'),
+            'platform' => $schema->string()
+                ->description('Filtro por plataforma/proveedor (ej. replicate, flux, gemini).'),
+            'status' => $schema->string()
+                ->description('Filtro por estado (completed, failed, processing, pending).'),
         ];
     }
 }

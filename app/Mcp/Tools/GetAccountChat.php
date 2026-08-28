@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('get_account_chat')]
-#[Description('Bulk chat por cuenta (laragent_messages, agrupado por sesión): filtros organizacionales iguales que get_account_generations. Fechas filtran sesiones por actividad. Paginar; include_messages solo si hace falta el texto (límite por conversación en meta cuando aplica).')]
+#[Description('Bulk chat por cuenta (laragent_messages): model_name, total_tokens, total_cost_usd, usage_conversation_key, started_at (T11). Filtros organizacionales iguales que generations. Paginar; include_messages=true solo para texto (mensajes traen model_used e input/output/total_tokens).')]
 class GetAccountChat extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory

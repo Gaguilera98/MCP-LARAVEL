@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('get_account_generations')]
-#[Description('Bulk creativo por cuenta (historial creativo + presentaciones), filtrable por organización y fechas. Paginación con page/per_page. Si tools incluye chat, la API lo ignora en este endpoint (revisar meta.notes); para chat real usar get_account_chat. Retorna el payload completo (meta, data, links).')]
+#[Description('Bulk creativo por cuenta (historial creativo + presentaciones), filtrable por organización, fechas, model/platform/status. Ítems nuevos pueden traer usage_record_id y cost_usd (T1; histórico pre-deploy null). Paginación page/per_page. Si tools incluye chat, la API lo ignora (meta.notes); chat real → get_account_chat. Payload completo (meta, data, links).')]
 class GetAccountGenerations extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -36,6 +36,9 @@ class GetAccountGenerations extends Tool
                 'date_from',
                 'date_to',
                 'tools',
+                'model',
+                'platform',
+                'status',
             ] as $key) {
                 $value = $request->get($key);
                 if ($value !== null && $value !== '') {
@@ -103,6 +106,12 @@ class GetAccountGenerations extends Tool
                 ->description('Fecha fin del rango (YYYY-MM-DD).'),
             'tools' => $schema->string()
                 ->description('CSV estricto. En bulk no uses chat: se ignora. Ej: image_generator,image_editor,video_generator,video_editor,prompt_generator,presentation_generator'),
+            'model' => $schema->string()
+                ->description('Filtro por modelo (slug o nombre parcial, ej. kling, minimax-h3).'),
+            'platform' => $schema->string()
+                ->description('Filtro por plataforma/proveedor (ej. replicate, flux, gemini, runway).'),
+            'status' => $schema->string()
+                ->description('Filtro por estado (completed, failed, processing, pending). Fallidos nuevos post-T7 aparecen en historial.'),
             'page' => $schema->integer()
                 ->description('Pagina a consultar (default: 1).'),
             'per_page' => $schema->integer()

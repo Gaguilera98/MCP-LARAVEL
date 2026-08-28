@@ -11,30 +11,21 @@ use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
-#[Name('uso-cuenta-tenant')]
-#[Description(
-    'Resumen de uso/costos por cuenta (UsageRecord) más distribución de usuarios. '.
-    'Incluye by_tool[], by_model[] (T5*) e integrity{} (T6: history vs usage). '.
-    'user_distribution (by_area/by_position/by_company) no depende de date_from/date_to; costos sí. '.
-    'date_from/date_to opcionales: sin ambos, histórico completo de UsageRecord.'
-)]
-class UsoCuentaTenant extends Tool
+#[Name('listar-modelos')]
+#[Description('Catálogo de modelos IA del tenant (ai_models + pricing vigente). Útil antes de filtrar generations por model/platform. Lifecycle deprecated/retired aún puede venir null (T12+).')]
+class ListarModelos extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
     {
         try {
             $tenantId = $request->get('tenant_id');
-            $accountId = $request->get('account_id');
-            $dateFrom = $request->get('date_from');
-            $dateTo = $request->get('date_to');
-
-            $url = config('services.zalo_api.base_url')
-                .'/api/v1/tenants/'.$tenantId.'/accounts/'.$accountId.'/usage';
+            $url = config('services.zalo_api.base_url').'/api/v1/tenants/'.$tenantId.'/models';
 
             $query = [];
-            foreach (['date_from' => $dateFrom, 'date_to' => $dateTo] as $key => $value) {
-                if ($value !== null && $value !== '') {
-                    $query[$key] = $value;
+            foreach (['status', 'model_type'] as $key) {
+                $v = $request->get($key);
+                if ($v !== null && $v !== '') {
+                    $query[$key] = $v;
                 }
             }
 
@@ -48,9 +39,7 @@ class UsoCuentaTenant extends Tool
                 ->get($url, $query);
 
             if ($response->successful()) {
-                return Response::structured([
-                    'uso' => $response->json(),
-                ]);
+                return Response::structured($response->json());
             }
 
             $body = $response->body();
@@ -75,13 +64,10 @@ class UsoCuentaTenant extends Tool
             'tenant_id' => $schema->string()
                 ->description('UUID del tenant.')
                 ->required(),
-            'account_id' => $schema->string()
-                ->description('Id numérico de la cuenta.')
-                ->required(),
-            'date_from' => $schema->string()
-                ->description('Fecha inicio (YYYY-MM-DD). Filtra UsageRecord por created_at. No afecta user_distribution.'),
-            'date_to' => $schema->string()
-                ->description('Fecha fin (YYYY-MM-DD). Filtra UsageRecord por created_at. No afecta user_distribution.'),
+            'status' => $schema->string()
+                ->description('Filtro opcional del catálogo (ej. active, inactive).'),
+            'model_type' => $schema->string()
+                ->description('Filtro opcional por tipo de modelo (según ai_models.model_type).'),
         ];
     }
 }
