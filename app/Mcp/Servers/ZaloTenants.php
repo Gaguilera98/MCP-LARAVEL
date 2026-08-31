@@ -31,6 +31,7 @@ use App\Mcp\Tools\ListarModelos;
     'Catálogo de modelos: listar-modelos (tenant_id) → platform, status active|inactive, available_until, days_until_expiration, pricing. '.
     'Flujo usuario puntual: listar-usuarios-cuenta-tenant → generaciones-usuario y chat-usuario; costo de cuenta con uso-cuenta-tenant si hace falta. '.
     'get_account_generations / generaciones-usuario: ítems pueden traer usage_record_id y cost_usd (T1, solo generaciones nuevas post-migración; histórico null sin backfill). Para costo de UNA pieza lee cost_usd del ítem; uso-cuenta-tenant es agregado. Filtros opcionales model, platform, status. Fallidos (status=failed) visibles post-T7. '.
+    'Video en generations: duration_seconds, resolution, has_audio, source_images[], source_type (text_to_video|image_to_video), count — desde input_payload; null si no estaba guardado. seed/fps/negative_prompt no se capturan en Zalo. '.
     'get_account_generations: solo historial creativo y presentaciones; si tools incluye chat, la API lo ignora (meta.notes). Chat real → get_account_chat o chat-usuario. '.
     'generaciones-usuario con tools=chat: resumen UsageRecord, no mensajes; texto → chat-usuario. '.
     'get_account_chat / chat-usuario (T11): sesión con model_name, total_tokens, total_cost_usd, usage_conversation_key, started_at; paginar con include_messages false; true solo para leer texto (model_used, tokens por mensaje; tokens en role=user suelen ser null). date_from/date_to filtran por última actividad de la sesión (message_created casteado a DATETIME). '.
