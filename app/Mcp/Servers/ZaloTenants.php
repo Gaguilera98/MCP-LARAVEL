@@ -28,7 +28,7 @@ use App\Mcp\Tools\ListarModelos;
     'API bajo /api/v1 con Bearer (ZALO_API_BASE_URL, ZALO_API_TOKEN). Fechas de filtro en query: YYYY-MM-DD. '.
     'Nombres de argumentos: tools bulk get_account_* usan tenantId y accountId (camelCase). El resto (listar-*, generaciones-usuario, chat-usuario, uso-cuenta-tenant, listar-modelos) usan tenant_id, account_id (snake_case). '.
     'Flujo segmento (creativo + chat + costo): listar-tenants → listar-cuentas-tenants → get_account_filters → en paralelo get_account_generations y get_account_chat con los mismos filtros; costo agregado: uso-cuenta-tenant (by_tool, by_model, integrity, user_distribution); desglose por usuario: get_account_usage_by_user. '.
-    'Catálogo de modelos: listar-modelos (tenant_id); luego filtrar generations con model/platform/status si hace falta. '.
+    'Catálogo de modelos: listar-modelos (tenant_id) → platform, status active|inactive, available_until, days_until_expiration, pricing. '.
     'Flujo usuario puntual: listar-usuarios-cuenta-tenant → generaciones-usuario y chat-usuario; costo de cuenta con uso-cuenta-tenant si hace falta. '.
     'get_account_generations / generaciones-usuario: ítems pueden traer usage_record_id y cost_usd (T1, solo generaciones nuevas post-migración; histórico null sin backfill). Para costo de UNA pieza lee cost_usd del ítem; uso-cuenta-tenant es agregado. Filtros opcionales model, platform, status. Fallidos (status=failed) visibles post-T7. '.
     'get_account_generations: solo historial creativo y presentaciones; si tools incluye chat, la API lo ignora (meta.notes). Chat real → get_account_chat o chat-usuario. '.

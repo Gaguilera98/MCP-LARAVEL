@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('listar-modelos')]
-#[Description('Catálogo de modelos IA del tenant (ai_models + pricing vigente). Útil antes de filtrar generations por model/platform. Lifecycle deprecated/retired aún puede venir null (T12+).')]
+#[Description('Catálogo de modelos IA del tenant (ai_models + pricing vigente). Incluye platform (proveedor), status active|inactive, available_until y days_until_expiration (calculado; null=sin caducidad, negativo=vencido). Útil antes de filtrar generations por model/platform.')]
 class ListarModelos extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
