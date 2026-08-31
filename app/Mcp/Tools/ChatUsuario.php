@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('chat-usuario')]
-#[Description('Chat por usuario (laragent_messages): sesiones con model_name, tokens, total_cost_usd (T11). include_messages=true para texto con model_used e input/output/total_tokens; false/omitido respuesta liviana. date_from/date_to sobre última actividad de sesión (CAST DATETIME; OK filtrar por día).')]
+#[Description('Chat por usuario (laragent_messages): sesiones con model_name, tokens, total_cost_usd (T11). include_messages=true para texto/adjuntos con model_used, tokens y attachments[] (url/s3_key); false/omitido respuesta liviana. date_from/date_to sobre última actividad de sesión (CAST DATETIME; OK filtrar por día).')]
 class ChatUsuario extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
