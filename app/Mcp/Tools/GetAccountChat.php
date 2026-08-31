@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('get_account_chat')]
-#[Description('Bulk chat por cuenta (laragent_messages): model_name, total_tokens, total_cost_usd, usage_conversation_key, started_at (T11). date_from/date_to filtran última actividad (CAST DATETIME; OK filtrar por día). Filtros organizacionales iguales que generations. Paginar; include_messages=true solo para texto/adjuntos (mensajes traen model_used, tokens; user puede traer attachments[] con url/s3_key).')]
+#[Description('Bulk chat por cuenta (laragent_messages): model_name, tokens, costo (T11); attachments_summary por conversación y en meta.summary (T10: image/document, total_bytes null si no hay bytes). has_attachments filtra sin include_messages. date_from/date_to OK (CAST DATETIME). include_messages=true solo para texto/adjuntos detallados.')]
 class GetAccountChat extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -58,6 +58,18 @@ class GetAccountChat extends Tool
                 } else {
                     $parsed = filter_var($includeMessages, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
                     $query['include_messages'] = ($parsed === true) ? '1' : '0';
+                }
+            }
+
+            $hasAttachments = $request->get('has_attachments');
+            if ($hasAttachments !== null && $hasAttachments !== '') {
+                if (is_bool($hasAttachments)) {
+                    $query['has_attachments'] = $hasAttachments ? '1' : '0';
+                } else {
+                    $parsed = filter_var($hasAttachments, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+                    if ($parsed !== null) {
+                        $query['has_attachments'] = $parsed ? '1' : '0';
+                    }
                 }
             }
 
@@ -119,6 +131,8 @@ class GetAccountChat extends Tool
                 ->description('Conversaciones por página (por defecto en API: 25, máximo 100).'),
             'include_messages' => $schema->boolean()
                 ->description('Si true, cada conversación incluye messages (hasta ~100 más recientes; ver messages_truncated). Omitir o false para respuestas más livianas.'),
+            'has_attachments' => $schema->boolean()
+                ->description('T10: true = solo conversaciones con adjuntos (imagen/PDF); false = sin adjuntos. No requiere include_messages.'),
         ];
     }
 }

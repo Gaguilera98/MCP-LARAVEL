@@ -23,7 +23,7 @@ use App\Mcp\Tools\GetAccountUsageByUser;
 use App\Mcp\Tools\ListarModelos;
 
 #[Name('Zalo Tenants')]
-#[Version('0.0.4')]
+#[Version('0.0.5')]
 #[Instructions(
     'API bajo /api/v1 con Bearer (ZALO_API_BASE_URL, ZALO_API_TOKEN). Fechas de filtro en query: YYYY-MM-DD. '.
     'Nombres de argumentos: tools bulk get_account_* usan tenantId y accountId (camelCase). El resto (listar-*, generaciones-usuario, chat-usuario, uso-cuenta-tenant, listar-modelos) usan tenant_id, account_id (snake_case). '.
@@ -35,7 +35,8 @@ use App\Mcp\Tools\ListarModelos;
     'get_account_generations: solo historial creativo y presentaciones; si tools incluye chat, la API lo ignora (meta.notes). Chat real → get_account_chat o chat-usuario. '.
     'generaciones-usuario con tools=chat: resumen UsageRecord, no mensajes; texto → chat-usuario. '.
     'get_account_chat / chat-usuario (T11): sesión con model_name, total_tokens, total_cost_usd, usage_conversation_key, started_at; paginar con include_messages false; true solo para leer texto (model_used, tokens por mensaje; tokens en role=user suelen ser null). date_from/date_to filtran por última actividad (message_created casteado a DATETIME; OK usar fechas del día). '.
-    'Adjuntos chat (T9): con include_messages=true, mensajes user pueden traer attachments[] (image|external_file|genesis) con url y s3_key cuando existan; hasta 5 imgs + 5 docs por mensaje. Histórico sin extras.attachments puede reconstruir desde content (PDFs borrados de S3 tras lectura antigua pueden no abrir). '.
+    'Adjuntos chat (T9): con include_messages=true, mensajes user pueden traer attachments[] (image|external_file) con url y s3_key; hasta 5 imgs + 5 docs. '.
+    'Adjuntos contables (T10): cada conversación trae attachments_summary {count, by_type:{image,document}, total_bytes}; meta.summary igual + conversations_with_attachments. Filtrar con has_attachments=true|false sin include_messages (una llamada para contar PDFs/imágenes en un periodo). '.
     'Costos: uso-cuenta-tenant by_model[] prefiere platform de usage_metrics (T5+, registros nuevos); si no, proveedor del catálogo. integrity{} compara historial vs usage. '.
     'get_account_filters: llamar antes de bulks para ids y nombres válidos. '.
     'Flujo formulario: listar-tenants → listar-formularios-tenant → listar-usuarios-formulario-tenant (assigned_users) → listar-envios-formulario-tenant u obtener-envio-formulario-tenant. '.

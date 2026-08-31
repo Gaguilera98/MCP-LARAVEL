@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('chat-usuario')]
-#[Description('Chat por usuario (laragent_messages): sesiones con model_name, tokens, total_cost_usd (T11). include_messages=true para texto/adjuntos con model_used, tokens y attachments[] (url/s3_key); false/omitido respuesta liviana. date_from/date_to sobre última actividad de sesión (CAST DATETIME; OK filtrar por día).')]
+#[Description('Chat por usuario (laragent_messages): sesiones con model_name, tokens, costo (T11); attachments_summary (T10). has_attachments filtra sin bajar mensajes. include_messages=true para texto/attachments[] detallados. date_from/date_to OK (CAST DATETIME).')]
 class ChatUsuario extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -50,6 +50,18 @@ class ChatUsuario extends Tool
                 } else {
                     $parsed = filter_var($includeMessages, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
                     $query['include_messages'] = ($parsed === true) ? '1' : '0';
+                }
+            }
+
+            $hasAttachments = $request->get('has_attachments');
+            if ($hasAttachments !== null && $hasAttachments !== '') {
+                if (is_bool($hasAttachments)) {
+                    $query['has_attachments'] = $hasAttachments ? '1' : '0';
+                } else {
+                    $parsed = filter_var($hasAttachments, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+                    if ($parsed !== null) {
+                        $query['has_attachments'] = $parsed ? '1' : '0';
+                    }
                 }
             }
 
@@ -104,6 +116,8 @@ class ChatUsuario extends Tool
                 ->description('Conversaciones por página (por defecto: 25, máximo: 100).'),
             'include_messages' => $schema->boolean()
                 ->description('Si true, cada conversación incluye messages (role, content, etc.). Por defecto false en la API si no se envía.'),
+            'has_attachments' => $schema->boolean()
+                ->description('T10: true = solo conversaciones con adjuntos; false = sin adjuntos. No requiere include_messages.'),
         ];
     }
 }
