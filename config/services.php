@@ -43,4 +43,13 @@ return [
         'base_url' => rtrim(env('ZALO_API_BASE_URL', 'http://localhost:8000'), '/'),
     ],
 
+    /*
+    | URL base de Santox (dominio central, el del panel /admin).
+    | Mismo criterio que zalo_api: la URL de Postman / artisan serve.
+    */
+    'santox_api' => [
+        'base_url' => rtrim(env('SANTOX_API_BASE_URL', 'http://localhost:8000'), '/'),
+        'token' => env('SANTOX_API_TOKEN', ''),
+    ],
+
 ];
