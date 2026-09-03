@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('generaciones-usuario')]
-#[Description('Historial creativo por usuario (imágenes, videos, prompts, presentaciones). Ítems nuevos pueden traer usage_record_id y cost_usd (T1). Video: duration_seconds, resolution, has_audio, source_images, source_type, count (null si histórico sin clave; sin seed/fps/negative). Filtros tools, model, platform, status. Con tools=chat, data.chat es solo resumen UsageRecord; mensajes → chat-usuario.')]
+#[Description('Historial creativo por usuario (imágenes, videos, prompts, presentaciones). Ítems nuevos pueden traer usage_record_id y cost_usd (T1). Video: duration_seconds, resolution, has_audio, source_images, source_type, count (null si histórico sin clave; sin seed/fps/negative). Filtros tools, model (slug de listar-modelos), platform, status. Con tools=chat, data.chat es solo resumen UsageRecord; mensajes → chat-usuario.')]
 class GeneracionesUsuario extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -108,7 +108,7 @@ class GeneracionesUsuario extends Tool
                     'Sin tools: seis herramientas en by_tool sin chat. Ejemplo: "image_generator,chat"'
                 ),
             'model' => $schema->string()
-                ->description('Filtro por modelo (slug o nombre parcial).'),
+                ->description('Filtro por slug del catálogo (listar-modelos id). También acepta etiqueta UI.'),
             'platform' => $schema->string()
                 ->description('Filtro por plataforma/proveedor (ej. replicate, flux, gemini).'),
             'status' => $schema->string()

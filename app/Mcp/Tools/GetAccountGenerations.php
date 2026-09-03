@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('get_account_generations')]
-#[Description('Bulk creativo por cuenta (historial creativo + presentaciones), filtrable por organización, fechas, model/platform/status. Ítems nuevos pueden traer usage_record_id y cost_usd (T1; histórico pre-deploy null). Video: duration_seconds, resolution, has_audio, source_images, source_type, count desde input_payload (null si histórico sin clave). Sin seed/fps/negative (no se capturan). Paginación page/per_page. Si tools incluye chat, la API lo ignora; chat real → get_account_chat.')]
+#[Description('Bulk creativo por cuenta (historial creativo + presentaciones), filtrable por organización, fechas, model/platform/status. model= slug canónico de listar-modelos (id); by_model[] usa model_id + display_name. Ítems nuevos pueden traer usage_record_id y cost_usd (T1; histórico pre-deploy null). Video: duration_seconds, resolution, has_audio, source_images, source_type, count desde input_payload (null si histórico sin clave). Sin seed/fps/negative (no se capturan). Paginación page/per_page. Si tools incluye chat, la API lo ignora; chat real → get_account_chat.')]
 class GetAccountGenerations extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -107,7 +107,7 @@ class GetAccountGenerations extends Tool
             'tools' => $schema->string()
                 ->description('CSV estricto. En bulk no uses chat: se ignora. Ej: image_generator,image_editor,video_generator,video_editor,prompt_generator,presentation_generator'),
             'model' => $schema->string()
-                ->description('Filtro por modelo (slug o nombre parcial, ej. kling, minimax-h3).'),
+                ->description('Filtro por slug del catálogo (listar-modelos id, ej. gen4_turbo). También acepta etiqueta UI.'),
             'platform' => $schema->string()
                 ->description('Filtro por plataforma/proveedor (ej. replicate, flux, gemini, runway).'),
             'status' => $schema->string()
