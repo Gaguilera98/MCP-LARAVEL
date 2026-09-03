@@ -14,7 +14,7 @@ use Laravel\Mcp\Server\Tool;
 #[Name('uso-cuenta-tenant')]
 #[Description(
     'Resumen de uso/costos por cuenta (UsageRecord) más distribución de usuarios. '.
-    'Incluye by_tool[], by_model[] (model/platform/units; platform prefiere usage_metrics.platform T5+ en registros nuevos, si no catálogo) e integrity{} (historial creativo vs usage a nivel cuenta+fechas; Chat/presentaciones fuera). '.
+    'Incluye by_tool[], by_model[] (model/platform/units; platform = nombre del proveedor del catálogo, igual que listar-modelos) e integrity{} (historial creativo vs usage a nivel cuenta+fechas; Chat/presentaciones fuera). '.
     'user_distribution (by_area/by_position/by_company) no depende de date_from/date_to; costos sí. '.
     'date_from/date_to opcionales: sin ambos, histórico completo de UsageRecord.'
 )]
