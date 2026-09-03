@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('get_account_usage_by_user')]
-#[Description('Uso y costo por usuario (UsageRecord), desglosado por herramienta (by_tool: tool, count, subtotal_cost_usd) con total_uses y total_cost_usd. Mismos filtros organizacionales que get_account_generations; date_from/date_to filtran created_at de UsageRecord. Pagina usuarios (meta.pagination, links). Para total agregado de cuenta usar uso-cuenta-tenant.')]
+#[Description('Uso y costo por usuario (UsageRecord), desglosado por herramienta (by_tool: tool, count, subtotal_cost_usd) con total_uses y total_cost_usd. Mismos filtros organizacionales que get_account_generations; date_from/date_to filtran created_at de UsageRecord. Pagina usuarios (meta.pagination, links). meta.integrity es de la cuenta+fechas (no de la página). Para total agregado de cuenta usar uso-cuenta-tenant.')]
 class GetAccountUsageByUser extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
