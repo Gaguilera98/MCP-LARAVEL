@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('get_account_chat')]
-#[Description('Bulk chat por cuenta (laragent_messages): model_name, tokens, costo (T11); attachments_summary por conversación y en meta.summary (T10: image/document, total_bytes null si no hay bytes). has_attachments filtra sin include_messages. date_from/date_to OK (CAST DATETIME). include_messages=true solo para texto/adjuntos detallados.')]
+#[Description('Bulk chat por cuenta (laragent_messages): model_name, tokens, costo, conversation_id, status, usage_conversation_key, started_at, duration_seconds; attachments_summary por conversación y en meta.summary (image/document, total_bytes null si no hay bytes). has_attachments filtra sin include_messages. date_from/date_to OK (CAST DATETIME). include_messages=true solo para texto/adjuntos detallados.')]
 class GetAccountChat extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory

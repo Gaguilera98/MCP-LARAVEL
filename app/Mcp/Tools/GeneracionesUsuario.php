@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('generaciones-usuario')]
-#[Description('Historial creativo por usuario (imágenes, videos, prompts, presentaciones). Ítems nuevos pueden traer usage_record_id y cost_usd (T1). Video: duration_seconds, resolution, has_audio, source_images, source_type, count (null si histórico sin clave; sin seed/fps/negative). Filtros tools, model (slug de listar-modelos), platform, status. Con tools=chat, data.chat es solo resumen UsageRecord; mensajes → chat-usuario.')]
+#[Description('Historial creativo por usuario (imágenes, videos, prompts, presentaciones). Ítems pueden traer usage_record_id y cost_usd (null si no hay registro de costo ligado). Video: duration_seconds, resolution, has_audio, source_images, source_type, count desde input_payload (null si la clave no está); results[].ratio y platform a nivel ítem; sin seed/fps/negative. Filtros tools, model (slug de listar-modelos), platform, status. Con tools=chat, data.chat es solo resumen UsageRecord; mensajes → chat-usuario.')]
 class GeneracionesUsuario extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
