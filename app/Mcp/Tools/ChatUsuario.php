@@ -117,7 +117,7 @@ class ChatUsuario extends Tool
             'include_messages' => $schema->boolean()
                 ->description('Si true, cada conversación incluye messages (role, content, etc.). Por defecto false en la API si no se envía.'),
             'has_attachments' => $schema->boolean()
-                ->description('T10: true = solo conversaciones con adjuntos; false = sin adjuntos. No requiere include_messages.'),
+                ->description('true = solo conversaciones con adjuntos; false = sin adjuntos. No requiere include_messages.'),
         ];
     }
 }

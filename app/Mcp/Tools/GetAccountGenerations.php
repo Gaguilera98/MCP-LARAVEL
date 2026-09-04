@@ -111,7 +111,7 @@ class GetAccountGenerations extends Tool
             'platform' => $schema->string()
                 ->description('Filtro por plataforma/proveedor (ej. replicate, flux, gemini, runway).'),
             'status' => $schema->string()
-                ->description('Filtro por estado (completed, failed, processing, pending). Fallidos nuevos post-T7 aparecen en historial.'),
+                ->description('Filtro por estado (completed, failed, processing, pending). Incluye failed cuando el ítem falló.'),
             'page' => $schema->integer()
                 ->description('Pagina a consultar (default: 1).'),
             'per_page' => $schema->integer()

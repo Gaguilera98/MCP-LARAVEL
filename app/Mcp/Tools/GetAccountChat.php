@@ -132,7 +132,7 @@ class GetAccountChat extends Tool
             'include_messages' => $schema->boolean()
                 ->description('Si true, cada conversación incluye messages (hasta ~100 más recientes; ver messages_truncated). Omitir o false para respuestas más livianas.'),
             'has_attachments' => $schema->boolean()
-                ->description('T10: true = solo conversaciones con adjuntos (imagen/PDF); false = sin adjuntos. No requiere include_messages.'),
+                ->description('true = solo conversaciones con adjuntos (imagen/PDF); false = sin adjuntos. No requiere include_messages.'),
         ];
     }
 }
