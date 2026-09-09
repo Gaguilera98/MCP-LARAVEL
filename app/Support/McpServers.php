@@ -14,7 +14,9 @@ final class McpServers
         return [
             'zalo-tenants' => 'Zalo Tenants',
             'santox-tenants' => 'Santox Tenants',
+            'godai-mailing' => 'Godai Mailing',
         ];
+
     }
 
     public static function assertValid(string $id): void

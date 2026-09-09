@@ -52,4 +52,14 @@ return [
         'token' => env('SANTOX_API_TOKEN', ''),
     ],
 
+    /*
+    | Godai Mailing — API Laravel del proyecto Mailing (/api/v1, Sanctum).
+    | Token = Personal Access Token / API Key emitida en Admin Mailing → API Keys.
+    */
+    'mailing_api' => [
+        'base_url' => rtrim(env('MAILING_API_BASE_URL', 'http://localhost:8000'), '/'),
+        'token' => env('MAILING_API_TOKEN', ''),
+    ],
+
 ];
+

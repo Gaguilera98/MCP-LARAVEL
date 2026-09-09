@@ -42,3 +42,19 @@ it('allows santox key on santox and forbids on zalo', function () {
     $response = $this->withToken($token)->postJson('/mcp/santox-tenants', []);
     expect($response->status())->not->toBeIn([401, 403]);
 });
+
+it('allows mailing key on godai-mailing and forbids on zalo', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('mailing-only', ['godai-mailing'])->plainTextToken;
+
+    $this->withToken($token)
+        ->postJson('/mcp/zalo-tenants', [])
+        ->assertForbidden();
+
+    $this->withToken($token)
+        ->postJson('/mcp/santox-tenants', [])
+        ->assertForbidden();
+
+    $response = $this->withToken($token)->postJson('/mcp/godai-mailing', []);
+    expect($response->status())->not->toBeIn([401, 403]);
+});
