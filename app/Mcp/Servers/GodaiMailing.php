@@ -53,6 +53,12 @@ use Laravel\Mcp\Server\Attributes\Version;
 )]
 class GodaiMailing extends Server
 {
+    /**
+     * Laravel MCP pagina tools/list (default 15). Cursor no siempre sigue nextCursor;
+     * con 28 tools hay que devolverlas en una sola página.
+     */
+    public int $defaultPaginationLength = 50;
+
     protected array $tools = [
         ListarCuentas::class,
         ObtenerCuenta::class,
