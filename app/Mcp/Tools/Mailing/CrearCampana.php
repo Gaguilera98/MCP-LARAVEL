@@ -13,9 +13,10 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('crear-campana')]
 #[Description(
-    'Crea campaña. Requiere name. Opcional: description, client_id, field_schema_json, cc_emails_json. '.
-    'field_schema_json: [{"label":"Enlace","type":"url"}] — type=text|url|bool; key opcional (si no, se genera del label). '.
-    'Luego usá upsert-participantes con attributes usando esas keys. Devuelve warnings si CC se descartan.'
+    'Crea una campaña: el grupo de personas al que vas a escribir y los datos extra que querés personalizar. '.
+    'Definí acá los campos extra (field_schema_json), por ejemplo [{"label":"Enlace","type":"url"}], antes de cargar personas: '.
+    'cada campo genera una variable para la plantilla, como {{enlace}}, y los datos que no estén definidos se descartan al cargar participantes. '.
+    'Si indicás un cliente podés sumarle correos en copia con cc_emails_json.'
 )]
 class CrearCampana extends Tool
 {
@@ -55,19 +56,19 @@ class CrearCampana extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'name' => $schema->string()
                 ->description('Nombre de la campaña.')
                 ->required(),
             'description' => $schema->string()
-                ->description('Descripción (opcional).'),
+                ->description('Descripción interna de la campaña.'),
             'client_id' => $schema->integer()
-                ->description('Cliente de la cuenta (opcional; necesario para CC).'),
+                ->description('Cliente al que pertenece la campaña. Hace falta si querés usar correos en copia.'),
             'field_schema_json' => $schema->string()
-                ->description('JSON array de campos [{label, type, key?}].'),
+                ->description('Campos extra para personalizar el correo, en formato JSON: [{"label":"Enlace","type":"url"}]. type puede ser text, url o bool. Cada campo genera una variable para la plantilla, por ejemplo {{enlace}}.'),
             'cc_emails_json' => $schema->string()
-                ->description('JSON array de CC del catálogo del cliente (opcional).'),
+                ->description('Correos en copia, en formato JSON: ["copia@cliente.com"]. Solo se aceptan los dados de alta en ese cliente.'),
         ];
     }
 }

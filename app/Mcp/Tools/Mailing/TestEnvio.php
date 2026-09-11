@@ -13,11 +13,9 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('test-envio')]
 #[Description(
-    'Correo de prueba REAL sobre un draft send_id (no lanza masivo). Dos usos: '.
-    '(1) Probar plantilla — draft mínimo con esa template_id: validás HTML, asunto heredado y merge tags. '.
-    '(2) Probar envío — draft ya configurado: validás subject override, audience_filter, attachments (p. ej. Drive) y CC. '.
-    'Requiere participant_id (datos de merge) y test_recipient_ids_json=[ids de listar-destinatarios-prueba]. '.
-    'Opcional cc_test_recipient_ids_json. Sin draft creado no hay prueba de adjuntos/filtro/CC.'
+    'Manda un correo de prueba real, pero solo a los buzones de prueba que indiques: los participantes de la campaña no reciben nada. '.
+    'Elegí con participant_id de quién se toman los datos para rellenar las variables. '.
+    'Es la única forma de comprobar que los adjuntos se descargan bien y de ver el correo tal cual llega a la bandeja.'
 )]
 class TestEnvio extends Tool
 {
@@ -54,19 +52,19 @@ class TestEnvio extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'send_id' => $schema->integer()
-                ->description('ID del envío.')
+                ->description('Envío sobre el que actuás.')
                 ->required(),
             'participant_id' => $schema->integer()
-                ->description('Participante cuyos datos se usan en merge tags.')
+                ->description('Persona de la campaña cuyos datos se usan para rellenar las variables del correo.')
                 ->required(),
             'test_recipient_ids_json' => $schema->string()
-                ->description('JSON array de IDs de destinatarios de prueba.')
+                ->description('IDs de los buzones de prueba que recibirán el correo, en formato JSON: [1,2]. Se obtienen con listar-destinatarios-prueba.')
                 ->required(),
             'cc_test_recipient_ids_json' => $schema->string()
-                ->description('JSON array de IDs CC de prueba (opcional).'),
+                ->description('Opcional. IDs de buzones de prueba que recibirán el correo en copia, en formato JSON: [3].'),
         ];
     }
 }

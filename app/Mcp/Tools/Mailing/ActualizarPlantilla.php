@@ -13,8 +13,8 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('actualizar-plantilla')]
 #[Description(
-    'PATCH plantilla. Parcial: name y/o subject. Completo: template_json format_version 1 '.
-    '(content.html + content.design). Ver formato-plantilla.'
+    'Cambia una plantilla. Podés tocar solo el nombre o el asunto, '.
+    'o reemplazar todo el diseño mandando template_json con la estructura que devuelve formato-plantilla.'
 )]
 class ActualizarPlantilla extends Tool
 {
@@ -66,19 +66,19 @@ class ActualizarPlantilla extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'template_id' => $schema->integer()
-                ->description('ID de la plantilla.')
+                ->description('Plantilla sobre la que actuas.')
                 ->required(),
             'name' => $schema->string()
-                ->description('Nombre (opcional, PATCH parcial).'),
+                ->description('Nuevo nombre de la plantilla.'),
             'subject' => $schema->string()
-                ->description('Asunto (opcional, PATCH parcial).'),
+                ->description('Nuevo asunto. Puede incluir variables, por ejemplo "Hola {{nombre}}".'),
             'template_json' => $schema->string()
-                ->description('JSON format_version 1 completo (opcional).'),
+                ->description('La plantilla completa en formato JSON, con la estructura que devuelve formato-plantilla. Reemplaza el diseño actual.'),
             'include_design' => $schema->boolean()
-                ->description('Incluir design en la respuesta.'),
+                ->description('true para devolver también el diseño editable. Hace la respuesta mucho más larga.'),
         ];
     }
 }

@@ -12,7 +12,10 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('listar-campanas')]
-#[Description('Lista campañas de la cuenta. Crear/editar: crear-campana y actualizar-campana (incl. field_schema).')]
+#[Description(
+    'Campañas de la cuenta, con la cantidad de personas cargadas en cada una. '.
+    'Para crearlas o editarlas usá crear-campana y actualizar-campana.'
+)]
 class ListarCampanas extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -32,12 +35,12 @@ class ListarCampanas extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'page' => $schema->integer()
-                ->description('Página (default 1).'),
+                ->description('Número de página; empieza en 1.'),
             'per_page' => $schema->integer()
-                ->description('Por página (max 200).'),
+                ->description('Cuántos resultados por página; máximo 200.'),
         ];
     }
 }

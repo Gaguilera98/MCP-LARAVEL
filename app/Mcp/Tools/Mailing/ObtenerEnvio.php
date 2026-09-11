@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('obtener-envio')]
-#[Description('Detalle de un envío (incluye counts).')]
+#[Description('Datos de un envío: configuración, estado y cuántos correos se enviaron, fallaron o están pendientes.')]
 class ObtenerEnvio extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -30,10 +30,10 @@ class ObtenerEnvio extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'send_id' => $schema->integer()
-                ->description('ID del envío.')
+                ->description('Envío sobre el que actuás.')
                 ->required(),
         ];
     }

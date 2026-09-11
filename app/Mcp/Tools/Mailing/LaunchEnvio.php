@@ -12,7 +12,11 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('launch-envio')]
-#[Description('Lanza el envío. OBLIGATORIO confirm_recipient_count = valid_emails de audiencia-envio. Si no coincide → 409 sin enviar.')]
+#[Description(
+    'ENVÍA EL CORREO DE VERDAD a toda la audiencia del envío. Es irreversible: confirmalo con la persona antes de usarla. '.
+    'Consultá primero audiencia-envio y pasá ese mismo número en confirm_recipient_count; si no coincide no se envía nada. '.
+    'Para probar sin afectar a nadie usá preview-envio o test-envio.'
+)]
 class LaunchEnvio extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -32,13 +36,13 @@ class LaunchEnvio extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'send_id' => $schema->integer()
-                ->description('ID del envío.')
+                ->description('Envío sobre el que actuás.')
                 ->required(),
             'confirm_recipient_count' => $schema->integer()
-                ->description('Debe igualar valid_emails de audiencia-envio.')
+                ->description('Cantidad exacta de personas que va a recibir el correo: el valor valid_emails que devuelve audiencia-envio.')
                 ->required(),
         ];
     }

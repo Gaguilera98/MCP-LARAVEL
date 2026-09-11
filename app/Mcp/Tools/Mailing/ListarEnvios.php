@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('listar-envios')]
-#[Description('Lista envíos de la cuenta. Filtros opcionales status y campaign_id.')]
+#[Description('Envíos de la cuenta con su estado. Podés filtrar por estado o por campaña.')]
 class ListarEnvios extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -34,16 +34,16 @@ class ListarEnvios extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'status' => $schema->string()
-                ->description('Filtrar por status (draft, queued, sending, paused, completed, failed, …).'),
+                ->description('Filtrar por estado: draft (borrador), queued (en cola), sending (enviando), paused (pausado), completed (terminado) o failed (con fallos).'),
             'campaign_id' => $schema->integer()
-                ->description('Filtrar por campaña.'),
+                ->description('Mostrar solo los envíos de esta campaña.'),
             'page' => $schema->integer()
-                ->description('Página (default 1).'),
+                ->description('Número de página; empieza en 1.'),
             'per_page' => $schema->integer()
-                ->description('Por página (max 200).'),
+                ->description('Cuántos resultados por página; máximo 200.'),
         ];
     }
 }

@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('actualizar-cliente')]
-#[Description('PATCH cliente: name y/o description. Nombre único por cuenta. Sin DELETE.')]
+#[Description('Cambia el nombre o la descripción de un cliente. El nombre no se puede repetir en la misma cuenta.')]
 class ActualizarCliente extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -46,15 +46,15 @@ class ActualizarCliente extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'client_id' => $schema->integer()
-                ->description('ID del cliente.')
+                ->description('Cliente sobre el que actuas.')
                 ->required(),
             'name' => $schema->string()
-                ->description('Nombre (opcional).'),
+                ->description('Nuevo nombre del cliente.'),
             'description' => $schema->string()
-                ->description('Descripción (opcional; string vacío limpia).'),
+                ->description('Nueva descripción. Mandá texto vacío para borrarla.'),
         ];
     }
 }

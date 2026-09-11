@@ -13,9 +13,10 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('actualizar-campana')]
 #[Description(
-    'PATCH campaña: name, description, client_id, field_schema_json, cc_emails_json. '.
-    'Al quitar un campo del schema se borran esos attributes de los participantes. '.
-    'Si cambiás label pero mandás la misma key, la key se conserva.'
+    'Cambia una campaña: nombre, descripción, cliente, campos extra o correos en copia. '.
+    'Al mandar field_schema_json reemplazás la lista completa de campos extra, así que incluí también los que querés conservar. '.
+    'Si quitás un campo, ese dato se borra de todas las personas de la campaña. '.
+    'Para renombrar un campo sin perder los datos, mandá la misma key con el label nuevo.'
 )]
 class ActualizarCampana extends Tool
 {
@@ -61,21 +62,21 @@ class ActualizarCampana extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'campaign_id' => $schema->integer()
-                ->description('ID de la campaña.')
+                ->description('Campaña sobre la que actuás.')
                 ->required(),
             'name' => $schema->string()
-                ->description('Nombre (opcional).'),
+                ->description('Nuevo nombre de la campaña.'),
             'description' => $schema->string()
-                ->description('Descripción (opcional).'),
+                ->description('Descripción interna de la campaña.'),
             'client_id' => $schema->integer()
-                ->description('Cliente (opcional).'),
+                ->description('Cliente al que pertenece la campaña.'),
             'field_schema_json' => $schema->string()
-                ->description('JSON array de campos [{label, type, key?}].'),
+                ->description('Lista completa de campos extra, en formato JSON: [{"label":"Enlace","type":"url"}]. Reemplaza a la anterior, así que incluí también los que querés conservar; los que falten se borran junto con sus datos. Para renombrar sin perder datos, mandá la key original: [{"key":"enlace","label":"Enlace del evento","type":"url"}].'),
             'cc_emails_json' => $schema->string()
-                ->description('JSON array de CC (opcional).'),
+                ->description('Correos en copia, en formato JSON: ["copia@cliente.com"]. Reemplaza a los anteriores y solo admite los dados de alta en ese cliente.'),
         ];
     }
 }

@@ -12,7 +12,10 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('listar-plantillas')]
-#[Description('Lista plantillas. Crear: crear-plantilla / formato-plantilla. Detalle: obtener-plantilla.')]
+#[Description(
+    'Plantillas de correo de la cuenta, con su nombre y asunto. '.
+    'Para ver el contenido usá obtener-plantilla; para crear una nueva, formato-plantilla y crear-plantilla.'
+)]
 class ListarPlantillas extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -32,12 +35,12 @@ class ListarPlantillas extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'page' => $schema->integer()
-                ->description('Página (default 1).'),
+                ->description('Número de página; empieza en 1.'),
             'per_page' => $schema->integer()
-                ->description('Por página (max 200).'),
+                ->description('Cuántos resultados por página; máximo 200.'),
         ];
     }
 }

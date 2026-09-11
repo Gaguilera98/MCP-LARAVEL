@@ -13,8 +13,8 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('listar-cc')]
 #[Description(
-    'Lista CC del catálogo. Filtrar con client_id. Crear/editar: crear-cc / actualizar-cc. '.
-    'Asignar a campaña/envío con cc_emails_json (emails del catálogo).'
+    'Correos en copia dados de alta para los clientes. Conviene filtrar por client_id. '.
+    'Para usarlos, pasá esos mismos correos en cc_emails_json al crear o editar una campaña o un envío.'
 )]
 class ListarCc extends Tool
 {
@@ -36,14 +36,14 @@ class ListarCc extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'client_id' => $schema->integer()
-                ->description('Filtrar CC del cliente (recomendado).'),
+                ->description('Cliente cuyos correos en copia querés ver. Recomendado para no mezclar clientes.'),
             'page' => $schema->integer()
-                ->description('Página (default 1).'),
+                ->description('Número de página; empieza en 1.'),
             'per_page' => $schema->integer()
-                ->description('Por página (max 200).'),
+                ->description('Cuántos resultados por página; máximo 200.'),
         ];
     }
 }

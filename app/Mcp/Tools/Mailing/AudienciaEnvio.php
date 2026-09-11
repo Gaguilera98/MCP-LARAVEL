@@ -12,7 +12,10 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('audiencia-envio')]
-#[Description('Freno: valid_emails, estimated_credits, sample. Usar valid_emails como confirm_recipient_count en launch-envio.')]
+#[Description(
+    'Dice a cuánta gente llegaría el envío tal como está configurado, cuántos correos consumiría y muestra algunos ejemplos. '.
+    'El número valid_emails es el que hay que repetir en confirm_recipient_count al lanzar. No envía nada.'
+)]
 class AudienciaEnvio extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -30,10 +33,10 @@ class AudienciaEnvio extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'send_id' => $schema->integer()
-                ->description('ID del envío.')
+                ->description('Envío sobre el que actuás.')
                 ->required(),
         ];
     }

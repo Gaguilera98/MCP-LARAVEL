@@ -12,7 +12,10 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('actualizar-participante')]
-#[Description('PATCH de un participante. Campos opcionales: email, first_name, last_name, attributes_json.')]
+#[Description(
+    'Cambia los datos de una persona de la campaña: correo, nombre, apellidos o sus campos extra. '.
+    'Al mandar attributes_json reemplazás todos sus campos extra, así que incluí los que querés conservar.'
+)]
 class ActualizarParticipante extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -54,22 +57,22 @@ class ActualizarParticipante extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'campaign_id' => $schema->integer()
-                ->description('ID de la campaña.')
+                ->description('Campaña sobre la que actuás.')
                 ->required(),
             'participant_id' => $schema->integer()
-                ->description('ID del participante.')
+                ->description('Persona de la campana sobre la que actuas.')
                 ->required(),
             'email' => $schema->string()
-                ->description('Nuevo email (opcional).'),
+                ->description('Nuevo correo de la persona.'),
             'first_name' => $schema->string()
-                ->description('Nombre (opcional).'),
+                ->description('Nombre de la persona.'),
             'last_name' => $schema->string()
-                ->description('Apellidos (opcional).'),
+                ->description('Apellidos de la persona.'),
             'attributes_json' => $schema->string()
-                ->description('JSON objeto de atributos de campaña (opcional).'),
+                ->description('Campos extra de la persona, en formato JSON: {"enlace":"https://ejemplo.com"}. Reemplaza a los anteriores, así que incluí los que querés conservar. Solo se aceptan campos definidos en la campaña.'),
         ];
     }
 }

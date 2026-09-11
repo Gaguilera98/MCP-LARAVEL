@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('listar-participantes')]
-#[Description('Lista participantes de una campaña. Filtros email y q (nombre/email).')]
+#[Description('Personas cargadas en una campaña, con sus datos extra. Podés filtrar por correo o buscar por nombre.')]
 class ListarParticipantes extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -38,19 +38,19 @@ class ListarParticipantes extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'campaign_id' => $schema->integer()
-                ->description('ID de la campaña.')
+                ->description('Campaña sobre la que actuás.')
                 ->required(),
             'email' => $schema->string()
-                ->description('Filtro parcial por email.'),
+                ->description('Filtrar por correo, total o parcial.'),
             'q' => $schema->string()
-                ->description('Búsqueda en email/nombre/apellidos.'),
+                ->description('Búsqueda libre por correo, nombre o apellidos.'),
             'page' => $schema->integer()
-                ->description('Página (default 1).'),
+                ->description('Número de página; empieza en 1.'),
             'per_page' => $schema->integer()
-                ->description('Por página (max 200).'),
+                ->description('Cuántos resultados por página; máximo 200.'),
         ];
     }
 }

@@ -13,10 +13,8 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('formato-plantilla')]
 #[Description(
-    'Devuelve el formato JSON de plantilla (format_version 1) + ejemplo Bienvenida Zalo. '.
-    'Usá ese schema en crear-plantilla (template_json) o from_example=true. '.
-    'Campos: format_version, name, subject, content.html, content.design (Unlayer). '.
-    'Merge tags: {{nombre}}, {{apellidos}}, {{email}}, {{keys del field_schema}}.'
+    'Explica cómo se arma una plantilla y devuelve un ejemplo completo listo para copiar. '.
+    'Consultala antes de crear o reemplazar una plantilla propia; el resultado es lo que va en template_json.'
 )]
 class FormatoPlantilla extends Tool
 {
@@ -34,7 +32,7 @@ class FormatoPlantilla extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing (scoped).')
+                ->description('Cuenta sobre la que trabajás.')
                 ->required(),
         ];
     }

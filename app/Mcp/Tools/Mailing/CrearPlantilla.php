@@ -13,9 +13,9 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('crear-plantilla')]
 #[Description(
-    'Crea plantilla. Opciones: (1) from_example=true (+ name/subject opcionales) clona el ejemplo oficial; '.
-    '(2) template_json = JSON format_version 1 completo (ver formato-plantilla). '.
-    'include_design=true para devolver el design Unlayer en la respuesta.'
+    'Crea una plantilla de correo, es decir el diseño y el asunto. Hay dos caminos: '.
+    'copiar el ejemplo oficial con from_example y cambiarle nombre y asunto, o mandar tu propia plantilla en template_json '.
+    'con la estructura que devuelve formato-plantilla. Podés usar variables como {{nombre}} o los campos extra de la campaña.'
 )]
 class CrearPlantilla extends Tool
 {
@@ -58,18 +58,18 @@ class CrearPlantilla extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'from_example' => $schema->boolean()
-                ->description('true = clonar ejemplo Bienvenida Zalo.'),
+                ->description('true para partir de la plantilla de ejemplo y solo cambiarle nombre y asunto. Dejalo en false si mandás template_json.'),
             'name' => $schema->string()
-                ->description('Nombre (con from_example o dentro de template_json).'),
+                ->description('Nombre de la plantilla. Si mandás template_json el nombre puede ir ahí dentro.'),
             'subject' => $schema->string()
-                ->description('Asunto (con from_example).'),
+                ->description('Asunto del correo. Puede incluir variables, por ejemplo "Hola {{nombre}}".'),
             'template_json' => $schema->string()
-                ->description('JSON format_version 1 completo (si no usás from_example).'),
+                ->description('La plantilla completa en formato JSON, con la estructura que devuelve formato-plantilla. Alternativa a from_example.'),
             'include_design' => $schema->boolean()
-                ->description('Incluir design en la respuesta.'),
+                ->description('true para devolver también el diseño editable. Hace la respuesta mucho más larga.'),
         ];
     }
 }

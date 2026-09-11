@@ -12,7 +12,10 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('obtener-plantilla')]
-#[Description('Detalle de plantilla. include_design=true para traer el JSON Unlayer (pesado).')]
+#[Description(
+    'Contenido de una plantilla: nombre, asunto y HTML. '.
+    'Pedí include_design solo si necesitás el diseño editable, porque la respuesta se vuelve muy larga.'
+)]
 class ObtenerPlantilla extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -32,13 +35,13 @@ class ObtenerPlantilla extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'template_id' => $schema->integer()
-                ->description('ID de la plantilla.')
+                ->description('Plantilla sobre la que actuas.')
                 ->required(),
             'include_design' => $schema->string()
-                ->description('true para incluir design Unlayer.'),
+                ->description('true para incluir el diseño editable. Hace la respuesta mucho más larga.'),
         ];
     }
 }

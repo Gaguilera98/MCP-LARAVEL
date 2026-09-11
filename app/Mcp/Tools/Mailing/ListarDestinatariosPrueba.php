@@ -13,8 +13,8 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('listar-destinatarios-prueba')]
 #[Description(
-    'Lista destinatarios de prueba de la cuenta (inbox de prueba). '.
-    'Usar sus IDs en test-envio: tanto para probar plantilla vía draft como para probar config del envío (adjuntos, etc.).'
+    'Buzones internos que reciben los correos de prueba. Sus IDs se usan en test-envio. '.
+    'No se crean desde acá: si no hay ninguno, pedí que lo agreguen en el panel.'
 )]
 class ListarDestinatariosPrueba extends Tool
 {
@@ -35,12 +35,12 @@ class ListarDestinatariosPrueba extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'page' => $schema->integer()
-                ->description('Página (default 1).'),
+                ->description('Número de página; empieza en 1.'),
             'per_page' => $schema->integer()
-                ->description('Por página (max 200).'),
+                ->description('Cuántos resultados por página; máximo 200.'),
         ];
     }
 }

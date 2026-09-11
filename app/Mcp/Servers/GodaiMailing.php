@@ -45,33 +45,60 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Version;
 
 #[Name('Godai Mailing')]
-#[Version('0.1.6')]
+#[Version('0.2.0')]
 #[Instructions(
-    'API Godai Mailing bajo /api/v1 con Bearer (MAILING_API_BASE_URL, MAILING_API_TOKEN). '.
-    'Argumentos snake_case: account_id, campaign_id, client_id, cc_recipient_id, template_id, send_id, participant_id. '.
-    'Bodies anidados van como *_json (string JSON): participants_json, attributes_json, field_schema_json, template_json, audience_filter_json, attachments_json, cc_emails_json, test_recipient_ids_json, recipient_ids_json. '.
-    'Adjuntos (attachments_json): SOLO modos fixed_url (misma URL para todos) y field (URL por participante desde un key del field_schema). NUNCA fixed_upload ni multipart. '.
-    'Límites de adjunto (obligatorio respetar antes de crear/actualizar envío): cada archivo descargado ≤ 10 MB (tope de la plataforma alineado a Brevo); preferir pocos adjuntos livianos. '.
-    'URLs permitidas: https público; Google Drive archivo (…/file/d/ID/view) o open?id= — NO carpetas Drive; Sheets/Docs/Slides de Google (se exportan); URL directa a archivo. '.
-    'El enlace debe ser descargable (en Drive: «cualquiera con el enlace»). Si la URL devuelve HTML/login/vista previa, falla. '.
-    'Extensiones/formatos recomendados: pdf, png, jpg/jpeg, gif, webp, doc/docx, xls/xlsx, ppt/pptx, txt, csv, zip. Evitar ejecutables (.exe, .bat, .js, .html como adjunto) y archivos >10 MB. '.
-    'Si mode=field, el valor del atributo del participante debe ser una URL válida (no un path local). '.
-    'Panel primero para remitentes y destinatarios de prueba. Clientes, campañas, plantillas y CC de cliente SÍ por API. '.
-    'CC: crear-cc/actualizar-cc en el catálogo del cliente → opcionalmente asignar en campaña (cc_emails_json) y/o en el envío (cc_emails_json). Solo emails del catálogo del cliente de la campaña. '.
-    'Plantillas: formato-plantilla, crear-plantilla (from_example o template_json format_version 1), actualizar-plantilla. '.
-    'Participantes: upsert-participantes / actualizar-participante; attributes solo keys del field_schema. '.
-    'Pruebas (draft send_id): preview-envio/test-envio para plantilla o config del envío. '.
-    'Flujo agente: listar-cuentas → crear-cliente → crear-cc (opcional) → crear-campana (client_id + field_schema + cc opcionales) → upsert-participantes → '.
-    'formato-plantilla/crear-plantilla → listar-remitentes → compatibilidad-plantilla → crear-envio → audiencia-envio → preview/test → launch-envio. '.
-    'CC descartados llegan en warnings. Sin DELETE. No crear remitentes ni destinatarios de prueba desde API en v1. '.
-    'Tras cambiar tools PHP locales: reiniciar MCP (toggle o Reload Window).'
+    'Godai Mailing sirve para enviar correos personalizados a una lista de personas. '.
+
+    'QUÉ ES CADA COSA. '.
+    'Cuenta: el espacio de trabajo; todo lo demás pertenece a una cuenta. '.
+    'Cliente: la marca o empresa para la que trabajás; agrupa campañas y sus correos en copia. '.
+    'Campaña: la lista de personas a las que vas a escribir, más los campos extra que querés personalizar. '.
+    'Participante: cada persona de esa lista (correo, nombre, apellidos y sus campos extra). '.
+    'Plantilla: el diseño y el asunto del correo, con variables como {{nombre}}. '.
+    'Remitente: la dirección desde la que sale el correo; ya tiene que existir en la cuenta. '.
+    'Envío: junta campaña, plantilla y remitente; nace como borrador y solo sale cuando lo lanzás. '.
+    'Destinatario de prueba: buzón interno para recibir correos de prueba; ya tiene que existir en la cuenta. '.
+
+    'REGLAS BÁSICAS. '.
+    'Empezá siempre por listar-cuentas y usá ese account_id en todas las demás herramientas. '.
+    'Los campos extra se definen en la campaña. Si un dato no está definido ahí, se descarta al cargar participantes. '.
+    'Variables disponibles en asunto y diseño: {{nombre}}, {{apellidos}}, {{email}} y una por cada campo extra, por ejemplo {{enlace}}. '.
+    'Los correos en copia se dan de alta en el cliente y después se eligen en la campaña o en el envío; si mandás uno que no está dado de alta para ese cliente, se descarta y te avisa en warnings. '.
+    'Un envío solo se puede modificar mientras está en borrador. '.
+    'Si no indicás asunto al crear el envío, se usa el de la plantilla. '.
+    'Nada se puede borrar desde acá. '.
+    'Los remitentes y los destinatarios de prueba no se crean acá: si faltan, pedí que los creen en el panel de Godai Mailing. '.
+
+    'ARGUMENTOS QUE VAN COMO TEXTO JSON. '.
+    'participants_json: [{"email":"ana@ejemplo.com","first_name":"Ana","last_name":"Paz","attributes":{"enlace":"https://ejemplo.com"}}]. '.
+    'field_schema_json: [{"label":"Enlace","type":"url"}]; type puede ser text, url o bool. '.
+    'attributes_json: {"enlace":"https://ejemplo.com"}. '.
+    'cc_emails_json: ["copia@cliente.com"]. '.
+    'audience_filter_json: {"logic":"all","rules":[{"field":"email","operator":"equals","value":"ana@ejemplo.com"}]}; logic all exige todas las condiciones y any al menos una; los campos posibles son email, first_name, last_name y los campos extra de la campaña; los operadores más usados son equals, not_equals, contains, is_empty y is_not_empty. '.
+    'attachments_json: [{"mode":"fixed_url","name":"Guia.pdf","url":"https://ejemplo.com/guia.pdf"}]. '.
+    'template_json: la plantilla completa; pedí primero el formato con formato-plantilla. '.
+    'test_recipient_ids_json y recipient_ids_json: [1,2]. '.
+
+    'ADJUNTOS. '.
+    'Hay dos modos: fixed_url manda el mismo archivo a todos, y field toma una URL distinta por persona desde un campo extra de la campaña. '.
+    'Cada archivo debe pesar 10 MB o menos. '.
+    'El enlace tiene que descargar el archivo directamente: sirve una URL pública https, un archivo de Google Drive compartido como «cualquiera con el enlace», o un documento de Google que se pueda exportar. '.
+    'No sirven las carpetas de Drive ni los enlaces que piden iniciar sesión. '.
+    'Formatos aconsejados: pdf, imágenes, documentos de Office, txt, csv y zip; evitá archivos ejecutables. '.
+
+    'ANTES DE ENVIAR. '.
+    'compatibilidad-plantilla avisa si la plantilla usa variables que la campaña no tiene; no envía nada. '.
+    'preview-envio muestra cómo queda el correo para una persona; no envía nada. '.
+    'test-envio manda un correo real, pero solo a los buzones de prueba. '.
+    'launch-envio sí envía a toda la audiencia: consultá antes audiencia-envio y pasá ese mismo número en confirm_recipient_count; si no coincide, no se envía nada. Confirmá con la persona que te pidió el trabajo antes de lanzar. '.
+
+    'ORDEN RECOMENDADO. '.
+    'listar-cuentas, crear-cliente, crear-cc si hace falta alguna copia, crear-campana con sus campos extra, upsert-participantes, '.
+    'formato-plantilla y crear-plantilla, listar-remitentes, compatibilidad-plantilla, crear-envio, audiencia-envio, preview-envio, test-envio y por último launch-envio. '.
+    'Si algunos correos fallan, revisalos con listar-destinatarios-envio usando status=failed y reintentá con retry-failed-envio.'
 )]
 class GodaiMailing extends Server
 {
-    /**
-     * Laravel MCP pagina tools/list (default 15). Cursor no siempre sigue nextCursor;
-     * con 37 tools hay que devolverlas en una sola página.
-     */
     public int $defaultPaginationLength = 50;
 
     protected array $tools = [

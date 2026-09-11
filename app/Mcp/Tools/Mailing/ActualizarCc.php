@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('actualizar-cc')]
-#[Description('PATCH de un CC del catálogo: name, email y/o client_id. Email único por cliente.')]
+#[Description('Cambia el nombre, el correo o el cliente de una copia ya registrada. El correo no se puede repetir en el mismo cliente.')]
 class ActualizarCc extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -48,17 +48,17 @@ class ActualizarCc extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'cc_recipient_id' => $schema->integer()
-                ->description('ID del CC.')
+                ->description('Correo en copia que querés modificar.')
                 ->required(),
             'client_id' => $schema->integer()
-                ->description('Mover a otro cliente (opcional).'),
+                ->description('Cliente al que pasa a pertenecer.'),
             'name' => $schema->string()
-                ->description('Nombre (opcional).'),
+                ->description('Nombre de la persona o área.'),
             'email' => $schema->string()
-                ->description('Email (opcional).'),
+                ->description('Nuevo correo. No puede repetirse dentro del mismo cliente.'),
         ];
     }
 }

@@ -13,10 +13,9 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('actualizar-envio')]
 #[Description(
-    'PATCH solo si status=draft. Campos opcionales iguales a crear-envio '.
-    '(name, campaign_id, template_id, mail_sender_id, subject, audience_filter_json, attachments_json, cc_emails_json). '.
-    'Si cambiás template_id sin mandar subject, el asunto pasa al de la plantilla nueva. '.
-    'Adjuntos: mismos límites que crear-envio (≤10MB, fixed_url|field, Drive archivo público, sin carpetas).'
+    'Cambia un envío mientras sigue en borrador: nombre, campaña, plantilla, remitente, asunto, filtro de audiencia, copias o adjuntos. '.
+    'Si cambiás la plantilla y no mandás asunto, se toma el de la plantilla nueva. '.
+    'Una vez lanzado el envío ya no se puede modificar.'
 )]
 class ActualizarEnvio extends Tool
 {
@@ -64,19 +63,19 @@ class ActualizarEnvio extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'send_id' => $schema->integer()
-                ->description('ID del envío.')
+                ->description('Envío sobre el que actuás.')
                 ->required(),
-            'name' => $schema->string()->description('Nombre (opcional).'),
-            'campaign_id' => $schema->integer()->description('Campaña (opcional).'),
-            'template_id' => $schema->integer()->description('Plantilla (opcional).'),
-            'mail_sender_id' => $schema->integer()->description('Remitente (opcional).'),
-            'subject' => $schema->string()->description('Asunto (opcional).'),
-            'audience_filter_json' => $schema->string()->description('JSON audience_filter (opcional).'),
-            'attachments_json' => $schema->string()->description('JSON adjuntos (opcional).'),
-            'cc_emails_json' => $schema->string()->description('JSON CC (opcional).'),
+            'name' => $schema->string()->description('Nuevo nombre del envío.'),
+            'campaign_id' => $schema->integer()->description('Otra campaña de destinatarios.'),
+            'template_id' => $schema->integer()->description('Otra plantilla. Si no mandás asunto, se toma el de esta plantilla.'),
+            'mail_sender_id' => $schema->integer()->description('Otra dirección de salida; se obtiene con listar-remitentes.'),
+            'subject' => $schema->string()->description('Asunto propio para este envío.'),
+            'audience_filter_json' => $schema->string()->description('Condiciones para elegir a quién le llega, en formato JSON: {"logic":"all","rules":[{"field":"email","operator":"contains","value":"@empresa.com"}]}.'),
+            'attachments_json' => $schema->string()->description('Adjuntos en formato JSON: [{"mode":"fixed_url","name":"Guia.pdf","url":"https://ejemplo.com/guia.pdf"}] o [{"mode":"field","field":"enlace","name":"Documento"}]. Reemplaza los adjuntos anteriores; mandá [] para quitarlos todos.'),
+            'cc_emails_json' => $schema->string()->description('Correos en copia, en formato JSON: ["copia@cliente.com"]. Reemplaza los anteriores y solo admite los dados de alta en el cliente de la campaña.'),
         ];
     }
 }

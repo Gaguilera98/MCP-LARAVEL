@@ -12,7 +12,10 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('retry-failed-envio')]
-#[Description('Reencola fallidos. Opcional recipient_ids_json para subset; sin eso reintenta todos los failed.')]
+#[Description(
+    'Vuelve a intentar el envío con las personas a las que no les llegó. Envía correos reales. '.
+    'Si no indicás nada reintenta con todas las fallidas; con recipient_ids_json elegís solo algunas.'
+)]
 class RetryFailedEnvio extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -39,13 +42,13 @@ class RetryFailedEnvio extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'send_id' => $schema->integer()
-                ->description('ID del envío.')
+                ->description('Envío sobre el que actuás.')
                 ->required(),
             'recipient_ids_json' => $schema->string()
-                ->description('JSON array de recipient IDs (opcional).'),
+                ->description('Opcional. IDs de los destinatarios a reintentar, en formato JSON: [12,15]. Si lo omitís se reintenta con todos los que fallaron.'),
         ];
     }
 }

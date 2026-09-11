@@ -12,7 +12,10 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('cuota-cuenta')]
-#[Description('Cuota Brevo real de la cuenta (sendLimit vía GET api.brevo.com/v3/account).')]
+#[Description(
+    'Cuántos correos le quedan disponibles a la cuenta en el proveedor de envío. '.
+    'Consultalo si vas a lanzar a mucha gente. No tiene relación con el peso permitido de los adjuntos.'
+)]
 class CuotaCuenta extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -29,7 +32,7 @@ class CuotaCuenta extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
         ];
     }

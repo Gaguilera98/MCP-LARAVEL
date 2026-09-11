@@ -12,7 +12,10 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('merge-tags-campana')]
-#[Description('Merge tags reales de la campaña (keys + labels) para armar atributos de participantes.')]
+#[Description(
+    'Variables que podés usar en el asunto y el diseño para esta campaña: '.
+    '{{nombre}}, {{apellidos}}, {{email}} y una por cada campo extra definido.'
+)]
 class MergeTagsCampana extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -30,10 +33,10 @@ class MergeTagsCampana extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'campaign_id' => $schema->integer()
-                ->description('ID de la campaña.')
+                ->description('Campaña sobre la que actuás.')
                 ->required(),
         ];
     }

@@ -13,10 +13,9 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('preview-envio')]
 #[Description(
-    'Preview sobre un draft send_id (sin correo real). Dos usos: '.
-    '(1) Probar plantilla — draft con esa template_id: HTML/asunto/merge tags del participant_id. '.
-    '(2) Probar envío — mismo draft ya con subject override, filtro o adjuntos: ves el render con esa config. '.
-    'Devuelve missing_tags. Adjuntos no se descargan en preview (eso se valida en test-envio).'
+    'Muestra cómo queda el correo para una persona concreta, sin enviar nada. '.
+    'Sirve para revisar la plantilla y también la configuración del envío (asunto propio, filtro). '.
+    'Avisa qué variables quedaron sin valor. Los adjuntos no se descargan acá: eso se comprueba con test-envio.'
 )]
 class PreviewEnvio extends Tool
 {
@@ -37,13 +36,13 @@ class PreviewEnvio extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'send_id' => $schema->integer()
-                ->description('ID del envío.')
+                ->description('Envío sobre el que actuás.')
                 ->required(),
             'participant_id' => $schema->integer()
-                ->description('Participante de la campaña del envío.')
+                ->description('Persona de la campaña cuyos datos se usan para rellenar las variables del correo.')
                 ->required(),
         ];
     }

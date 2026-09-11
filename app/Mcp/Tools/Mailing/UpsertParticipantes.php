@@ -13,8 +13,11 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('upsert-participantes')]
 #[Description(
-    'Upsert masivo por email (max 500). Body: participants_json = [{"email","first_name","last_name","attributes":{...}}]. '.
-    'attributes solo keys del field_schema de la campaña (definirlos antes con crear-campana/actualizar-campana).'
+    'Carga o actualiza personas de una campaña en lote, hasta 500 por vez. '.
+    'Se identifican por correo: si ya existe se actualiza y si no se crea. '.
+    'Cada persona se guarda con lo que mandes en esa llamada, así que incluí siempre todos sus datos: '.
+    'lo que omitas (nombre, apellidos o campos extra) queda vacío. '.
+    'En attributes solo se aceptan los campos extra definidos en la campaña; cualquier otro dato se descarta y te avisa en warnings.'
 )]
 class UpsertParticipantes extends Tool
 {
@@ -40,13 +43,13 @@ class UpsertParticipantes extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'campaign_id' => $schema->integer()
-                ->description('ID de la campaña.')
+                ->description('Campaña sobre la que actuás.')
                 ->required(),
             'participants_json' => $schema->string()
-                ->description('JSON array de participantes (email obligatorio).')
+                ->description('Lista de personas en formato JSON: [{"email":"ana@ejemplo.com","first_name":"Ana","last_name":"Paz","attributes":{"enlace":"https://ejemplo.com"}}]. El correo es obligatorio; attributes es opcional y solo admite los campos extra de la campaña.')
                 ->required(),
         ];
     }

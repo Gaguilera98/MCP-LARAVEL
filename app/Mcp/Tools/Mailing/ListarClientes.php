@@ -12,7 +12,10 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('listar-clientes')]
-#[Description('Lista clientes de una cuenta. Crear/editar: crear-cliente y actualizar-cliente.')]
+#[Description(
+    'Clientes (marcas o empresas) de la cuenta. Cada campaña puede pertenecer a uno. '.
+    'Para darlos de alta o editarlos usá crear-cliente y actualizar-cliente.'
+)]
 class ListarClientes extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -29,7 +32,7 @@ class ListarClientes extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
         ];
     }

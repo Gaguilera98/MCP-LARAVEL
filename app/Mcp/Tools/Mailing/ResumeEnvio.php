@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('resume-envio')]
-#[Description('Reanuda un envío pausado.')]
+#[Description('Reanuda un envío pausado y sigue mandando los correos que quedaban pendientes.')]
 class ResumeEnvio extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -30,10 +30,10 @@ class ResumeEnvio extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'send_id' => $schema->integer()
-                ->description('ID del envío.')
+                ->description('Envío sobre el que actuás.')
                 ->required(),
         ];
     }

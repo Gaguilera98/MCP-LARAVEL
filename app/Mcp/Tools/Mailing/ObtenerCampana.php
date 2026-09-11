@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('obtener-campana')]
-#[Description('Detalle de campaña incluyendo field_schema.')]
+#[Description('Datos de una campaña, incluidos sus campos extra y los correos en copia asignados.')]
 class ObtenerCampana extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -30,10 +30,10 @@ class ObtenerCampana extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'campaign_id' => $schema->integer()
-                ->description('ID de la campaña.')
+                ->description('Campaña sobre la que actuás.')
                 ->required(),
         ];
     }

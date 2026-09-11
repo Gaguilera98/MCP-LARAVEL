@@ -13,10 +13,11 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('crear-envio')]
 #[Description(
-    'Crea envío en borrador. Requiere name, campaign_id, template_id. '.
-    'Opcional: mail_sender_id, subject (si se omite, hereda el subject de la plantilla), audience_filter_json, attachments_json, cc_emails_json. '.
-    'attachments_json: solo fixed_url|field; cada archivo ≤10MB; Drive archivo público (no carpeta); formatos recomendados pdf/imagenes/office/csv/zip. '.
-    'Devuelve warnings si CC se descartan.'
+    'Crea un envío en borrador combinando campaña, plantilla y remitente. No manda ningún correo todavía. '.
+    'Si no indicás asunto se usa el de la plantilla. '.
+    'Podés limitar a quién le llega con audience_filter_json, sumar correos en copia con cc_emails_json '.
+    'y agregar adjuntos con attachments_json (mismo archivo para todos o uno por persona, hasta 10 MB cada uno, con enlace de descarga directa). '.
+    'El borrador es lo que después probás con preview-envio y test-envio.'
 )]
 class CrearEnvio extends Tool
 {
@@ -57,27 +58,27 @@ class CrearEnvio extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'name' => $schema->string()
                 ->description('Nombre del envío.')
                 ->required(),
             'campaign_id' => $schema->integer()
-                ->description('ID de campaña.')
+                ->description('Campaña con las personas que van a recibir el correo.')
                 ->required(),
             'template_id' => $schema->integer()
-                ->description('ID de plantilla.')
+                ->description('Plantilla con el diseño y el asunto del correo.')
                 ->required(),
             'mail_sender_id' => $schema->integer()
-                ->description('Remitente (opcional).'),
+                ->description('Dirección desde la que sale el correo; se obtiene con listar-remitentes.'),
             'subject' => $schema->string()
-                ->description('Asunto (opcional; puede venir de plantilla).'),
+                ->description('Asunto propio para este envío. Si lo omitís se usa el de la plantilla.'),
             'audience_filter_json' => $schema->string()
-                ->description('JSON del audience_filter (opcional).'),
+                ->description('Opcional. Condiciones para elegir a quién le llega, en formato JSON: {"logic":"all","rules":[{"field":"email","operator":"contains","value":"@empresa.com"}]}. Sin filtro le llega a toda la campaña.'),
             'attachments_json' => $schema->string()
-                ->description('JSON adjuntos modo fixed_url|field (opcional).'),
+                ->description('Opcional. Adjuntos en formato JSON. Mismo archivo para todos: [{"mode":"fixed_url","name":"Guia.pdf","url":"https://ejemplo.com/guia.pdf"}]. Uno distinto por persona: [{"mode":"field","field":"enlace","name":"Documento"}], donde field es un campo extra de la campaña con una URL. Hasta 10 MB por archivo y el enlace debe descargar directamente.'),
             'cc_emails_json' => $schema->string()
-                ->description('JSON array de CC (opcional; se validan contra catálogo).'),
+                ->description('Opcional. Correos en copia, en formato JSON: ["copia@cliente.com"]. Solo se aceptan los dados de alta en el cliente de la campaña; el resto se descarta y se avisa en warnings.'),
         ];
     }
 }

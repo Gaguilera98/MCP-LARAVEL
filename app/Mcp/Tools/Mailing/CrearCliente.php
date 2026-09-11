@@ -13,8 +13,8 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('crear-cliente')]
 #[Description(
-    'Crea cliente (marca/agencia) en la cuenta. Requiere name. Opcional: description. '.
-    'Nombre único por cuenta. Usalo antes de crear-campana con client_id (y CC del cliente).'
+    'Crea un cliente (marca o empresa) dentro de la cuenta. El nombre no se puede repetir en la misma cuenta. '.
+    'Sirve para agrupar campañas y para tener su propia lista de correos en copia.'
 )]
 class CrearCliente extends Tool
 {
@@ -40,13 +40,13 @@ class CrearCliente extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'name' => $schema->string()
                 ->description('Nombre del cliente.')
                 ->required(),
             'description' => $schema->string()
-                ->description('Descripción (opcional).'),
+                ->description('Descripción interna del cliente.'),
         ];
     }
 }

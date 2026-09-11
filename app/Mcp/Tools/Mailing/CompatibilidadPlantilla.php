@@ -13,8 +13,8 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('compatibilidad-plantilla')]
 #[Description(
-    'Freno: verifica plantilla ↔ campaña (merge tags). No envía correo. '.
-    'Distinto de preview/test-envio: acá solo compatibilidad de tags; la prueba visual/email de la plantilla es preview/test sobre un draft.'
+    'Comprueba si la plantilla usa variables que la campaña no tiene definidas. No envía ningún correo. '.
+    'Conviene revisarlo antes de crear el envío. Para ver cómo queda el correo usá preview-envio.'
 )]
 class CompatibilidadPlantilla extends Tool
 {
@@ -36,13 +36,13 @@ class CompatibilidadPlantilla extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'template_id' => $schema->integer()
-                ->description('ID de la plantilla.')
+                ->description('Plantilla sobre la que actuas.')
                 ->required(),
             'campaign_id' => $schema->integer()
-                ->description('ID de la campaña a cruzar.')
+                ->description('Campaña contra la que se comprueba la plantilla.')
                 ->required(),
         ];
     }

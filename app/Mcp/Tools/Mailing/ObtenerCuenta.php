@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('obtener-cuenta')]
-#[Description('Detalle de una cuenta. Nunca expone brevo_api_key.')]
+#[Description('Datos de una cuenta: nombre, estado y si está lista para enviar correo.')]
 class ObtenerCuenta extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -29,7 +29,7 @@ class ObtenerCuenta extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
         ];
     }

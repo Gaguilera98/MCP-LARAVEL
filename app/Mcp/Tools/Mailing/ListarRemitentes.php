@@ -12,7 +12,10 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('listar-remitentes')]
-#[Description('Lista remitentes (mail senders) de una cuenta.')]
+#[Description(
+    'Direcciones desde las que puede salir el correo. Necesitás una para crear el envío. '.
+    'No se crean desde acá: si no hay ninguna, pedí que la agreguen en el panel.'
+)]
 class ListarRemitentes extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -29,7 +32,7 @@ class ListarRemitentes extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
         ];
     }

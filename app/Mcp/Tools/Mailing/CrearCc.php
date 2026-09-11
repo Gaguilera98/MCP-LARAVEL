@@ -13,8 +13,8 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('crear-cc')]
 #[Description(
-    'Alta de CC en el catálogo de un cliente. Requiere client_id + email. Opcional: name. '.
-    'Email único por cliente. Luego asigná en campaña (cc_emails_json) y/o en el envío.'
+    'Da de alta un correo en copia dentro de un cliente. Esto todavía no lo agrega a ningún envío: '.
+    'después lo elegís en la campaña o en el envío con cc_emails_json. El correo no se puede repetir en el mismo cliente.'
 )]
 class CrearCc extends Tool
 {
@@ -41,16 +41,16 @@ class CrearCc extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'client_id' => $schema->integer()
-                ->description('Cliente dueño del CC.')
+                ->description('Cliente al que pertenece este correo en copia.')
                 ->required(),
             'email' => $schema->string()
                 ->description('Correo en copia.')
                 ->required(),
             'name' => $schema->string()
-                ->description('Nombre visible (opcional).'),
+                ->description('Nombre de la persona o área, para identificarla en la lista.'),
         ];
     }
 }

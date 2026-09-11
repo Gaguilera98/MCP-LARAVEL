@@ -12,7 +12,10 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('listar-destinatarios-envio')]
-#[Description('Destinatarios de un envío. status=failed para ver fallidos antes de retry-failed-envio.')]
+#[Description(
+    'Personas incluidas en un envío y cómo les fue. '.
+    'Usá status=failed para ver a quiénes no les llegó y por qué, antes de reintentar con retry-failed-envio.'
+)]
 class ListarDestinatariosEnvio extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -34,17 +37,17 @@ class ListarDestinatariosEnvio extends Tool
     {
         return [
             'account_id' => $schema->integer()
-                ->description('ID de la cuenta Mailing.')
+                ->description('Cuenta sobre la que trabajás; se obtiene con listar-cuentas.')
                 ->required(),
             'send_id' => $schema->integer()
-                ->description('ID del envío.')
+                ->description('Envío sobre el que actuás.')
                 ->required(),
             'status' => $schema->string()
-                ->description('Filtrar status (pending, sent, failed, skipped, …).'),
+                ->description('Filtrar por resultado: pending (en cola), sent (enviado), failed (falló) o skipped (omitido).'),
             'page' => $schema->integer()
-                ->description('Página (default 1).'),
+                ->description('Número de página; empieza en 1.'),
             'per_page' => $schema->integer()
-                ->description('Por página (max 200).'),
+                ->description('Cuántos resultados por página; máximo 200.'),
         ];
     }
 }
