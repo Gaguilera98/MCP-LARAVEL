@@ -12,7 +12,13 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('test-envio')]
-#[Description('Envía prueba real. Requiere participant_id y test_recipient_ids_json=[1,2]. Opcional cc_test_recipient_ids_json.')]
+#[Description(
+    'Correo de prueba REAL sobre un draft send_id (no lanza masivo). Dos usos: '.
+    '(1) Probar plantilla — draft mínimo con esa template_id: validás HTML, asunto heredado y merge tags. '.
+    '(2) Probar envío — draft ya configurado: validás subject override, audience_filter, attachments (p. ej. Drive) y CC. '.
+    'Requiere participant_id (datos de merge) y test_recipient_ids_json=[ids de listar-destinatarios-prueba]. '.
+    'Opcional cc_test_recipient_ids_json. Sin draft creado no hay prueba de adjuntos/filtro/CC.'
+)]
 class TestEnvio extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory

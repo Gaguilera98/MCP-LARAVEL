@@ -12,7 +12,12 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('crear-envio')]
-#[Description('Crea envío en borrador. Requiere name, campaign_id, template_id. Opcional: mail_sender_id, subject, audience_filter_json, attachments_json (solo fixed_url|field), cc_emails_json. Devuelve warnings si CC se descartan.')]
+#[Description(
+    'Crea envío en borrador. Requiere name, campaign_id, template_id. '.
+    'Opcional: mail_sender_id, subject (si se omite, hereda el subject de la plantilla), audience_filter_json, attachments_json, cc_emails_json. '.
+    'attachments_json: solo fixed_url|field; cada archivo ≤10MB; Drive archivo público (no carpeta); formatos recomendados pdf/imagenes/office/csv/zip. '.
+    'Devuelve warnings si CC se descartan.'
+)]
 class CrearEnvio extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory

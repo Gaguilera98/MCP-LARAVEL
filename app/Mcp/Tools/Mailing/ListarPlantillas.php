@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('listar-plantillas')]
-#[Description('Lista plantillas de la cuenta (sin design pesado por defecto).')]
+#[Description('Lista plantillas. Crear: crear-plantilla / formato-plantilla. Detalle: obtener-plantilla.')]
 class ListarPlantillas extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory

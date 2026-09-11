@@ -12,7 +12,10 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('listar-destinatarios-prueba')]
-#[Description('Lista destinatarios de prueba de la cuenta (para test-envio).')]
+#[Description(
+    'Lista destinatarios de prueba de la cuenta (inbox de prueba). '.
+    'Usar sus IDs en test-envio: tanto para probar plantilla vía draft como para probar config del envío (adjuntos, etc.).'
+)]
 class ListarDestinatariosPrueba extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory

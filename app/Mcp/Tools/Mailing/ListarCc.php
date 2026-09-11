@@ -12,7 +12,10 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('listar-cc')]
-#[Description('Lista destinatarios CC registrados. Filtrar con client_id cuando la campaña tiene cliente.')]
+#[Description(
+    'Lista CC del catálogo. Filtrar con client_id. Crear/editar: crear-cc / actualizar-cc. '.
+    'Asignar a campaña/envío con cc_emails_json (emails del catálogo).'
+)]
 class ListarCc extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory

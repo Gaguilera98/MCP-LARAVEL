@@ -12,7 +12,12 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('actualizar-envio')]
-#[Description('PATCH solo si status=draft. Campos opcionales iguales a crear-envio (name, campaign_id, template_id, mail_sender_id, subject, *_json).')]
+#[Description(
+    'PATCH solo si status=draft. Campos opcionales iguales a crear-envio '.
+    '(name, campaign_id, template_id, mail_sender_id, subject, audience_filter_json, attachments_json, cc_emails_json). '.
+    'Si cambiás template_id sin mandar subject, el asunto pasa al de la plantilla nueva. '.
+    'Adjuntos: mismos límites que crear-envio (≤10MB, fixed_url|field, Drive archivo público, sin carpetas).'
+)]
 class ActualizarEnvio extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory

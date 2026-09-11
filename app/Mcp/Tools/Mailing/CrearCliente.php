@@ -11,22 +11,26 @@ use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
-#[Name('compatibilidad-plantilla')]
+#[Name('crear-cliente')]
 #[Description(
-    'Freno: verifica plantilla ↔ campaña (merge tags). No envía correo. '.
-    'Distinto de preview/test-envio: acá solo compatibilidad de tags; la prueba visual/email de la plantilla es preview/test sobre un draft.'
+    'Crea cliente (marca/agencia) en la cuenta. Requiere name. Opcional: description. '.
+    'Nombre único por cuenta. Usalo antes de crear-campana con client_id (y CC del cliente).'
 )]
-class CompatibilidadPlantilla extends Tool
+class CrearCliente extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
     {
         $accountId = (int) $request->get('account_id');
-        $templateId = (int) $request->get('template_id');
 
-        return MailingApi::get(
-            'accounts/'.$accountId.'/templates/'.$templateId.'/compatibility',
-            ['campaign_id' => $request->get('campaign_id')]
-        );
+        $body = [
+            'name' => $request->get('name'),
+        ];
+
+        if ($request->get('description') !== null) {
+            $body['description'] = $request->get('description');
+        }
+
+        return MailingApi::post('accounts/'.$accountId.'/clients', $body);
     }
 
     /**
@@ -38,12 +42,11 @@ class CompatibilidadPlantilla extends Tool
             'account_id' => $schema->integer()
                 ->description('ID de la cuenta Mailing.')
                 ->required(),
-            'template_id' => $schema->integer()
-                ->description('ID de la plantilla.')
+            'name' => $schema->string()
+                ->description('Nombre del cliente.')
                 ->required(),
-            'campaign_id' => $schema->integer()
-                ->description('ID de la campaña a cruzar.')
-                ->required(),
+            'description' => $schema->string()
+                ->description('Descripción (opcional).'),
         ];
     }
 }

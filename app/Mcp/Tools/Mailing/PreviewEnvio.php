@@ -12,7 +12,12 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('preview-envio')]
-#[Description('Freno: render HTML/asunto con merge tags de un participant_id. Devuelve missing_tags.')]
+#[Description(
+    'Preview sobre un draft send_id (sin correo real). Dos usos: '.
+    '(1) Probar plantilla — draft con esa template_id: HTML/asunto/merge tags del participant_id. '.
+    '(2) Probar envío — mismo draft ya con subject override, filtro o adjuntos: ves el render con esa config. '.
+    'Devuelve missing_tags. Adjuntos no se descargan en preview (eso se valida en test-envio).'
+)]
 class PreviewEnvio extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory

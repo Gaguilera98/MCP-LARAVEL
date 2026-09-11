@@ -12,7 +12,10 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('upsert-participantes')]
-#[Description('Upsert masivo por email (max 500). Body: participants_json = [{"email","first_name","last_name","attributes":{...}}]. attributes solo keys del field_schema.')]
+#[Description(
+    'Upsert masivo por email (max 500). Body: participants_json = [{"email","first_name","last_name","attributes":{...}}]. '.
+    'attributes solo keys del field_schema de la campaña (definirlos antes con crear-campana/actualizar-campana).'
+)]
 class UpsertParticipantes extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory

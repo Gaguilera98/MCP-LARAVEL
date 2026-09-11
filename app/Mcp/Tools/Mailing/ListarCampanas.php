@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('listar-campanas')]
-#[Description('Lista campañas de la cuenta (crear/editar schema solo en panel).')]
+#[Description('Lista campañas de la cuenta. Crear/editar: crear-campana y actualizar-campana (incl. field_schema).')]
 class ListarCampanas extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
