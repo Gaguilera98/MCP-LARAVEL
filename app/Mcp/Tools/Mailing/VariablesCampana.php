@@ -11,12 +11,12 @@ use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
-#[Name('merge-tags-campana')]
+#[Name('variables-campana')]
 #[Description(
     'Variables que podés usar en el asunto y el diseño para esta campaña: '.
     '{{nombre}}, {{apellidos}}, {{email}} y una por cada campo extra definido.'
 )]
-class MergeTagsCampana extends Tool
+class VariablesCampana extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
     {

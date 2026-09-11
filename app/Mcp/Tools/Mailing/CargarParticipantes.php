@@ -11,7 +11,7 @@ use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
-#[Name('upsert-participantes')]
+#[Name('cargar-participantes')]
 #[Description(
     'Carga o actualiza personas de una campaña en lote, hasta 500 por vez. '.
     'Se identifican por correo: si ya existe se actualiza y si no se crea. '.
@@ -19,7 +19,7 @@ use Laravel\Mcp\Server\Tool;
     'lo que omitas (nombre, apellidos o campos extra) queda vacío. '.
     'En attributes solo se aceptan los campos extra definidos en la campaña; cualquier otro dato se descarta y te avisa en warnings.'
 )]
-class UpsertParticipantes extends Tool
+class CargarParticipantes extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
     {

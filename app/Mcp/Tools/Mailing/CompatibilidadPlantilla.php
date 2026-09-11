@@ -14,7 +14,7 @@ use Laravel\Mcp\Server\Tool;
 #[Name('compatibilidad-plantilla')]
 #[Description(
     'Comprueba si la plantilla usa variables que la campaña no tiene definidas. No envía ningún correo. '.
-    'Conviene revisarlo antes de crear el envío. Para ver cómo queda el correo usá preview-envio.'
+    'Conviene revisarlo antes de crear el envío. Para ver cómo queda el correo usá previsualizar-envio.'
 )]
 class CompatibilidadPlantilla extends Tool
 {

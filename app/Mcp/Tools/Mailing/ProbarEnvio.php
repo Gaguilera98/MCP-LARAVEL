@@ -11,13 +11,13 @@ use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
-#[Name('test-envio')]
+#[Name('probar-envio')]
 #[Description(
     'Manda un correo de prueba real, pero solo a los buzones de prueba que indiques: los participantes de la campaña no reciben nada. '.
     'Elegí con participant_id de quién se toman los datos para rellenar las variables. '.
     'Es la única forma de comprobar que los adjuntos se descargan bien y de ver el correo tal cual llega a la bandeja.'
 )]
-class TestEnvio extends Tool
+class ProbarEnvio extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
     {

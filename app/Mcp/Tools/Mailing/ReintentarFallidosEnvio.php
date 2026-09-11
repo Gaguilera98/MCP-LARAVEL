@@ -11,22 +11,28 @@ use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
-#[Name('launch-envio')]
+#[Name('reintentar-fallidos-envio')]
 #[Description(
-    'ENVÍA EL CORREO DE VERDAD a toda la audiencia del envío. Es irreversible: confirmalo con la persona antes de usarla. '.
-    'Consultá primero audiencia-envio y pasá ese mismo número en confirm_recipient_count; si no coincide no se envía nada. '.
-    'Para probar sin afectar a nadie usá preview-envio o test-envio.'
+    'Vuelve a intentar el envío con las personas a las que no les llegó. Envía correos reales. '.
+    'Si no indicás nada reintenta con todas las fallidas; con recipient_ids_json elegís solo algunas.'
 )]
-class LaunchEnvio extends Tool
+class ReintentarFallidosEnvio extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
     {
         $accountId = (int) $request->get('account_id');
         $sendId = (int) $request->get('send_id');
 
-        return MailingApi::post('accounts/'.$accountId.'/sends/'.$sendId.'/launch', [
-            'confirm_recipient_count' => (int) $request->get('confirm_recipient_count'),
-        ]);
+        $body = [];
+        $ids = MailingApi::decodeOptionalJsonArg($request->get('recipient_ids_json'), 'recipient_ids_json');
+        if ($ids instanceof Response || $ids instanceof ResponseFactory) {
+            return $ids;
+        }
+        if ($ids !== null) {
+            $body['recipient_ids'] = $ids;
+        }
+
+        return MailingApi::post('accounts/'.$accountId.'/sends/'.$sendId.'/retry-failed', $body);
     }
 
     /**
@@ -41,9 +47,8 @@ class LaunchEnvio extends Tool
             'send_id' => $schema->integer()
                 ->description('Envío sobre el que actuás.')
                 ->required(),
-            'confirm_recipient_count' => $schema->integer()
-                ->description('Cantidad exacta de personas que va a recibir el correo: el valor valid_emails que devuelve audiencia-envio.')
-                ->required(),
+            'recipient_ids_json' => $schema->string()
+                ->description('Opcional. IDs de los destinatarios a reintentar, en formato JSON: [12,15]. Si lo omitís se reintenta con todos los que fallaron.'),
         ];
     }
 }

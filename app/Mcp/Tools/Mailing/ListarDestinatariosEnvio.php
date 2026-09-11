@@ -14,7 +14,7 @@ use Laravel\Mcp\Server\Tool;
 #[Name('listar-destinatarios-envio')]
 #[Description(
     'Personas incluidas en un envío y cómo les fue. '.
-    'Usá status=failed para ver a quiénes no les llegó y por qué, antes de reintentar con retry-failed-envio.'
+    'Usá status=failed para ver a quiénes no les llegó y por qué, antes de reintentar con reintentar-fallidos-envio.'
 )]
 class ListarDestinatariosEnvio extends Tool
 {

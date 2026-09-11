@@ -9,6 +9,7 @@ use App\Mcp\Tools\Mailing\ActualizarEnvio;
 use App\Mcp\Tools\Mailing\ActualizarParticipante;
 use App\Mcp\Tools\Mailing\ActualizarPlantilla;
 use App\Mcp\Tools\Mailing\AudienciaEnvio;
+use App\Mcp\Tools\Mailing\CargarParticipantes;
 use App\Mcp\Tools\Mailing\CompatibilidadPlantilla;
 use App\Mcp\Tools\Mailing\CrearCampana;
 use App\Mcp\Tools\Mailing\CrearCc;
@@ -17,7 +18,7 @@ use App\Mcp\Tools\Mailing\CrearEnvio;
 use App\Mcp\Tools\Mailing\CrearPlantilla;
 use App\Mcp\Tools\Mailing\CuotaCuenta;
 use App\Mcp\Tools\Mailing\FormatoPlantilla;
-use App\Mcp\Tools\Mailing\LaunchEnvio;
+use App\Mcp\Tools\Mailing\LanzarEnvio;
 use App\Mcp\Tools\Mailing\ListarCampanas;
 use App\Mcp\Tools\Mailing\ListarCc;
 use App\Mcp\Tools\Mailing\ListarClientes;
@@ -28,17 +29,16 @@ use App\Mcp\Tools\Mailing\ListarEnvios;
 use App\Mcp\Tools\Mailing\ListarParticipantes;
 use App\Mcp\Tools\Mailing\ListarPlantillas;
 use App\Mcp\Tools\Mailing\ListarRemitentes;
-use App\Mcp\Tools\Mailing\MergeTagsCampana;
 use App\Mcp\Tools\Mailing\ObtenerCampana;
 use App\Mcp\Tools\Mailing\ObtenerCuenta;
 use App\Mcp\Tools\Mailing\ObtenerEnvio;
 use App\Mcp\Tools\Mailing\ObtenerPlantilla;
-use App\Mcp\Tools\Mailing\PauseEnvio;
-use App\Mcp\Tools\Mailing\PreviewEnvio;
-use App\Mcp\Tools\Mailing\ResumeEnvio;
-use App\Mcp\Tools\Mailing\RetryFailedEnvio;
-use App\Mcp\Tools\Mailing\TestEnvio;
-use App\Mcp\Tools\Mailing\UpsertParticipantes;
+use App\Mcp\Tools\Mailing\PausarEnvio;
+use App\Mcp\Tools\Mailing\PrevisualizarEnvio;
+use App\Mcp\Tools\Mailing\ProbarEnvio;
+use App\Mcp\Tools\Mailing\ReanudarEnvio;
+use App\Mcp\Tools\Mailing\ReintentarFallidosEnvio;
+use App\Mcp\Tools\Mailing\VariablesCampana;
 use Laravel\Mcp\Server;
 use Laravel\Mcp\Server\Attributes\Instructions;
 use Laravel\Mcp\Server\Attributes\Name;
@@ -89,14 +89,14 @@ use Laravel\Mcp\Server\Attributes\Version;
 
     'ANTES DE ENVIAR. '.
     'compatibilidad-plantilla avisa si la plantilla usa variables que la campaña no tiene; no envía nada. '.
-    'preview-envio muestra cómo queda el correo para una persona; no envía nada. '.
-    'test-envio manda un correo real, pero solo a los buzones de prueba. '.
-    'launch-envio sí envía a toda la audiencia: consultá antes audiencia-envio y pasá ese mismo número en confirm_recipient_count; si no coincide, no se envía nada. Confirmá con la persona que te pidió el trabajo antes de lanzar. '.
+    'previsualizar-envio muestra cómo queda el correo para una persona; no envía nada. '.
+    'probar-envio manda un correo real, pero solo a los buzones de prueba. '.
+    'lanzar-envio sí envía a toda la audiencia: consultá antes audiencia-envio y pasá ese mismo número en confirm_recipient_count; si no coincide, no se envía nada. Confirmá con la persona que te pidió el trabajo antes de lanzar. '.
 
     'ORDEN RECOMENDADO. '.
-    'listar-cuentas, crear-cliente, crear-cc si hace falta alguna copia, crear-campana con sus campos extra, upsert-participantes, '.
-    'formato-plantilla y crear-plantilla, listar-remitentes, compatibilidad-plantilla, crear-envio, audiencia-envio, preview-envio, test-envio y por último launch-envio. '.
-    'Si algunos correos fallan, revisalos con listar-destinatarios-envio usando status=failed y reintentá con retry-failed-envio.'
+    'listar-cuentas, crear-cliente, crear-cc si hace falta alguna copia, crear-campana con sus campos extra, cargar-participantes, '.
+    'formato-plantilla y crear-plantilla, listar-remitentes, compatibilidad-plantilla, crear-envio, audiencia-envio, previsualizar-envio, probar-envio y por último lanzar-envio. '.
+    'Si algunos correos fallan, revisalos con listar-destinatarios-envio usando status=failed y reintentá con reintentar-fallidos-envio.'
 )]
 class GodaiMailing extends Server
 {
@@ -118,9 +118,9 @@ class GodaiMailing extends Server
         CrearCampana::class,
         ObtenerCampana::class,
         ActualizarCampana::class,
-        MergeTagsCampana::class,
+        VariablesCampana::class,
         ListarParticipantes::class,
-        UpsertParticipantes::class,
+        CargarParticipantes::class,
         ActualizarParticipante::class,
         ListarPlantillas::class,
         FormatoPlantilla::class,
@@ -134,12 +134,12 @@ class GodaiMailing extends Server
         ActualizarEnvio::class,
         ListarDestinatariosEnvio::class,
         AudienciaEnvio::class,
-        PreviewEnvio::class,
-        TestEnvio::class,
-        LaunchEnvio::class,
-        PauseEnvio::class,
-        ResumeEnvio::class,
-        RetryFailedEnvio::class,
+        PrevisualizarEnvio::class,
+        ProbarEnvio::class,
+        LanzarEnvio::class,
+        PausarEnvio::class,
+        ReanudarEnvio::class,
+        ReintentarFallidosEnvio::class,
     ];
 
     protected array $resources = [

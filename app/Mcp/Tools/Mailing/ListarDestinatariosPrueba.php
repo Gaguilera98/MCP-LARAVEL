@@ -13,7 +13,7 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('listar-destinatarios-prueba')]
 #[Description(
-    'Buzones internos que reciben los correos de prueba. Sus IDs se usan en test-envio. '.
+    'Buzones internos que reciben los correos de prueba. Sus IDs se usan en probar-envio. '.
     'No se crean desde acá: si no hay ninguno, pedí que lo agreguen en el panel.'
 )]
 class ListarDestinatariosPrueba extends Tool

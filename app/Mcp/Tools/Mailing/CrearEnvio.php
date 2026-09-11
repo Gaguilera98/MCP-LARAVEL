@@ -17,7 +17,7 @@ use Laravel\Mcp\Server\Tool;
     'Si no indicás asunto se usa el de la plantilla. '.
     'Podés limitar a quién le llega con audience_filter_json, sumar correos en copia con cc_emails_json '.
     'y agregar adjuntos con attachments_json (mismo archivo para todos o uno por persona, hasta 10 MB cada uno, con enlace de descarga directa). '.
-    'El borrador es lo que después probás con preview-envio y test-envio.'
+    'El borrador es lo que después probás con previsualizar-envio y probar-envio.'
 )]
 class CrearEnvio extends Tool
 {
