@@ -49,7 +49,7 @@ class UpsertParticipantes extends Tool
                 ->description('Campaña sobre la que actuás.')
                 ->required(),
             'participants_json' => $schema->string()
-                ->description('Lista de personas en formato JSON: [{"email":"ana@ejemplo.com","first_name":"Ana","last_name":"Paz","attributes":{"enlace":"https://ejemplo.com"}}]. El correo es obligatorio; attributes es opcional y solo admite los campos extra de la campaña.')
+                ->description('Lista de personas en formato JSON: [{"email":"ana@ejemplo.com","first_name":"Ana","last_name":"Paz","attributes":{"enlace":"https://ejemplo.com"}}]. El correo es obligatorio y attributes solo admite los campos extra de la campaña. Si la persona ya existe, incluí igual todos sus datos: lo que omitas queda vacío.')
                 ->required(),
         ];
     }

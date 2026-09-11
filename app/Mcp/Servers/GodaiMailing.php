@@ -64,6 +64,7 @@ use Laravel\Mcp\Server\Attributes\Version;
     'Los campos extra se definen en la campaña. Si un dato no está definido ahí, se descarta al cargar participantes. '.
     'Variables disponibles en asunto y diseño: {{nombre}}, {{apellidos}}, {{email}} y una por cada campo extra, por ejemplo {{enlace}}. '.
     'Los correos en copia se dan de alta en el cliente y después se eligen en la campaña o en el envío; si mandás uno que no está dado de alta para ese cliente, se descarta y te avisa en warnings. '.
+    'Al modificar algo, lo que mandás reemplaza a lo que había: si cargás de nuevo a una persona o cambiás la lista de campos extra de una campaña, todo lo que omitas se borra. Consultá el estado actual antes de editar. '.
     'Un envío solo se puede modificar mientras está en borrador. '.
     'Si no indicás asunto al crear el envío, se usa el de la plantilla. '.
     'Nada se puede borrar desde acá. '.
