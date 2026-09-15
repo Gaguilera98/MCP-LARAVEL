@@ -6,8 +6,11 @@ use App\Mcp\Servers\SantoxTenants;
 use App\Mcp\Servers\ZaloTenants;
 use Laravel\Mcp\Facades\Mcp;
 
+// TEMP: sin auth de entrada (Claude Desktop / Connectors). Restaurar la línea comentada cuando definamos OAuth o headers.
+// Mcp::web('/mcp/zalo-tenants', ZaloTenants::class)
+//     ->middleware([ForceJsonAccept::class, 'auth:sanctum', 'mcp.server:zalo-tenants', 'throttle:mcp']);
 Mcp::web('/mcp/zalo-tenants', ZaloTenants::class)
-    ->middleware([ForceJsonAccept::class, 'auth:sanctum', 'mcp.server:zalo-tenants', 'throttle:mcp']);
+    ->middleware([ForceJsonAccept::class, 'throttle:mcp']);
 
 Mcp::local('zalo-tenants', ZaloTenants::class);
 

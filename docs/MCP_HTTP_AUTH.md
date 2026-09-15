@@ -1,6 +1,8 @@
 # Auth de entrada (HTTP MCP)
 
-Las rutas `POST /mcp/zalo-tenants`, `POST /mcp/santox-tenants` y `POST /mcp/godai-mailing` exigen un **Bearer token de entrada** emitido en Filament (`/admin` → **API Keys**).
+Las rutas `POST /mcp/santox-tenants` y `POST /mcp/godai-mailing` exigen un **Bearer token de entrada** emitido en Filament (`/admin` → **API Keys**).
+
+**Temporal:** `POST /mcp/zalo-tenants` está **sin** `auth:sanctum` / `mcp.server` (solo `ForceJsonAccept` + throttle) para probar Claude Desktop/Connectors. Restaurar en `routes/ai.php` cuando definamos OAuth o headers.
 
 ## Cómo emitir una key
 
