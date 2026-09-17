@@ -19,19 +19,24 @@ use App\Mcp\Tools\Mailing\CrearPlantilla;
 use App\Mcp\Tools\Mailing\CuotaCuenta;
 use App\Mcp\Tools\Mailing\FormatoPlantilla;
 use App\Mcp\Tools\Mailing\LanzarEnvio;
+use App\Mcp\Tools\Mailing\ListarBuzones;
 use App\Mcp\Tools\Mailing\ListarCampanas;
 use App\Mcp\Tools\Mailing\ListarCc;
 use App\Mcp\Tools\Mailing\ListarClientes;
+use App\Mcp\Tools\Mailing\ListarContactosBuzon;
 use App\Mcp\Tools\Mailing\ListarCuentas;
 use App\Mcp\Tools\Mailing\ListarDestinatariosEnvio;
 use App\Mcp\Tools\Mailing\ListarDestinatariosPrueba;
 use App\Mcp\Tools\Mailing\ListarEnvios;
+use App\Mcp\Tools\Mailing\ListarMensajesBuzon;
 use App\Mcp\Tools\Mailing\ListarParticipantes;
 use App\Mcp\Tools\Mailing\ListarPlantillas;
 use App\Mcp\Tools\Mailing\ListarRemitentes;
+use App\Mcp\Tools\Mailing\ObtenerBuzon;
 use App\Mcp\Tools\Mailing\ObtenerCampana;
 use App\Mcp\Tools\Mailing\ObtenerCuenta;
 use App\Mcp\Tools\Mailing\ObtenerEnvio;
+use App\Mcp\Tools\Mailing\ObtenerMensajeBuzon;
 use App\Mcp\Tools\Mailing\ObtenerPlantilla;
 use App\Mcp\Tools\Mailing\PausarEnvio;
 use App\Mcp\Tools\Mailing\PrevisualizarEnvio;
@@ -45,7 +50,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Version;
 
 #[Name('Godai Mailing')]
-#[Version('0.2.0')]
+#[Version('0.3.0')]
 #[Instructions(
     'Godai Mailing sirve para enviar correos personalizados a una lista de personas. '.
 
@@ -58,6 +63,7 @@ use Laravel\Mcp\Server\Attributes\Version;
     'Remitente: la dirección desde la que sale el correo; ya tiene que existir en la cuenta. '.
     'Envío: junta campaña, plantilla y remitente; nace como borrador y solo sale cuando lo lanzás. '.
     'Destinatario de prueba: buzón interno para recibir correos de prueba; ya tiene que existir en la cuenta. '.
+    'Buzón IMAP (bandeja): casilla real sincronizada (ej. Eva Zalo); los mensajes y adjuntos se leen acá, siempre acotados a un buzón. '.
 
     'REGLAS BÁSICAS. '.
     'Empezá siempre por listar-cuentas y usá ese account_id en todas las demás herramientas. '.
@@ -69,6 +75,12 @@ use Laravel\Mcp\Server\Attributes\Version;
     'Si no indicás asunto al crear el envío, se usa el de la plantilla. '.
     'Nada se puede borrar desde acá. '.
     'Los remitentes y los destinatarios de prueba no se crean acá: si faltan, pedí que los creen en el panel de Godai Mailing. '.
+
+    'BANDEJA / EVALUADOR. '.
+    'listar-buzones → mailbox (id o email). '.
+    'Para evaluar personas una por una: listar-mensajes-buzon con mailbox + contact_email (o contact_id) + from/to (Y-m-d) + include_body=true; orden default desc (últimos primero). '.
+    'Opcional: listar-contactos-buzon para descubrir quién escribió en el rango; obtener-mensaje-buzon para un mensaje puntual y sus adjuntos (url pública). '.
+    'folder: inbox, sent o all (default all). No hay sync ni respuesta desde estas tools: solo lectura. '.
 
     'ARGUMENTOS QUE VAN COMO TEXTO JSON. '.
     'participants_json: [{"email":"ana@ejemplo.com","first_name":"Ana","last_name":"Paz","attributes":{"enlace":"https://ejemplo.com"}}]. '.
@@ -86,6 +98,7 @@ use Laravel\Mcp\Server\Attributes\Version;
     'El enlace tiene que descargar el archivo directamente: sirve una URL pública https, un archivo de Google Drive compartido como «cualquiera con el enlace», o un documento de Google que se pueda exportar. '.
     'No sirven las carpetas de Drive ni los enlaces que piden iniciar sesión. '.
     'Formatos aconsejados: pdf, imágenes, documentos de Office, txt, csv y zip; evitá archivos ejecutables. '.
+    'En bandeja, los adjuntos de mensajes IMAP ya vienen con url pública en listar-mensajes-buzon / obtener-mensaje-buzon. '.
 
     'ANTES DE ENVIAR. '.
     'compatibilidad-plantilla avisa si la plantilla usa variables que la campaña no tiene; no envía nada. '.
@@ -94,9 +107,10 @@ use Laravel\Mcp\Server\Attributes\Version;
     'lanzar-envio sí envía a toda la audiencia: consultá antes audiencia-envio y pasá ese mismo número en confirm_recipient_count; si no coincide, no se envía nada. Confirmá con la persona que te pidió el trabajo antes de lanzar. '.
 
     'ORDEN RECOMENDADO. '.
-    'listar-cuentas, crear-cliente, crear-cc si hace falta alguna copia, crear-campana con sus campos extra, cargar-participantes, '.
+    'Envíos: listar-cuentas, crear-cliente, crear-cc si hace falta alguna copia, crear-campana con sus campos extra, cargar-participantes, '.
     'formato-plantilla y crear-plantilla, listar-remitentes, compatibilidad-plantilla, crear-envio, audiencia-envio, previsualizar-envio, probar-envio y por último lanzar-envio. '.
-    'Si algunos correos fallan, revisalos con listar-destinatarios-envio usando status=failed y reintentá con reintentar-fallidos-envio.'
+    'Si algunos correos fallan, revisalos con listar-destinatarios-envio usando status=failed y reintentá con reintentar-fallidos-envio. '.
+    'Evaluar bandeja: listar-cuentas → listar-buzones → por cada persona listar-mensajes-buzon (contact_email + from/to + include_body).'
 )]
 class GodaiMailing extends Server
 {
@@ -114,6 +128,11 @@ class GodaiMailing extends Server
         CrearCc::class,
         ActualizarCc::class,
         ListarDestinatariosPrueba::class,
+        ListarBuzones::class,
+        ObtenerBuzon::class,
+        ListarContactosBuzon::class,
+        ListarMensajesBuzon::class,
+        ObtenerMensajeBuzon::class,
         ListarCampanas::class,
         CrearCampana::class,
         ObtenerCampana::class,

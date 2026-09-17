@@ -27,6 +27,14 @@ final class MailingApi
     }
 
     /**
+     * Segmento de ruta para {mailbox}: id o email (URL-encoded).
+     */
+    public static function mailboxSegment(string $mailbox): string
+    {
+        return rawurlencode(trim($mailbox));
+    }
+
+    /**
      * @param  array<string, mixed>  $query
      */
     public static function get(string $path, array $query = []): Response|ResponseFactory
