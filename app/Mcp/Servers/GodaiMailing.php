@@ -32,6 +32,7 @@ use App\Mcp\Tools\Mailing\ListarMensajesBuzon;
 use App\Mcp\Tools\Mailing\ListarParticipantes;
 use App\Mcp\Tools\Mailing\ListarPlantillas;
 use App\Mcp\Tools\Mailing\ListarRemitentes;
+use App\Mcp\Tools\Mailing\MetricasEnvio;
 use App\Mcp\Tools\Mailing\ObtenerBuzon;
 use App\Mcp\Tools\Mailing\ObtenerCampana;
 use App\Mcp\Tools\Mailing\ObtenerCuenta;
@@ -50,7 +51,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Version;
 
 #[Name('Godai Mailing')]
-#[Version('0.3.0')]
+#[Version('0.4.0')]
 #[Instructions(
     'Godai Mailing sirve para enviar correos personalizados a una lista de personas. '.
 
@@ -82,6 +83,12 @@ use Laravel\Mcp\Server\Attributes\Version;
     'Opcional: listar-contactos-buzon para descubrir quién escribió en el rango; obtener-mensaje-buzon para un mensaje puntual y sus adjuntos (url pública). '.
     'folder: inbox, sent o all (default all). No hay sync ni respuesta desde estas tools: solo lectura. '.
 
+    'MÉTRICAS BREVO. '.
+    'Tras lanzar un envío, metricas-envio consulta entregados/abiertos/clics/rebotes. '.
+    'Por defecto refresh=true: pide a Brevo y actualiza antes de responder (equivalente al botón Actualizar métricas). '.
+    'obtener-envio trae metrics cacheadas sin sync; listar-destinatarios-envio incluye delivered_at/opened_at/etc. '.
+    'Solo aplica a envíos hechos después de activar el tracking por tags. '.
+
     'ARGUMENTOS QUE VAN COMO TEXTO JSON. '.
     'participants_json: [{"email":"ana@ejemplo.com","first_name":"Ana","last_name":"Paz","attributes":{"enlace":"https://ejemplo.com"}}]. '.
     'field_schema_json: [{"label":"Enlace","type":"url"}]; type puede ser text, url o bool. '.
@@ -110,6 +117,7 @@ use Laravel\Mcp\Server\Attributes\Version;
     'Envíos: listar-cuentas, crear-cliente, crear-cc si hace falta alguna copia, crear-campana con sus campos extra, cargar-participantes, '.
     'formato-plantilla y crear-plantilla, listar-remitentes, compatibilidad-plantilla, crear-envio, audiencia-envio, previsualizar-envio, probar-envio y por último lanzar-envio. '.
     'Si algunos correos fallan, revisalos con listar-destinatarios-envio usando status=failed y reintentá con reintentar-fallidos-envio. '.
+    'Para ver si llegaron/abrieron: metricas-envio (refresh true por default). '.
     'Evaluar bandeja: listar-cuentas → listar-buzones → por cada persona listar-mensajes-buzon (contact_email + from/to + include_body).'
 )]
 class GodaiMailing extends Server
@@ -152,6 +160,7 @@ class GodaiMailing extends Server
         ObtenerEnvio::class,
         ActualizarEnvio::class,
         ListarDestinatariosEnvio::class,
+        MetricasEnvio::class,
         AudienciaEnvio::class,
         PrevisualizarEnvio::class,
         ProbarEnvio::class,

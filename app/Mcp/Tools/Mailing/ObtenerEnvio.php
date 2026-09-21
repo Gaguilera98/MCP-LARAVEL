@@ -12,7 +12,10 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('obtener-envio')]
-#[Description('Datos de un envío: configuración, estado y cuántos correos se enviaron, fallaron o están pendientes.')]
+#[Description(
+    'Datos de un envío: configuración, estado, counts de cola (enviados/fallidos) y metrics Brevo cacheadas '.
+    '(entregados/abiertos/etc. sin sync). Para números frescos usá metricas-envio.'
+)]
 class ObtenerEnvio extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory

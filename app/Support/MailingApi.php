@@ -37,9 +37,17 @@ final class MailingApi
     /**
      * @param  array<string, mixed>  $query
      */
-    public static function get(string $path, array $query = []): Response|ResponseFactory
+    public static function get(string $path, array $query = [], ?int $timeout = null): Response|ResponseFactory
     {
-        return self::send(fn () => self::client()->get(self::url($path), self::filterQuery($query)));
+        return self::send(function () use ($path, $query, $timeout) {
+            $client = self::client();
+
+            if ($timeout !== null) {
+                $client = $client->timeout($timeout);
+            }
+
+            return $client->get(self::url($path), self::filterQuery($query));
+        });
     }
 
     /**
