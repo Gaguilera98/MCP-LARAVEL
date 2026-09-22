@@ -32,7 +32,7 @@ class CreateMcpApiKey extends CreateRecord
         $serverId = (string) $data['mcp_server'];
         McpServers::assertValid($serverId);
 
-        $tokenResult = $user->createToken(
+        $tokenResult = $user->createSanctumToken(
             $data['name'],
             [$serverId],
             isset($data['expires_at']) && $data['expires_at']
