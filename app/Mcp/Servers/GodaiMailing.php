@@ -68,6 +68,7 @@ use Laravel\Mcp\Server\Attributes\Version;
 
     'REGLAS BÁSICAS. '.
     'Empezá siempre por listar-cuentas y usá ese account_id en todas las demás herramientas. '.
+    'Los listados (cuentas, clientes, campañas, participantes, plantillas, envíos, destinatarios, CC, remitentes, buzones, etc.) vienen más recientes primero. '.
     'Los campos extra se definen en la campaña. Si un dato no está definido ahí, se descarta al cargar participantes. '.
     'Variables disponibles en asunto y diseño: {{nombre}}, {{apellidos}}, {{email}} y una por cada campo extra, por ejemplo {{enlace}}. '.
     'Los correos en copia se dan de alta en el cliente y después se eligen en la campaña o en el envío; si mandás uno que no está dado de alta para ese cliente, se descarta y te avisa en warnings. '.
