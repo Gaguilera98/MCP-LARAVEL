@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Tools;
 
+use App\Support\CreditLimitEnricher;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Http;
 use Laravel\Mcp\Request;
@@ -12,7 +13,19 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('listar-usuarios-cuenta-tenant')]
-#[Description('Lista los usuarios de una cuenta dentro de un tenant con paginación y filtros opcionales (area_id, area). Devuelve meta (cuenta, tenant_id, filters, pagination), data (array de usuarios) y links de paginación.')]
+#[Description(
+    'Lista los usuarios de una cuenta dentro de un tenant (paginación; filtros area_id, area). '.
+    'Devuelve meta, data[] y links. Cada usuario incluye credit_limit con: '.
+    'source (subscription|personal|account|none), source_label, source_meaning, '.
+    'limit_usd, limit_credits, monthly_limit_* (alias), period, window_start, window_end, subscription_id. '.
+    'Origen (source): '.
+    'subscription = Taller: tope en toda la suscripción vigente, no reinicia por mes; '.
+    'personal = Límite personal permanente, mes calendario; '.
+    'account = Límite mensual de la cuenta, mes calendario; '.
+    'none = Sin límite. '.
+    'Prioridad: subscription > personal > account > none. No incluye remaining. '.
+    'Para límites + consumo del periodo usar también get_account_usage_by_user.'
+)]
 class ListarUsuariosCuentaTenant extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -41,11 +54,12 @@ class ListarUsuariosCuentaTenant extends Tool
                 ->get($url, $query);
 
             if ($response->successful()) {
-                $json = $response->json();
+                $json = $response->json() ?? [];
+                $data = CreditLimitEnricher::enrichUsersList($json['data'] ?? []);
 
                 return Response::structured([
                     'meta'  => $json['meta']  ?? [],
-                    'data'  => $json['data']  ?? [],
+                    'data'  => $data,
                     'links' => $json['links'] ?? [],
                 ]);
             }

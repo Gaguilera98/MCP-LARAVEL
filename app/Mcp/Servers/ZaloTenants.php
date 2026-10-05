@@ -23,7 +23,7 @@ use App\Mcp\Tools\GetAccountUsageByUser;
 use App\Mcp\Tools\ListarModelos;
 
 #[Name('Zalo Tenants')]
-#[Version('0.0.5')]
+#[Version('0.0.6')]
 #[Instructions(
     'API bajo /api/v1 con Bearer (ZALO_API_BASE_URL, ZALO_API_TOKEN). Fechas de filtro en query: YYYY-MM-DD. '.
     'Nombres de argumentos: tools bulk get_account_* usan tenantId y accountId (camelCase). El resto (listar-*, generaciones-usuario, chat-usuario, uso-cuenta-tenant, listar-modelos) usan tenant_id, account_id (snake_case). '.
@@ -31,6 +31,11 @@ use App\Mcp\Tools\ListarModelos;
     'Catálogo: listar-modelos (tenant_id) → platform, status active|inactive, available_until, days_until_expiration, availability, pricing (unit_type + unit_definition; markup_percentage separa costo proveedor vs precio venta). Filtrar generations con model= el id/slug del catálogo (no la etiqueta display_name). by_model[] trae model_id, display_name, count. model= también acepta la etiqueta o mayúsculas/-/_ ; agrupa al mismo slug. '.
     'Precios por resolución en catálogo: unit_definition puede traer prices_by_resolution (ej. ltx-2.5-fast, minimax-h3, seedream-5-pro) o high_res_price_per_second (sora-2-pro). Cruzar con resolution y duration_seconds del ítem de generations para estimar costo esperado vs cost_usd cobrado. '.
     'Flujo usuario puntual: listar-usuarios-cuenta-tenant → generaciones-usuario y chat-usuario; costo de cuenta con uso-cuenta-tenant si hace falta. '.
+    'Límites de créditos por usuario: listar-usuarios-cuenta-tenant y get_account_usage_by_user exponen credit_limit. '.
+    'source=subscription (taller: tope en la suscripción vigente, ventana window_start..window_end; no reinicia al cambiar de mes), '.
+    'personal (límite personal permanente, mes), account (límite mensual de la cuenta, mes), none (sin límite). '.
+    'Campos: limit_usd, limit_credits, monthly_limit_* (alias), period, window_start, window_end, subscription_id, source_label, source_meaning. No hay remaining. '.
+    'Prioridad: subscription > personal > account > none. meta.credit_limit_sources resume los tipos. '.
     'get_account_generations / generaciones-usuario: cada ítem puede traer usage_record_id y cost_usd (null si ese ítem no tiene registro de costo ligado). Costo de UNA pieza → cost_usd del ítem; uso-cuenta-tenant es agregado. Ítem.model y by_model[].model_id son slug canónico; display_name es la etiqueta. platform va a nivel ítem. Filtros opcionales model, platform, status (incl. failed). '.
     'Video en generations: duration_seconds, resolution, has_audio, source_images[], source_type (text_to_video|image_to_video), count se leen desde input_payload (null solo si la clave no está en el payload). results[].ratio suele venir en video. seed/fps/negative_prompt no están en la API. '.
     'get_account_generations: solo historial creativo y presentaciones; si tools incluye chat, la API lo ignora (meta.notes). Chat real → get_account_chat o chat-usuario. '.

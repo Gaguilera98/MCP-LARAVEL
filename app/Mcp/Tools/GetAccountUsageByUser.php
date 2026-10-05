@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Tools;
 
+use App\Support\CreditLimitEnricher;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Http;
 use Laravel\Mcp\Request;
@@ -12,7 +13,18 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('get_account_usage_by_user')]
-#[Description('Uso y costo por usuario (UsageRecord), desglosado por herramienta (by_tool: tool, count, subtotal_cost_usd) con total_uses y total_cost_usd. Mismos filtros organizacionales que get_account_generations; date_from/date_to filtran created_at de UsageRecord. Pagina usuarios (meta.pagination, links). meta.integrity es de la cuenta+fechas (no de la página). Para total agregado de cuenta usar uso-cuenta-tenant.')]
+#[Description(
+    'Uso y costo por usuario (UsageRecord), desglosado por herramienta (by_tool) con total_uses y total_cost_usd. '.
+    'Filtros: area_id, area, company_id, position_id, user_id; date_from/date_to sobre created_at. Pagina usuarios. '.
+    'Cada ítem trae credit_limit con source, source_label, source_meaning, limit_usd/limit_credits, period, ventana. '.
+    'Origen (source): '.
+    'subscription = Taller: tope en toda la suscripción vigente (no reinicia por mes); '.
+    'personal = Límite personal permanente (mes); '.
+    'account = Límite mensual de la cuenta (mes); '.
+    'none = Sin límite. '.
+    'total_cost_usd es del rango date_from/date_to (independiente de la ventana del límite). Sin remaining. '.
+    'meta.integrity es de cuenta+fechas. Total agregado de cuenta → uso-cuenta-tenant.'
+)]
 class GetAccountUsageByUser extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -61,7 +73,12 @@ class GetAccountUsageByUser extends Tool
                 ->get($url, $query);
 
             if ($response->successful()) {
-                return Response::structured($response->json());
+                $json = $response->json() ?? [];
+                if (isset($json['data']) && is_array($json['data'])) {
+                    $json['data'] = CreditLimitEnricher::enrichUsageByUserRows($json['data']);
+                }
+
+                return Response::structured($json);
             }
 
             $body = $response->body();
