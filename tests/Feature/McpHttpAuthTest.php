@@ -1,8 +1,11 @@
 <?php
 
 use App\Models\User;
+use Filament\Auth\Pages\Login;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
+use Laravel\Passport\ClientRepository;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -97,6 +100,55 @@ it('allows passport oauth user on all mcp servers', function () {
         $response = $this->actingAs($user, 'api')->postJson($path, []);
         expect($response->status())->not->toBeIn([401, 403]);
     }
+});
+
+it('sends a signed-out oauth authorize visit to the panel login', function () {
+    $client = app(ClientRepository::class)->createAuthorizationCodeGrantClient(
+        'Claude',
+        ['https://claude.ai/api/mcp/auth_callback'],
+        confidential: false,
+    );
+
+    $this->get('/oauth/authorize?'.http_build_query([
+        'client_id' => $client->getKey(),
+        'redirect_uri' => 'https://claude.ai/api/mcp/auth_callback',
+        'response_type' => 'code',
+        'code_challenge' => str_repeat('a', 43),
+        'code_challenge_method' => 'S256',
+    ]))->assertRedirect(route('filament.admin.auth.login'));
+});
+
+it('returns to the approval screen after signing in from claude', function () {
+    $user = User::factory()->create();
+    $client = app(ClientRepository::class)->createAuthorizationCodeGrantClient(
+        'Claude',
+        ['https://claude.ai/api/mcp/auth_callback'],
+        confidential: false,
+    );
+    $authorize = '/oauth/authorize?'.http_build_query([
+        'client_id' => $client->getKey(),
+        'redirect_uri' => 'https://claude.ai/api/mcp/auth_callback',
+        'response_type' => 'code',
+        'code_challenge' => str_repeat('a', 43),
+        'code_challenge_method' => 'S256',
+    ]);
+
+    $this->get($authorize)->assertRedirect(route('filament.admin.auth.login'));
+
+    expect((string) session('url.intended'))->toContain('/oauth/authorize');
+
+    Livewire::test(Login::class)
+        ->fillForm([
+            'email' => $user->email,
+            'password' => 'password',
+        ])
+        ->call('authenticate')
+        ->assertRedirect(session('url.intended'));
+
+    $this->get($authorize)
+        ->assertOk()
+        ->assertSee('Authorize Claude')
+        ->assertSee($user->email);
 });
 
 it('exposes oauth authorization server metadata', function () {

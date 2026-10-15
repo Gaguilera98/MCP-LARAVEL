@@ -19,6 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'mcp.server' => EnsureMcpServerToken::class,
         ]);
 
+        $middleware->redirectGuestsTo(fn () => route('filament.admin.auth.login'));
+
         $middleware->validateCsrfTokens(except: [
             'mcp/*',
             'oauth/*',
