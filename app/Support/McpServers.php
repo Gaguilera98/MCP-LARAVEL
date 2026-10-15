@@ -15,6 +15,7 @@ final class McpServers
             'zalo-tenants' => 'Zalo Tenants',
             'santox-tenants' => 'Santox Tenants',
             'godai-mailing' => 'Godai Mailing',
+            'lms-zalo' => 'LMS Zalo',
         ];
 
     }

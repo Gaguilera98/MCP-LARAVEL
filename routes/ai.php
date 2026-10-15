@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\ForceJsonAccept;
 use App\Mcp\Servers\GodaiMailing;
+use App\Mcp\Servers\LmsZalo;
 use App\Mcp\Servers\SantoxTenants;
 use App\Mcp\Servers\ZaloTenants;
 use Laravel\Mcp\Facades\Mcp;
@@ -22,3 +23,8 @@ Mcp::web('/mcp/godai-mailing', GodaiMailing::class)
     ->middleware([ForceJsonAccept::class, 'auth.mcp', 'mcp.server:godai-mailing', 'throttle:mcp']);
 
 Mcp::local('godai-mailing', GodaiMailing::class);
+
+Mcp::web('/mcp/lms-zalo', LmsZalo::class)
+    ->middleware([ForceJsonAccept::class, 'auth.mcp', 'mcp.server:lms-zalo', 'throttle:mcp']);
+
+Mcp::local('lms-zalo', LmsZalo::class);

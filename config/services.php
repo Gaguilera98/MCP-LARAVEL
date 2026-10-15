@@ -61,5 +61,12 @@ return [
         'token' => env('MAILING_API_TOKEN', ''),
     ],
 
-];
+    /*
+    | Aula LMS Zalo (/api/v1). Token = clave de un super admin, creada en el aula.
+    */
+    'lms_api' => [
+        'base_url' => rtrim(env('LMS_API_BASE_URL', 'http://localhost:8000'), '/'),
+        'token' => env('LMS_API_TOKEN', ''),
+    ],
 
+];

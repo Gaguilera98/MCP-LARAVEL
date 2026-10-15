@@ -1,19 +1,19 @@
 # Auth de entrada (HTTP MCP)
 
-Las rutas `POST /mcp/zalo-tenants`, `POST /mcp/santox-tenants` y `POST /mcp/godai-mailing` aceptan **dos** formas de autenticación en el mismo endpoint:
+Las rutas `POST /mcp/zalo-tenants`, `POST /mcp/santox-tenants`, `POST /mcp/godai-mailing` y `POST /mcp/lms-zalo` aceptan **dos** formas de autenticación en el mismo endpoint:
 
 | Cliente | Mecanismo | Cómo |
 |---------|-----------|------|
 | **Cursor** (y similares) | Sanctum API Key | Header `Authorization: Bearer …` emitido en Filament |
 | **Claude** (Connectors / Desktop) | OAuth 2.1 (Passport) | Flujo Log in → Aprobar en el navegador |
 
-Los tokens de salida hacia las APIs remotas (`ZALO_API_TOKEN`, `SANTOX_API_TOKEN`, `MAILING_API_TOKEN`) **no cambian**.
+Los tokens de salida hacia las APIs remotas (`ZALO_API_TOKEN`, `SANTOX_API_TOKEN`, `MAILING_API_TOKEN`, `LMS_API_TOKEN`) **no cambian**.
 
 ## Sanctum (Cursor)
 
 1. Entrá a `/admin` con un usuario del panel.
 2. **MCP → API Keys → Nueva**.
-3. Elegí el **Server MCP** (`Zalo Tenants`, `Santox Tenants` o `Godai Mailing`).
+3. Elegí el **Server MCP** (`Zalo Tenants`, `Santox Tenants`, `Godai Mailing` o `LMS Zalo`).
 4. Copiá el secreto **una sola vez** del modal.
 
 Cada key tiene una sola ability (= id del server). No sirve para otro endpoint → `403`.
@@ -51,7 +51,7 @@ Con OAuth, un usuario autenticado puede usar **cualquier** server MCP (no se apl
 
 ## Stdio local
 
-`php artisan mcp:start zalo-tenants` (santox / godai-mailing) **no** usa Bearer ni OAuth: es proceso local de confianza.
+`php artisan mcp:start zalo-tenants` (santox / godai-mailing / lms-zalo) **no** usa Bearer ni OAuth: es proceso local de confianza.
 
 ## Tokens de salida (`.env`)
 
@@ -59,7 +59,7 @@ Con OAuth, un usuario autenticado puede usar **cualquier** server MCP (no se apl
 |------|--------|--------|
 | Entrada Sanctum | Cliente → MCP HTTP | Filament API Keys |
 | Entrada OAuth | Claude → MCP HTTP | Passport (login + aprobar) |
-| Salida | MCP → API Zalo/Santox/Mailing | `.env` |
+| Salida | MCP → API Zalo/Santox/Mailing/LMS | `.env` |
 
 ## Deploy
 
