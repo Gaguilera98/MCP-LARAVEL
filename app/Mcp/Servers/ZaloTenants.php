@@ -23,7 +23,7 @@ use App\Mcp\Tools\GetAccountUsageByUser;
 use App\Mcp\Tools\ListarModelos;
 
 #[Name('Zalo Tenants')]
-#[Version('0.0.6')]
+#[Version('0.0.7')]
 #[Instructions(
     'API bajo /api/v1 con Bearer (ZALO_API_BASE_URL, ZALO_API_TOKEN). Fechas de filtro en query: YYYY-MM-DD. '.
     'Nombres de argumentos: tools bulk get_account_* usan tenantId y accountId (camelCase). El resto (listar-*, generaciones-usuario, chat-usuario, uso-cuenta-tenant, listar-modelos) usan tenant_id, account_id (snake_case). '.
@@ -31,6 +31,9 @@ use App\Mcp\Tools\ListarModelos;
     'Catálogo: listar-modelos (tenant_id) → platform, status active|inactive, available_until, days_until_expiration, availability, pricing (unit_type + unit_definition; markup_percentage separa costo proveedor vs precio venta). Filtrar generations con model= el id/slug del catálogo (no la etiqueta display_name). by_model[] trae model_id, display_name, count. model= también acepta la etiqueta o mayúsculas/-/_ ; agrupa al mismo slug. '.
     'Precios por resolución en catálogo: unit_definition puede traer prices_by_resolution (ej. ltx-2.5-fast, minimax-h3, seedream-5-pro) o high_res_price_per_second (sora-2-pro). Cruzar con resolution y duration_seconds del ítem de generations para estimar costo esperado vs cost_usd cobrado. '.
     'Flujo usuario puntual: listar-usuarios-cuenta-tenant → generaciones-usuario y chat-usuario; costo de cuenta con uso-cuenta-tenant si hace falta. '.
+    'Estado de usuario: listar-usuarios-cuenta-tenant data[].status true (puede entrar) o false. '.
+    'Filtro opcional status=active|inactive. meta.status_summary {active, inactive, total} es del conjunto filtrado. '.
+    'listar-cuentas-tenants trae users_status {active, inactive} por cuenta. '.
     'Límites de créditos por usuario: listar-usuarios-cuenta-tenant y get_account_usage_by_user exponen credit_limit. '.
     'source=subscription (taller: tope en la suscripción vigente, ventana window_start..window_end; no reinicia al cambiar de mes), '.
     'personal (límite personal permanente, mes), account (límite mensual de la cuenta, mes), none (sin límite). '.

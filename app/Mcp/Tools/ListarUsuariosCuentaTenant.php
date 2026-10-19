@@ -14,7 +14,10 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('listar-usuarios-cuenta-tenant')]
 #[Description(
-    'Lista los usuarios de una cuenta dentro de un tenant (paginación; filtros area_id, area). '.
+    'Lista los usuarios de una cuenta dentro de un tenant (paginación; filtros area_id, area, status). '.
+    'status=active|inactive es opcional; si se omite, devuelve ambos. '.
+    'Cada usuario trae status (true puede iniciar sesión, false no). '.
+    'meta.status_summary cuenta active, inactive y total del conjunto filtrado, no solo de la página. '.
     'Devuelve meta, data[] y links. Cada usuario incluye credit_limit con: '.
     'source (subscription|personal|account|none), source_label, source_meaning, '.
     'limit_usd, limit_credits, monthly_limit_* (alias), period, window_start, window_end, subscription_id. '.
@@ -37,7 +40,7 @@ class ListarUsuariosCuentaTenant extends Tool
                 .'/api/v1/tenants/'.$tenantId.'/accounts/'.$accountId.'/users';
 
             $query = [];
-            foreach (['page', 'per_page', 'area_id', 'area'] as $key) {
+            foreach (['page', 'per_page', 'area_id', 'area', 'status'] as $key) {
                 $v = $request->get($key);
                 if ($v !== null && $v !== '') {
                     $query[$key] = $v;
@@ -97,6 +100,8 @@ class ListarUsuariosCuentaTenant extends Tool
                 ->description('Filtra usuarios por el ID exacto de su área.'),
             'area' => $schema->string()
                 ->description('Búsqueda parcial por nombre de área (LIKE %valor%).'),
+            'status' => $schema->string()
+                ->description('Filtra por estado: active o inactive. Si se omite, devuelve ambos.'),
         ];
     }
 }
