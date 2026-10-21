@@ -16,7 +16,7 @@ use Laravel\Mcp\Server\Tool;
 #[Name('agregar-paso')]
 #[Description(
     'Agrega un paso al final de un capítulo. Un paso es una pieza del capítulo: un texto, un video, un documento, una imagen o un enlace. '.
-    'El video, la imagen y el documento usan el número de un archivo ya subido. El enlace es una dirección, como YouTube, Zoom o una página. '.
+    'El video propio se sube con subir-video y se usa ese número. Una imagen o un documento solo se usan si ya tienen número en la biblioteca: desde acá no se suben. El enlace es una dirección, como YouTube, Zoom o una página. '.
     'Si el archivo no existe o no es del tipo pedido, el paso no se agrega y te dice por qué.'
 )]
 class AgregarPaso extends Tool
@@ -59,7 +59,7 @@ class AgregarPaso extends Tool
             'texto' => $schema->string()
                 ->description('Contenido cuando el tipo es texto.'),
             'archivo' => $schema->integer()
-                ->description('Número del video, la imagen o el documento ya subido. Si un video trae archivo y enlace, se usa el archivo.'),
+                ->description('Número de un video de subir-video, o de una imagen o documento que ya está en la biblioteca. Si un video trae archivo y enlace, se usa el archivo.'),
             'enlace' => $schema->string()
                 ->description('Dirección cuando el tipo es enlace, o un video de YouTube u otra página.'),
             'opcional' => $schema->boolean()

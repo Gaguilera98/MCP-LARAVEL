@@ -16,7 +16,7 @@ use Laravel\Mcp\Server\Tool;
 #[Name('crear-curso')]
 #[Description(
     'Arma un curso de una sola vez: nombre, descripción, si es privado, fecha de cierre, categorías si las conocés, portada y los capítulos con sus pasos. '.
-    'Antes subí la portada, las imágenes, los documentos y los videos, y usá los números que te devolvieron. '.
+    'Desde acá no se suben portadas, imágenes ni documentos. Si ya tenés el número de uno que está en la biblioteca, usalo. El video propio se sube con subir-video. '.
     'Un video de YouTube, Zoom u otra página no se sube: se escribe como enlace. '.
     'Si un archivo no existe o no corresponde a ese paso, el curso no se crea y te dice qué paso falló. El nombre no puede repetirse.'
 )]
@@ -52,12 +52,12 @@ class CrearCurso extends Tool
             'categorias' => $schema->string()
                 ->description('Números de categoría separados por coma, por ejemplo 1,3. Si no los conocés, omitilos.'),
             'portada' => $schema->integer()
-                ->description('Número que devolvió subir-archivo cuando el uso era portada.'),
+                ->description('Número de una portada que ya está en la biblioteca. Desde acá no se puede subir.'),
             'capitulos' => $schema->string()
                 ->description(
                     'Lista de capítulos. Cada uno tiene nombre, visible (si lo omitís se ve) y pasos. '.
                     'Cada paso tiene nombre, tipo (texto, video, documento, imagen o enlace) y el contenido: '.
-                    'texto para un texto, archivo con el número de subir-archivo o subir-video, o enlace con la dirección. '.
+                    'texto para un texto, archivo con el número de subir-video o de una imagen o documento que ya está en la biblioteca, o enlace con la dirección. '.
                     'Si un video trae archivo y enlace, se usa el archivo. Un paso se marca opcional con opcional en verdadero. '.
                     'Ejemplo: [{"nombre":"Semana 1","visible":true,"pasos":[{"nombre":"Introducción","tipo":"texto","texto":"Bienvenida"},{"nombre":"Clase","tipo":"video","archivo":8},{"nombre":"En vivo","tipo":"enlace","enlace":"https://zoom.example/clase"}]}]'
                 ),

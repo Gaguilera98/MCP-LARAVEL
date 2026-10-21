@@ -7,6 +7,7 @@ use App\Mcp\Tools\Lms\CrearEstudiante;
 use App\Mcp\Tools\Lms\SubirArchivo;
 use App\Mcp\Tools\Lms\SubirVideo;
 use Illuminate\Support\Facades\Http;
+use Laravel\Mcp\Request;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Instructions;
 
@@ -123,10 +124,13 @@ it('explains a skipped grade in plain words', function () {
 });
 
 it('says when the file is not on this machine', function () {
-    LmsZalo::tool(SubirArchivo::class, [
+    $response = (new SubirArchivo)->handle(new Request([
         'ruta' => 'C:\\no-existe\\guia.pdf',
         'uso' => 'documento',
-    ])->assertHasErrors(['No encuentro ese archivo']);
+    ]));
+
+    expect($response->isError())->toBeTrue()
+        ->and((string) $response->content())->toContain('No encuentro ese archivo');
 });
 
 it('uploads a class video and only returns its number', function () {
@@ -169,8 +173,10 @@ it('describes every tool for the agent without remote jargon', function () {
     $tools = $server->getDefaultProperties()['tools'];
     $instructions = $server->getAttributes(Instructions::class)[0]->newInstance()->value;
 
-    expect($tools)->toHaveCount(23);
-    expect(mb_strtolower($instructions))->not->toContain('endpoint', '/api/', 'sanctum', 'uuid');
+    expect($tools)->toHaveCount(22)
+        ->not->toContain(SubirArchivo::class);
+    expect(mb_strtolower($instructions))->not->toContain('endpoint', '/api/', 'sanctum', 'uuid', 'subir-archivo');
+    expect($instructions)->toContain('no se suben portadas, imágenes ni documentos');
 
     $banned = ['endpoint', 'sanctum', 'uuid', 'presigned', 'library_item', '/api/', 'bearer', 'multipart'];
 
