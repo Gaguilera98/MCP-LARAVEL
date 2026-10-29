@@ -69,4 +69,14 @@ return [
         'token' => env('LMS_API_TOKEN', ''),
     ],
 
+    /*
+    | Heraldo — API central (dominio central, /api/v1).
+    | Token = llave de `php artisan heraldo:central-api-token {email}`.
+    | Operar exige esa llave creada con --operate.
+    */
+    'heraldo_api' => [
+        'base_url' => rtrim(env('HERALDO_API_BASE_URL', 'https://heraldo-x.co'), '/'),
+        'token' => env('HERALDO_API_TOKEN', ''),
+    ],
+
 ];

@@ -84,6 +84,18 @@ it('allows lms key on lms and forbids on the other servers', function () {
     expect($response->status())->not->toBeIn([401, 403]);
 });
 
+it('allows heraldo key on heraldo and forbids on the other servers', function () {
+    $user = User::factory()->create();
+    $token = $user->createSanctumToken('heraldo-only', ['heraldo'])->plainTextToken;
+
+    foreach (['/mcp/zalo-tenants', '/mcp/santox-tenants', '/mcp/godai-mailing', '/mcp/lms-zalo'] as $path) {
+        $this->withToken($token)->postJson($path, [])->assertForbidden();
+    }
+
+    $response = $this->withToken($token)->postJson('/mcp/heraldo', []);
+    expect($response->status())->not->toBeIn([401, 403]);
+});
+
 it('allows passport oauth user on godai-mailing without sanctum ability', function () {
     $user = User::factory()->create();
 
@@ -96,7 +108,7 @@ it('allows passport oauth user on godai-mailing without sanctum ability', functi
 it('allows passport oauth user on all mcp servers', function () {
     $user = User::factory()->create();
 
-    foreach (['/mcp/zalo-tenants', '/mcp/santox-tenants', '/mcp/godai-mailing', '/mcp/lms-zalo'] as $path) {
+    foreach (['/mcp/zalo-tenants', '/mcp/santox-tenants', '/mcp/godai-mailing', '/mcp/lms-zalo', '/mcp/heraldo'] as $path) {
         $response = $this->actingAs($user, 'api')->postJson($path, []);
         expect($response->status())->not->toBeIn([401, 403]);
     }
