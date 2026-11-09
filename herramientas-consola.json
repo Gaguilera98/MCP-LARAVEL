@@ -1,0 +1,1124 @@
+{
+ "heraldo": "Consola de pedidos (paquete-dev-consola): pedidos, pasos, preguntas a personas, lineamientos de marca, previsto y gastado. Disponible cuando el dev publique ese paquete.",
+ "base_url": "https://heraldo-x.co/api/console/v1/",
+ "llave": "La misma de las herramientas de hoy (Authorization: Bearer). Leer: cualquier llave. Cambiar algo: con «Puede operar». Los presets actúan dentro del cliente como el usuario con el correo del dueño de la llave.",
+ "cabecera_agente": "Si viene el parámetro agente, mandarlo como cabecera X-Heraldo-Agent y no en el cuerpo.",
+ "respuestas": "Éxito en {data}. Error con message: pasarlo tal cual al agente. 404 no existe, 409 el pedido está en pausa o cerrado, 422 datos mal enviados.",
+ "herramientas": [
+  {
+   "name": "consola-pendientes",
+   "description": "Lo que espera a un agente en todos los pedidos en curso. steps: pasos que ya se pueden trabajar (lo anterior está cerrado; las plantillas van en paralelo con fotos y textos), con doer para saber qué agente lo toma. answers: respuestas de personas que el agente todavía no leyó. Los pedidos en pausa no aparecen. El paso del plugin nunca aparece: lo hace una persona.",
+   "http": {
+    "method": "GET",
+    "path": "pending",
+    "envio": "query"
+   },
+   "gasta": false,
+   "cambia_datos": false,
+   "inputSchema": {
+    "type": "object",
+    "properties": {},
+    "required": []
+   }
+  },
+  {
+   "name": "consola-listar-pedidos",
+   "description": "Pedidos de la consola, los más recientes primero. Por defecto, los abiertos (en curso y en pausa).",
+   "http": {
+    "method": "GET",
+    "path": "orders",
+    "envio": "query"
+   },
+   "gasta": false,
+   "cambia_datos": false,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "status": {
+      "type": "string",
+      "enum": [
+       "open",
+       "active",
+       "paused",
+       "delivered",
+       "cancelled"
+      ],
+      "description": "Filtra por estado. Por defecto, open."
+     },
+     "tenant_id": {
+      "type": "string",
+      "description": "Solo los de este cliente."
+     },
+     "page": {
+      "type": "integer"
+     },
+     "per_page": {
+      "type": "integer",
+      "description": "Hasta 100. Por defecto, 25."
+     }
+    },
+    "required": []
+   }
+  },
+  {
+   "name": "consola-ver-pedido",
+   "description": "Todo el pedido: resumen, enlaces de Figma (de la ficha de la marca y del pedido, con from), instrucciones, trato, legal y notas de la marca, guidelines (los lineamientos de la marca que aplican a este pedido: respétalos siempre), estimate (lo previsto, congelado al cerrar el paso 1), costs (lo gastado: Heraldo con su desglose más los agentes, contra lo previsto), los 8 pasos con su estado y nota, ready_steps, las campañas con su enlace a Heraldo, las preguntas, la bitácora y los archivos con su enlace firmado. heraldo trae piezas, revisión, videos y gasto de las campañas, leídos de Heraldo al llamar (un pedido entregado ya no se vuelve a leer).",
+   "http": {
+    "method": "GET",
+    "path": "orders/{order_id}",
+    "envio": "query"
+   },
+   "gasta": false,
+   "cambia_datos": false,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "order_id": {
+      "type": "integer",
+      "description": "id del pedido, de consola-pendientes, consola-listar-pedidos o consola-crear-pedido."
+     },
+     "refresh": {
+      "type": "boolean",
+      "description": "false no vuelve a leer Heraldo (más rápido). Por defecto, true."
+     }
+    },
+    "required": [
+     "order_id"
+    ]
+   }
+  },
+  {
+   "name": "consola-listar-preguntas",
+   "description": "Las preguntas de un pedido, las más nuevas primero.",
+   "http": {
+    "method": "GET",
+    "path": "orders/{order_id}/questions",
+    "envio": "query"
+   },
+   "gasta": false,
+   "cambia_datos": false,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "order_id": {
+      "type": "integer",
+      "description": "id del pedido, de consola-pendientes, consola-listar-pedidos o consola-crear-pedido."
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "open",
+       "answered",
+       "cancelled"
+      ]
+     }
+    },
+    "required": [
+     "order_id"
+    ]
+   }
+  },
+  {
+   "name": "consola-ver-pregunta",
+   "description": "Una pregunta con su respuesta: answer_value (la opción elegida), answer_label y answer_text (lo que escribió la persona).",
+   "http": {
+    "method": "GET",
+    "path": "questions/{question_id}",
+    "envio": "query"
+   },
+   "gasta": false,
+   "cambia_datos": false,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "question_id": {
+      "type": "integer",
+      "description": "id de la pregunta, de consola-pendientes (answers) o consola-listar-preguntas."
+     }
+    },
+    "required": [
+     "question_id"
+    ]
+   }
+  },
+  {
+   "name": "consola-ver-archivo",
+   "description": "Un archivo del pedido y su enlace firmado (url, vence a las 24 h). Si es una imagen, el MCP abre el enlace y devuelve la imagen como contenido de imagen, para que el agente la vea.",
+   "http": {
+    "method": "GET",
+    "path": "files/{file_id}",
+    "envio": "query"
+   },
+   "gasta": false,
+   "cambia_datos": false,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "file_id": {
+      "type": "integer",
+      "description": "id del archivo, de consola-ver-pedido (files)."
+     }
+    },
+    "required": [
+     "file_id"
+    ]
+   }
+  },
+  {
+   "name": "consola-listar-marcas",
+   "description": "Las fichas de marca: enlaces de Figma, instrucciones, trato (tu, vos, usted, mixto), legal y lineamientos.",
+   "http": {
+    "method": "GET",
+    "path": "brands",
+    "envio": "query"
+   },
+   "gasta": false,
+   "cambia_datos": false,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "tenant_id": {
+      "type": "string",
+      "description": "Solo las de este cliente."
+     }
+    },
+    "required": []
+   }
+  },
+  {
+   "name": "consola-ver-marca",
+   "description": "Una ficha de marca, con todos sus lineamientos (guidelines: text, category, active, source). Para trabajar un pedido no hace falta: consola-ver-pedido ya trae los que aplican.",
+   "http": {
+    "method": "GET",
+    "path": "brands/{brand_id}",
+    "envio": "query"
+   },
+   "gasta": false,
+   "cambia_datos": false,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "brand_id": {
+      "type": "integer"
+     }
+    },
+    "required": [
+     "brand_id"
+    ]
+   }
+  },
+  {
+   "name": "consola-listar-presets",
+   "description": "Los presets del cliente en cualquier estado (borrador, publicado, archivado), con su clave y versión. Úsala antes de crear un preset, para no repetir uno que ya existe.",
+   "http": {
+    "method": "GET",
+    "path": "tenants/{tenant_id}/presets",
+    "envio": "query"
+   },
+   "gasta": false,
+   "cambia_datos": false,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "tenant_id": {
+      "type": "string",
+      "description": "id del cliente, de listar-tenants."
+     }
+    },
+    "required": [
+     "tenant_id"
+    ]
+   }
+  },
+  {
+   "name": "consola-crear-pedido",
+   "description": "Crea un pedido con sus 8 pasos. skip_steps marca los que no aplican (por ejemplo design si las madres ya están aprobadas). notify_emails reciben un correo cada vez que el pedido necesita a una persona. campaign_ids vincula campañas que ya existen.",
+   "http": {
+    "method": "POST",
+    "path": "orders",
+    "envio": "json"
+   },
+   "gasta": false,
+   "cambia_datos": true,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "tenant_id": {
+      "type": "string",
+      "description": "id del cliente, de listar-tenants."
+     },
+     "name": {
+      "type": "string",
+      "description": "Nombre del pedido. Hasta 250 caracteres."
+     },
+     "brand_id": {
+      "type": "integer",
+      "description": "La ficha de marca, del mismo cliente."
+     },
+     "due_on": {
+      "type": "string",
+      "description": "Plazo, AAAA-MM-DD."
+     },
+     "summary": {
+      "type": "string",
+      "description": "El resumen del pedido en Markdown: campañas, piezas, fotos, lo que falta confirmar."
+     },
+     "instructions": {
+      "type": "string"
+     },
+     "figma_links": {
+      "type": "array",
+      "description": "Enlaces de Figma: cada uno {label, url}. Solo https.",
+      "items": {
+       "type": "object",
+       "properties": {
+        "label": {
+         "type": "string"
+        },
+        "url": {
+         "type": "string"
+        }
+       },
+       "required": [
+        "url"
+       ]
+      }
+     },
+     "notify_emails": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "skip_steps": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "enum": [
+        "order",
+        "campaigns",
+        "design",
+        "content",
+        "templates",
+        "plugin",
+        "review",
+        "delivery"
+       ],
+       "description": "El paso: order (1 Pedido), campaigns (2 Campañas), design (3 Diseño madre), content (4 Fotos y textos), templates (5 Plantillas), plugin (6 Plugin), review (7 Revisión), delivery (8 Entrega)."
+      }
+     },
+     "campaign_ids": {
+      "type": "array",
+      "items": {
+       "type": "integer"
+      }
+     },
+     "agente": {
+      "type": "string",
+      "description": "Quién actúa, como lo verá la persona en la bitácora. Por ejemplo «Agente de diseño». Se manda como cabecera X-Heraldo-Agent. Si no viene, queda el nombre de la llave."
+     }
+    },
+    "required": [
+     "tenant_id",
+     "name"
+    ]
+   }
+  },
+  {
+   "name": "consola-editar-pedido",
+   "description": "Cambia datos del pedido: nombre, plazo, resumen, instrucciones, enlaces o a quién avisar. Solo lo que se manda cambia. La marca del pedido no se cambia por aquí: la cambia una persona en la consola (con ella cambian los lineamientos). Un pedido en pausa o cerrado responde 409.",
+   "http": {
+    "method": "PATCH",
+    "path": "orders/{order_id}",
+    "envio": "json"
+   },
+   "gasta": false,
+   "cambia_datos": true,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "order_id": {
+      "type": "integer",
+      "description": "id del pedido, de consola-pendientes, consola-listar-pedidos o consola-crear-pedido."
+     },
+     "name": {
+      "type": "string"
+     },
+     "due_on": {
+      "type": "string"
+     },
+     "summary": {
+      "type": "string"
+     },
+     "instructions": {
+      "type": "string"
+     },
+     "figma_links": {
+      "type": "array",
+      "description": "Enlaces de Figma: cada uno {label, url}. Solo https.",
+      "items": {
+       "type": "object",
+       "properties": {
+        "label": {
+         "type": "string"
+        },
+        "url": {
+         "type": "string"
+        }
+       },
+       "required": [
+        "url"
+       ]
+      }
+     },
+     "notify_emails": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "agente": {
+      "type": "string",
+      "description": "Quién actúa, como lo verá la persona en la bitácora. Por ejemplo «Agente de diseño». Se manda como cabecera X-Heraldo-Agent. Si no viene, queda el nombre de la llave."
+     }
+    },
+    "required": [
+     "order_id"
+    ]
+   }
+  },
+  {
+   "name": "consola-vincular-campanas",
+   "description": "Vincula al pedido campañas que ya existen en el cliente (por ejemplo, las que creó con crear-campana). Una campaña que no existe en ese cliente responde 422. Devuelve linked y el pedido con las piezas leídas de Heraldo.",
+   "http": {
+    "method": "POST",
+    "path": "orders/{order_id}/campaigns",
+    "envio": "json"
+   },
+   "gasta": false,
+   "cambia_datos": true,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "order_id": {
+      "type": "integer",
+      "description": "id del pedido, de consola-pendientes, consola-listar-pedidos o consola-crear-pedido."
+     },
+     "campaign_ids": {
+      "type": "array",
+      "items": {
+       "type": "integer"
+      }
+     },
+     "agente": {
+      "type": "string",
+      "description": "Quién actúa, como lo verá la persona en la bitácora. Por ejemplo «Agente de diseño». Se manda como cabecera X-Heraldo-Agent. Si no viene, queda el nombre de la llave."
+     }
+    },
+    "required": [
+     "order_id",
+     "campaign_ids"
+    ]
+   }
+  },
+  {
+   "name": "consola-quitar-campana",
+   "description": "Quita una campaña del pedido. La campaña no se borra en Heraldo.",
+   "http": {
+    "method": "DELETE",
+    "path": "orders/{order_id}/campaigns/{campaign_id}",
+    "envio": "query"
+   },
+   "gasta": false,
+   "cambia_datos": true,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "order_id": {
+      "type": "integer",
+      "description": "id del pedido, de consola-pendientes, consola-listar-pedidos o consola-crear-pedido."
+     },
+     "campaign_id": {
+      "type": "integer"
+     },
+     "agente": {
+      "type": "string",
+      "description": "Quién actúa, como lo verá la persona en la bitácora. Por ejemplo «Agente de diseño». Se manda como cabecera X-Heraldo-Agent. Si no viene, queda el nombre de la llave."
+     }
+    },
+    "required": [
+     "order_id",
+     "campaign_id"
+    ]
+   }
+  },
+  {
+   "name": "consola-mover-paso",
+   "description": "Cambia el estado de un paso: agent cuando el agente empieza, done cuando termina, skipped si no aplica, pending para volver atrás. note dice qué quedó hecho o qué falta. agent y done solo cuando los pasos anteriores están cerrados (las plantillas no esperan a fotos y textos); si no, 409 dice cuáles faltan. skipped y pending se pueden siempre. El plugin (plugin) no lo marca un agente: lo marca la persona en la consola (422). «Te necesita» no se marca: sale solo mientras haya una pregunta abierta. Marcar delivery como done entrega el pedido y retira lo que quedó abierto; si hay una aprobación de aprendizajes abierta responde 409: espera la respuesta de la persona. En pausa responde 409.",
+   "http": {
+    "method": "PUT",
+    "path": "orders/{order_id}/steps/{step}",
+    "envio": "json"
+   },
+   "gasta": false,
+   "cambia_datos": true,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "order_id": {
+      "type": "integer",
+      "description": "id del pedido, de consola-pendientes, consola-listar-pedidos o consola-crear-pedido."
+     },
+     "step": {
+      "type": "string",
+      "enum": [
+       "order",
+       "campaigns",
+       "design",
+       "content",
+       "templates",
+       "plugin",
+       "review",
+       "delivery"
+      ],
+      "description": "El paso: order (1 Pedido), campaigns (2 Campañas), design (3 Diseño madre), content (4 Fotos y textos), templates (5 Plantillas), plugin (6 Plugin), review (7 Revisión), delivery (8 Entrega)."
+     },
+     "state": {
+      "type": "string",
+      "enum": [
+       "pending",
+       "agent",
+       "done",
+       "skipped"
+      ]
+     },
+     "note": {
+      "type": "string",
+      "description": "Hasta 2.000 caracteres."
+     },
+     "agente": {
+      "type": "string",
+      "description": "Quién actúa, como lo verá la persona en la bitácora. Por ejemplo «Agente de diseño». Se manda como cabecera X-Heraldo-Agent. Si no viene, queda el nombre de la llave."
+     }
+    },
+    "required": [
+     "order_id",
+     "step",
+     "state"
+    ]
+   }
+  },
+  {
+   "name": "consola-anotar",
+   "description": "Deja una línea en la bitácora del pedido: un avance, una decisión o un problema. La persona la ve en la consola.",
+   "http": {
+    "method": "POST",
+    "path": "orders/{order_id}/events",
+    "envio": "json"
+   },
+   "gasta": false,
+   "cambia_datos": true,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "order_id": {
+      "type": "integer",
+      "description": "id del pedido, de consola-pendientes, consola-listar-pedidos o consola-crear-pedido."
+     },
+     "text": {
+      "type": "string",
+      "description": "Hasta 2.000 caracteres."
+     },
+     "step": {
+      "type": "string",
+      "enum": [
+       "order",
+       "campaigns",
+       "design",
+       "content",
+       "templates",
+       "plugin",
+       "review",
+       "delivery"
+      ],
+      "description": "El paso: order (1 Pedido), campaigns (2 Campañas), design (3 Diseño madre), content (4 Fotos y textos), templates (5 Plantillas), plugin (6 Plugin), review (7 Revisión), delivery (8 Entrega)."
+     },
+     "kind": {
+      "type": "string",
+      "enum": [
+       "note",
+       "progress",
+       "decision",
+       "problem"
+      ],
+      "description": "Por defecto, note."
+     },
+     "agente": {
+      "type": "string",
+      "description": "Quién actúa, como lo verá la persona en la bitácora. Por ejemplo «Agente de diseño». Se manda como cabecera X-Heraldo-Agent. Si no viene, queda el nombre de la llave."
+     }
+    },
+    "required": [
+     "order_id",
+     "text"
+    ]
+   }
+  },
+  {
+   "name": "consola-preguntar",
+   "description": "Le pide algo a una persona y le avisa por correo. kind: approval (aprobar o pedir cambios; sin options trae Aprobar y Pedir cambios, y pedir cambios exige que la persona escriba qué), decision (elegir entre options, hasta 8), task (algo que la persona hace, como correr el plugin; no lleva opciones y se cierra con «Listo»), data (un dato que falta). En decision, marca con recommended la opción que propones: sale con «propuesto por el agente», pero la persona la elige; también puede escribir otra respuesta (allows_text). Una aprobación siempre deja escribir. file_ids muestra imágenes o archivos del pedido junto a la pregunta (súbelos antes con consola-subir-archivo). guidelines (solo en approval, hasta 3): aprendizajes que propones como lineamientos de la marca, por ejemplo al entregar, a partir de consola-senales; la persona marca cuáles quedan y solo esos se guardan en la ficha. Mientras esté abierta, el paso queda en «Te necesita» y no aparece en consola-pendientes. La respuesta llega en consola-pendientes (answers).",
+   "http": {
+    "method": "POST",
+    "path": "orders/{order_id}/questions",
+    "envio": "json"
+   },
+   "gasta": false,
+   "cambia_datos": true,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "order_id": {
+      "type": "integer",
+      "description": "id del pedido, de consola-pendientes, consola-listar-pedidos o consola-crear-pedido."
+     },
+     "step": {
+      "type": "string",
+      "enum": [
+       "order",
+       "campaigns",
+       "design",
+       "content",
+       "templates",
+       "plugin",
+       "review",
+       "delivery"
+      ],
+      "description": "El paso: order (1 Pedido), campaigns (2 Campañas), design (3 Diseño madre), content (4 Fotos y textos), templates (5 Plantillas), plugin (6 Plugin), review (7 Revisión), delivery (8 Entrega)."
+     },
+     "kind": {
+      "type": "string",
+      "enum": [
+       "decision",
+       "approval",
+       "task",
+       "data"
+      ],
+      "description": "Por defecto, decision."
+     },
+     "title": {
+      "type": "string",
+      "description": "La pregunta, corta. Hasta 250 caracteres."
+     },
+     "body": {
+      "type": "string",
+      "description": "El contexto que necesita la persona para responder."
+     },
+     "options": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "value": {
+         "type": "string"
+        },
+        "label": {
+         "type": "string"
+        },
+        "recommended": {
+         "type": "boolean",
+         "description": "La que propone el agente. Solo una."
+        }
+       },
+       "required": [
+        "value"
+       ]
+      }
+     },
+     "allows_text": {
+      "type": "boolean",
+      "description": "Si la persona puede escribir además de elegir. Por defecto, true."
+     },
+     "file_ids": {
+      "type": "array",
+      "items": {
+       "type": "integer"
+      }
+     },
+     "guidelines": {
+      "type": "array",
+      "maxItems": 3,
+      "description": "Solo en approval. Aprendizajes que propones como lineamientos de la marca: cortos (hasta 500 caracteres), concretos y que cambien el próximo pedido. La persona marca cuáles quedan.",
+      "items": {
+       "type": "object",
+       "properties": {
+        "text": {
+         "type": "string"
+        },
+        "category": {
+         "type": "string",
+         "enum": [
+          "marca",
+          "legal",
+          "texto",
+          "foto",
+          "diseno",
+          "proceso"
+         ]
+        }
+       },
+       "required": [
+        "text"
+       ]
+      }
+     },
+     "agente": {
+      "type": "string",
+      "description": "Quién actúa, como lo verá la persona en la bitácora. Por ejemplo «Agente de diseño». Se manda como cabecera X-Heraldo-Agent. Si no viene, queda el nombre de la llave."
+     }
+    },
+    "required": [
+     "order_id",
+     "step",
+     "title"
+    ]
+   }
+  },
+  {
+   "name": "consola-subir-archivo",
+   "description": "Sube un archivo al pedido: capturas de las madres, el resumen, un Excel. kind: client (lo que mandó el cliente), summary, capture, other. Devuelve su id (para file_ids) y su enlace firmado. Hasta 50 MB. Las imágenes PNG, JPEG, GIF y WebP se ven en la consola; lo demás se baja.",
+   "http": {
+    "method": "POST",
+    "path": "orders/{order_id}/files",
+    "envio": "multipart"
+   },
+   "gasta": false,
+   "cambia_datos": true,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "order_id": {
+      "type": "integer",
+      "description": "id del pedido, de consola-pendientes, consola-listar-pedidos o consola-crear-pedido."
+     },
+     "archivo_url": {
+      "type": "string",
+      "description": "Enlace https del archivo. El MCP lo baja y lo manda en el campo file."
+     },
+     "archivo_base64": {
+      "type": "string",
+      "description": "El archivo en base64. El MCP lo manda como content_base64."
+     },
+     "name": {
+      "type": "string",
+      "description": "Nombre del archivo con su extensión."
+     },
+     "mime": {
+      "type": "string"
+     },
+     "step": {
+      "type": "string",
+      "enum": [
+       "order",
+       "campaigns",
+       "design",
+       "content",
+       "templates",
+       "plugin",
+       "review",
+       "delivery"
+      ],
+      "description": "El paso: order (1 Pedido), campaigns (2 Campañas), design (3 Diseño madre), content (4 Fotos y textos), templates (5 Plantillas), plugin (6 Plugin), review (7 Revisión), delivery (8 Entrega)."
+     },
+     "kind": {
+      "type": "string",
+      "enum": [
+       "client",
+       "summary",
+       "capture",
+       "other"
+      ]
+     },
+     "agente": {
+      "type": "string",
+      "description": "Quién actúa, como lo verá la persona en la bitácora. Por ejemplo «Agente de diseño». Se manda como cabecera X-Heraldo-Agent. Si no viene, queda el nombre de la llave."
+     }
+    },
+    "required": [
+     "order_id"
+    ]
+   }
+  },
+  {
+   "name": "consola-estimar",
+   "description": "Deja el previsto del pedido: tú mandas cantidades (imágenes base, adaptaciones, textos con IA, piezas y videos) y Heraldo pone los precios, los suyos y la tarifa fija de los agentes por paso que aplica a este pedido. Devuelve las líneas y los totales (heraldo_usd, agents_usd, total_usd). Hazlo en el paso 1, con el resumen, y ponlo en el cuerpo de la aprobación del resumen. Se congela al cerrar el paso 1 (y si llega con el paso 1 ya cerrado, queda congelado al guardarlo): después responde 409, y solo una persona lo descongela desde la consola. En pausa, 409.",
+   "http": {
+    "method": "POST",
+    "path": "orders/{order_id}/estimate",
+    "envio": "json"
+   },
+   "gasta": false,
+   "cambia_datos": true,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "order_id": {
+      "type": "integer",
+      "description": "id del pedido, de consola-pendientes, consola-listar-pedidos o consola-crear-pedido."
+     },
+     "base_images": {
+      "type": "integer",
+      "description": "Imágenes base que se generan con IA (una por producto y proporción). Las fotos que manda el cliente no cuentan."
+     },
+     "adaptations": {
+      "type": "integer",
+      "description": "Adaptaciones de tamaño con IA."
+     },
+     "copy_texts": {
+      "type": "integer",
+      "description": "Textos que escribe la IA (copys)."
+     },
+     "pieces": {
+      "type": "integer",
+      "description": "Piezas finales (para los textos de publicación)."
+     },
+     "videos": {
+      "type": "integer",
+      "description": "Videos que se animan."
+     },
+     "note": {
+      "type": "string",
+      "description": "De dónde salen las cantidades, en una línea. Hasta 500 caracteres."
+     },
+     "agente": {
+      "type": "string",
+      "description": "Quién actúa, como lo verá la persona en la bitácora. Por ejemplo «Agente de diseño». Se manda como cabecera X-Heraldo-Agent. Si no viene, queda el nombre de la llave."
+     }
+    },
+    "required": [
+     "order_id"
+    ]
+   }
+  },
+  {
+   "name": "consola-registrar-corrida",
+   "description": "Registra lo que costó una corrida de un agente en un paso. Lo manda el programa que lanza a los agentes (source launcher: queda medido) o el agente mismo al cerrar el paso (source agent: queda informado, sin medir). Se puede registrar en un pedido entregado; en uno cancelado, 409. No deja nada en la bitácora: se ve en la entrega.",
+   "http": {
+    "method": "POST",
+    "path": "orders/{order_id}/agent-runs",
+    "envio": "json"
+   },
+   "gasta": false,
+   "cambia_datos": true,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "order_id": {
+      "type": "integer",
+      "description": "id del pedido, de consola-pendientes, consola-listar-pedidos o consola-crear-pedido."
+     },
+     "step": {
+      "type": "string",
+      "enum": [
+       "order",
+       "campaigns",
+       "design",
+       "content",
+       "templates",
+       "plugin",
+       "review",
+       "delivery"
+      ],
+      "description": "El paso: order (1 Pedido), campaigns (2 Campañas), design (3 Diseño madre), content (4 Fotos y textos), templates (5 Plantillas), plugin (6 Plugin), review (7 Revisión), delivery (8 Entrega)."
+     },
+     "usd": {
+      "type": "number",
+      "description": "Lo que costó, en dólares."
+     },
+     "agent": {
+      "type": "string",
+      "description": "Quién corrió, por ejemplo «Claude Code · agente de Heraldo». Si no viene, el de la cabecera o el que hace el paso."
+     },
+     "model": {
+      "type": "string"
+     },
+     "input_tokens": {
+      "type": "integer"
+     },
+     "output_tokens": {
+      "type": "integer"
+     },
+     "source": {
+      "type": "string",
+      "enum": [
+       "launcher",
+       "agent",
+       "person"
+      ],
+      "description": "Por defecto, agent."
+     },
+     "note": {
+      "type": "string",
+      "description": "Hasta 500 caracteres."
+     },
+     "agente": {
+      "type": "string",
+      "description": "Quién actúa, como lo verá la persona en la bitácora. Por ejemplo «Agente de diseño». Se manda como cabecera X-Heraldo-Agent. Si no viene, queda el nombre de la llave."
+     }
+    },
+    "required": [
+     "order_id",
+     "step",
+     "usd"
+    ]
+   }
+  },
+  {
+   "name": "consola-senales",
+   "description": "Lo que no funcionó en el pedido, para proponer aprendizajes al entregar: changes_requested (lo que la persona pidió cambiar, con su texto), rounds (rondas por paso), problems (lo que anotaste como problema), rejected_pieces (piezas rechazadas en Artes finales con su nota, hasta 200), regenerations (cuántas imágenes se rehicieron y cuánto costaron) y guidelines (los lineamientos que ya existen, para no repetirlos). Solo lee.",
+   "http": {
+    "method": "GET",
+    "path": "orders/{order_id}/signals",
+    "envio": "query"
+   },
+   "gasta": false,
+   "cambia_datos": false,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "order_id": {
+      "type": "integer",
+      "description": "id del pedido, de consola-pendientes, consola-listar-pedidos o consola-crear-pedido."
+     }
+    },
+    "required": [
+     "order_id"
+    ]
+   }
+  },
+  {
+   "name": "consola-marcar-leida",
+   "description": "Marca como leída una respuesta, para que no vuelva a salir en consola-pendientes. Llámala después de actuar según la respuesta.",
+   "http": {
+    "method": "POST",
+    "path": "questions/{question_id}/read",
+    "envio": "json"
+   },
+   "gasta": false,
+   "cambia_datos": true,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "question_id": {
+      "type": "integer",
+      "description": "id de la pregunta, de consola-pendientes (answers) o consola-listar-preguntas."
+     }
+    },
+    "required": [
+     "question_id"
+    ]
+   }
+  },
+  {
+   "name": "consola-retirar-pregunta",
+   "description": "Retira una pregunta abierta que ya no hace falta.",
+   "http": {
+    "method": "POST",
+    "path": "questions/{question_id}/cancel",
+    "envio": "json"
+   },
+   "gasta": false,
+   "cambia_datos": true,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "question_id": {
+      "type": "integer",
+      "description": "id de la pregunta, de consola-pendientes (answers) o consola-listar-preguntas."
+     },
+     "agente": {
+      "type": "string",
+      "description": "Quién actúa, como lo verá la persona en la bitácora. Por ejemplo «Agente de diseño». Se manda como cabecera X-Heraldo-Agent. Si no viene, queda el nombre de la llave."
+     }
+    },
+    "required": [
+     "question_id"
+    ]
+   }
+  },
+  {
+   "name": "consola-crear-marca",
+   "description": "Crea la ficha de una marca: enlaces de Figma (sistema de diseño, plantillas, referencias), instrucciones, trato y legal. Cada pedido de esa marca los suma. Los lineamientos no se crean por aquí: los escribe una persona en la consola o salen de los aprendizajes que propones con consola-preguntar.",
+   "http": {
+    "method": "POST",
+    "path": "brands",
+    "envio": "json"
+   },
+   "gasta": false,
+   "cambia_datos": true,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "tenant_id": {
+      "type": "string",
+      "description": "id del cliente, de listar-tenants."
+     },
+     "name": {
+      "type": "string"
+     },
+     "figma_links": {
+      "type": "array",
+      "description": "Enlaces de Figma: cada uno {label, url}. Solo https.",
+      "items": {
+       "type": "object",
+       "properties": {
+        "label": {
+         "type": "string"
+        },
+        "url": {
+         "type": "string"
+        }
+       },
+       "required": [
+        "url"
+       ]
+      }
+     },
+     "instructions": {
+      "type": "string"
+     },
+     "tone": {
+      "type": "string",
+      "enum": [
+       "tu",
+       "vos",
+       "usted",
+       "mixto"
+      ]
+     },
+     "legal_text": {
+      "type": "string"
+     },
+     "notes": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "tenant_id",
+     "name"
+    ]
+   }
+  },
+  {
+   "name": "consola-editar-marca",
+   "description": "Cambia la ficha de una marca: lo que se manda reemplaza lo que había (notes también), así que lee antes con consola-ver-marca. El cliente no cambia. Los lineamientos no se tocan por aquí.",
+   "http": {
+    "method": "PATCH",
+    "path": "brands/{brand_id}",
+    "envio": "json"
+   },
+   "gasta": false,
+   "cambia_datos": true,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "brand_id": {
+      "type": "integer"
+     },
+     "name": {
+      "type": "string"
+     },
+     "figma_links": {
+      "type": "array",
+      "description": "Enlaces de Figma: cada uno {label, url}. Solo https.",
+      "items": {
+       "type": "object",
+       "properties": {
+        "label": {
+         "type": "string"
+        },
+        "url": {
+         "type": "string"
+        }
+       },
+       "required": [
+        "url"
+       ]
+      }
+     },
+     "instructions": {
+      "type": "string"
+     },
+     "tone": {
+      "type": "string",
+      "enum": [
+       "tu",
+       "vos",
+       "usted",
+       "mixto"
+      ]
+     },
+     "legal_text": {
+      "type": "string"
+     },
+     "notes": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "brand_id"
+    ]
+   }
+  },
+  {
+   "name": "consola-crear-preset-borrador",
+   "description": "Cuando falta un preset para armar las campañas, deja uno nuevo en borrador, con las mismas reglas de la pantalla de presets. Nunca publica: lo publica una persona en Heraldo, y hasta entonces no sirve para crear campañas. Con order_id queda anotado en la bitácora de ese pedido; después pregúntale a la persona con consola-preguntar (kind task) que lo revise y lo publique. Revisa antes con consola-listar-presets: una clave que ya existe crea la versión siguiente.",
+   "http": {
+    "method": "POST",
+    "path": "tenants/{tenant_id}/presets",
+    "envio": "json"
+   },
+   "gasta": false,
+   "cambia_datos": true,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "tenant_id": {
+      "type": "string",
+      "description": "id del cliente, de listar-tenants."
+     },
+     "name": {
+      "type": "string",
+      "description": "Por ejemplo «Meta · Tasa»."
+     },
+     "key": {
+      "type": "string",
+      "description": "Clave estable: letras, números, guion y guion bajo. Por ejemplo meta-tasa."
+     },
+     "recipe_key": {
+      "type": "string",
+      "description": "La receta, por ejemplo productos_promociones. Una que no existe responde 422 con las válidas."
+     },
+     "payload": {
+      "type": "object",
+      "description": "versions: [{name, type: variante|idioma}], al menos uno. copy_slots: [{name, key copy_..., max_length, generate_with_ai}], al menos uno; sin key se arma desde el nombre. format_ids: ids de formatos del cliente. channel_defaults: {platform_id, objective_id}. field_layer_map y figma, opcionales."
+     },
+     "order_id": {
+      "type": "integer",
+      "description": "El pedido para el que falta el preset."
+     },
+     "agente": {
+      "type": "string",
+      "description": "Quién actúa, como lo verá la persona en la bitácora. Por ejemplo «Agente de diseño». Se manda como cabecera X-Heraldo-Agent. Si no viene, queda el nombre de la llave."
+     }
+    },
+    "required": [
+     "tenant_id",
+     "name",
+     "key",
+     "recipe_key",
+     "payload"
+    ]
+   }
+  }
+ ]
+}

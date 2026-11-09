@@ -5,9 +5,35 @@ namespace App\Mcp\Servers;
 use App\Mcp\Tools\Heraldo\AsignarReceta;
 use App\Mcp\Tools\Heraldo\ConfigurarCampana;
 use App\Mcp\Tools\Heraldo\ConfigurarSanto;
+use App\Mcp\Tools\Heraldo\ConsolaAnotar;
+use App\Mcp\Tools\Heraldo\ConsolaCrearMarca;
+use App\Mcp\Tools\Heraldo\ConsolaCrearPedido;
+use App\Mcp\Tools\Heraldo\ConsolaCrearPresetBorrador;
+use App\Mcp\Tools\Heraldo\ConsolaEditarMarca;
+use App\Mcp\Tools\Heraldo\ConsolaEditarPedido;
+use App\Mcp\Tools\Heraldo\ConsolaEstimar;
+use App\Mcp\Tools\Heraldo\ConsolaListarMarcas;
+use App\Mcp\Tools\Heraldo\ConsolaListarPedidos;
+use App\Mcp\Tools\Heraldo\ConsolaListarPreguntas;
+use App\Mcp\Tools\Heraldo\ConsolaListarPresets;
+use App\Mcp\Tools\Heraldo\ConsolaMarcarLeida;
+use App\Mcp\Tools\Heraldo\ConsolaMoverPaso;
+use App\Mcp\Tools\Heraldo\ConsolaPendientes;
+use App\Mcp\Tools\Heraldo\ConsolaPreguntar;
+use App\Mcp\Tools\Heraldo\ConsolaQuitarCampana;
+use App\Mcp\Tools\Heraldo\ConsolaRegistrarCorrida;
+use App\Mcp\Tools\Heraldo\ConsolaRetirarPregunta;
+use App\Mcp\Tools\Heraldo\ConsolaSenales;
+use App\Mcp\Tools\Heraldo\ConsolaSubirArchivo;
+use App\Mcp\Tools\Heraldo\ConsolaVerArchivo;
+use App\Mcp\Tools\Heraldo\ConsolaVerMarca;
+use App\Mcp\Tools\Heraldo\ConsolaVerPedido;
+use App\Mcp\Tools\Heraldo\ConsolaVerPregunta;
+use App\Mcp\Tools\Heraldo\ConsolaVincularCampanas;
 use App\Mcp\Tools\Heraldo\CrearCampana;
 use App\Mcp\Tools\Heraldo\DuplicarCampana;
 use App\Mcp\Tools\Heraldo\ElegirCopys;
+use App\Mcp\Tools\Heraldo\ElegirDireccion;
 use App\Mcp\Tools\Heraldo\EnlacePluginFigma;
 use App\Mcp\Tools\Heraldo\EstadoCopysIa;
 use App\Mcp\Tools\Heraldo\EstadoProduccion;
@@ -32,6 +58,8 @@ use App\Mcp\Tools\Heraldo\ObtenerCampana;
 use App\Mcp\Tools\Heraldo\PedirAdaptaciones;
 use App\Mcp\Tools\Heraldo\PedirExportacion;
 use App\Mcp\Tools\Heraldo\PlanProduccion;
+use App\Mcp\Tools\Heraldo\QuitarFoto;
+use App\Mcp\Tools\Heraldo\RegenerarCasilla;
 use App\Mcp\Tools\Heraldo\RevisarPiezas;
 use App\Mcp\Tools\Heraldo\SubirFoto;
 use App\Mcp\Tools\Heraldo\SubirReferenciaSanto;
@@ -40,6 +68,7 @@ use App\Mcp\Tools\Heraldo\UsarColumnaBase;
 use App\Mcp\Tools\Heraldo\UsoCampana;
 use App\Mcp\Tools\Heraldo\UsoTenant;
 use App\Mcp\Tools\Heraldo\VerCampana;
+use App\Mcp\Tools\Heraldo\VerDirecciones;
 use App\Mcp\Tools\Heraldo\VerImagen;
 use Laravel\Mcp\Server;
 use Laravel\Mcp\Server\Attributes\Instructions;
@@ -61,6 +90,8 @@ use Laravel\Mcp\Server\Attributes\Version;
     'Copys: los textos que van dentro del arte. Artes o piezas: las imágenes finales diseñadas en Figma. '.
     'Textos de publicación (titulares): el texto que acompaña al arte cuando se publica. '.
     'Receta: cómo se anima un arte para convertirlo en video. '.
+    'Pedido de la consola: junta un trabajo del cliente con sus campañas y lo sigue en 8 pasos. '.
+    'La persona entra solo cuando el pedido la necesita, y le llega un correo. '.
 
     'ORDEN. '.
     '1. listar-tenants, después listar-presets. '.
@@ -68,6 +99,7 @@ use Laravel\Mcp\Server\Attributes\Version;
     '3. ver-campana y, si hay que ajustar concepto, intención, cuadros con IA, «Foto que usa» o «La foto llega en», configurar-campana. '.
     '4. Las fotos: si ya están en otra campaña, traer-fotos (primero con dry_run true). Si no, subir-referencia-santo, configurar-santo y generar-fotos-base, y consultá estado-produccion hasta que terminen. También podés subir-foto a mano. '.
     '5. hoja-fotos para revisarlas. Para ver una de cerca, ver-imagen con el preview_url de plan-produccion. '.
+    'Para rehacer una sola casilla: plan-produccion, ver-direcciones y elegir-direccion si hace falta, regenerar-casilla con max_usd, y estado-produccion. Para borrarla, quitar-foto. '.
     '6. usar-columna-base y pedir-adaptaciones, y otra vez hoja-fotos. '.
     '7. Copys: generar-copys, consultá estado-copys-ia mientras status sea queued o processing; con completed, elegí con elegir-copys. Si status viene vacío, no hay generación en curso: no esperes. Si over_max_length trae cuadros, acortalos con guardar-copys. Para escribir los textos a mano, usá listar-copys y guardar-copys. '.
     '8. enlace-plugin-figma para diseñar los artes en Figma; después importar-figma (primero confirm false, después true). '.
@@ -79,14 +111,21 @@ use Laravel\Mcp\Server\Attributes\Version;
     'La campaña siguiente: duplicar-campana y después traer-fotos desde la anterior. '.
     'En cualquier momento, estado-produccion dice en qué paso está la campaña y qué sigue en cola. '.
 
+    'CONSOLA. '.
+    'consola-pendientes muestra qué paso se puede trabajar y las respuestas que todavía no leíste. '.
+    'consola-ver-pedido trae el pedido entero: respetá siempre guidelines. '.
+    'Si necesitás a una persona, consola-preguntar; cuando responde, aparece en consola-pendientes (answers) y la marcás con consola-marcar-leida. '.
+    'consola-mover-paso marca el avance. Al entregar, consola-senales y proponé aprendizajes en una aprobación de consola-preguntar. '.
+    'agente va como nombre en la bitácora. consola-subir-archivo y consola-ver-archivo mueven archivos del pedido. '.
+
     'EN COLA. '.
     'generar-fotos-base, generar-copys, adaptaciones, importar Figma, titulares, capas, videos y ZIP no terminan en la misma llamada: responden queued o un estimado. '.
     'No digas que está listo: las fotos base se siguen en estado-produccion; los copys, en estado-copys-ia mientras estén queued o processing (si status viene vacío, no esperes); el resto, en estado-produccion (in_progress) o listar-exportaciones. '.
 
     'GASTO. '.
-    'pedir-adaptaciones, generar-fotos-base, generar-copys, generar-titulares y generar-videos cuestan dinero y exigen max_usd. '.
+    'pedir-adaptaciones, generar-fotos-base, generar-copys, generar-titulares, generar-videos y regenerar-casilla cuestan dinero y exigen max_usd. '.
     'Si no sabés cuánto cuesta, llamala sin max_usd: no hace nada y el error trae estimate_usd. '.
-    'Si el saldo de Santo no alcanza para generar-fotos-base o pedir-adaptaciones, no se pide nada; el error trae santo_balance_usd. '.
+    'Si el saldo de Santo no alcanza para generar-fotos-base, pedir-adaptaciones o regenerar-casilla, no se pide nada; el error trae santo_balance_usd. '.
     'Mostrale ese número a la persona y llamala de nuevo con el tope que apruebe. '.
     'Confirmá también antes de crear la campaña de verdad, de aprobar o rechazar artes en bloque y de pedir un ZIP. '.
 
@@ -107,6 +146,7 @@ use Laravel\Mcp\Server\Attributes\Version;
     'messages_json: ["Post","Story"]. format_ids_json: [1,2]. texts_json: {"<key del cuadro>":"Texto"}. slot_ids_json: [10,11]. piece_ids_json: [10,11]. '.
     'all_json y rows_json en configurar-santo. choices_json en elegir-copys: {"<key>":0}. '.
     'copy_slots_json, photo_sources_json y santo_ratios_json en configurar-campana. '.
+    'En la consola: campaign_ids_json, figma_links_json, notify_emails_json, skip_steps_json, options_json, file_ids_json, guidelines_json y payload_json. '.
     'Filtros review, platform, format y product: opcionales en listar-piezas, hoja-piezas, extraer-capas, asignar-receta, generar-videos y pedir-exportacion. '.
     'Para platform, format y product escribí el nombre tal como viene en listar-piezas.'
 )]
@@ -134,6 +174,10 @@ class Heraldo extends Server
         GenerarFotosBase::class,
         UsarColumnaBase::class,
         PedirAdaptaciones::class,
+        RegenerarCasilla::class,
+        QuitarFoto::class,
+        VerDirecciones::class,
+        ElegirDireccion::class,
         HojaFotos::class,
         ListarCopys::class,
         GuardarCopys::class,
@@ -154,6 +198,31 @@ class Heraldo extends Server
         GenerarVideos::class,
         PedirExportacion::class,
         ListarExportaciones::class,
+        ConsolaPendientes::class,
+        ConsolaListarPedidos::class,
+        ConsolaVerPedido::class,
+        ConsolaListarPreguntas::class,
+        ConsolaVerPregunta::class,
+        ConsolaVerArchivo::class,
+        ConsolaListarMarcas::class,
+        ConsolaVerMarca::class,
+        ConsolaListarPresets::class,
+        ConsolaCrearPedido::class,
+        ConsolaEditarPedido::class,
+        ConsolaVincularCampanas::class,
+        ConsolaQuitarCampana::class,
+        ConsolaMoverPaso::class,
+        ConsolaAnotar::class,
+        ConsolaPreguntar::class,
+        ConsolaSubirArchivo::class,
+        ConsolaEstimar::class,
+        ConsolaRegistrarCorrida::class,
+        ConsolaSenales::class,
+        ConsolaMarcarLeida::class,
+        ConsolaRetirarPregunta::class,
+        ConsolaCrearMarca::class,
+        ConsolaEditarMarca::class,
+        ConsolaCrearPresetBorrador::class,
     ];
 
     protected array $resources = [

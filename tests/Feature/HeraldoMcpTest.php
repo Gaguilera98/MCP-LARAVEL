@@ -3,7 +3,11 @@
 use App\Mcp\Servers\Heraldo;
 use App\Mcp\Tools\Heraldo\AsignarReceta;
 use App\Mcp\Tools\Heraldo\ConfigurarCampana;
+use App\Mcp\Tools\Heraldo\ConsolaCrearPedido;
+use App\Mcp\Tools\Heraldo\ConsolaSubirArchivo;
+use App\Mcp\Tools\Heraldo\ConsolaVerArchivo;
 use App\Mcp\Tools\Heraldo\CrearCampana;
+use App\Mcp\Tools\Heraldo\ElegirDireccion;
 use App\Mcp\Tools\Heraldo\ExcelTitulares;
 use App\Mcp\Tools\Heraldo\GenerarFotosBase;
 use App\Mcp\Tools\Heraldo\GenerarVideos;
@@ -14,6 +18,8 @@ use App\Mcp\Tools\Heraldo\ListarPresets;
 use App\Mcp\Tools\Heraldo\ListarRecetas;
 use App\Mcp\Tools\Heraldo\ListarTenants;
 use App\Mcp\Tools\Heraldo\PedirAdaptaciones;
+use App\Mcp\Tools\Heraldo\PlanProduccion;
+use App\Mcp\Tools\Heraldo\RegenerarCasilla;
 use App\Mcp\Tools\Heraldo\SubirFoto;
 use App\Mcp\Tools\Heraldo\SubirReferenciaSanto;
 use App\Mcp\Tools\Heraldo\TraerFotos;
@@ -234,7 +240,7 @@ it('registers the heraldo tools', function () {
     $tools = $server->getDefaultProperties()['tools'];
     $instructions = $server->getAttributes(Instructions::class)[0]->newInstance()->value;
 
-    expect($tools)->toHaveCount(39)
+    expect($tools)->toHaveCount(68)
         ->and($server->getAttributes(Name::class)[0]->newInstance()->value)->toBe('Heraldo')
         ->and($instructions)->toContain('La llave ya está configurada: no la pidas ni la cambies.')
         ->and($instructions)->toContain('decilo y no reintentes.')
@@ -243,7 +249,15 @@ it('registers the heraldo tools', function () {
         ->and($instructions)->toContain('estado-copys-ia')
         ->and($instructions)->toContain('duplicar-campana')
         ->and($instructions)->toContain('listar-recetas')
-        ->and($instructions)->toContain('piece_ids_json');
+        ->and($instructions)->toContain('piece_ids_json')
+        ->and($instructions)->toContain('consola-pendientes')
+        ->and($instructions)->toContain('regenerar-casilla');
+
+    $planDescription = (new ReflectionClass(PlanProduccion::class))->getAttributes(Description::class)[0]->newInstance()->value;
+
+    expect($planDescription)->toContain('regenerar-casilla')
+        ->and($planDescription)->toContain('quitar-foto')
+        ->and($planDescription)->toContain('ver-direcciones');
 
     foreach ($tools as $class) {
         $description = (new ReflectionClass($class))->getAttributes(Description::class)[0]->newInstance()->value;
@@ -610,6 +624,142 @@ it('shows a recipe example image from heraldo', function () {
     Heraldo::tool(VerImagen::class, [
         'preview_url' => 'https://evil.com/vendor/heraldo/recetas-ejemplos/cta-claro.png',
     ])->assertHasErrors(['heraldo-x.co']);
+});
+
+it('regenerates one cell and sets an adaptation direction', function () {
+    Http::fake([
+        'http://heraldo.test/api/v1/tenants/acme/campaigns/4/production/cells/regenerate' => Http::response([
+            'data' => ['kind' => 'adaptation', 'action' => 'regenerate', 'estimate_usd' => 0.4],
+        ], 202),
+        'http://heraldo.test/api/v1/tenants/acme/campaigns/4/production/adaptation-directions' => Http::response([
+            'data' => ['columns' => [['ratio' => '9:16', 'direction' => 'top']]],
+        ]),
+    ]);
+
+    Heraldo::tool(RegenerarCasilla::class, [
+        'tenant_id' => 'acme',
+        'campaign_id' => 4,
+        'strategy_id' => 9,
+        'image_index' => 1,
+        'ratio' => '9:16',
+        'max_usd' => 1,
+    ])->assertOk()->assertStructuredContent([
+        'data' => ['kind' => 'adaptation', 'action' => 'regenerate', 'estimate_usd' => 0.4],
+    ]);
+
+    Heraldo::tool(ElegirDireccion::class, [
+        'tenant_id' => 'acme',
+        'campaign_id' => 4,
+        'ratio' => '9:16',
+        'direction' => 'top',
+    ])->assertOk()->assertStructuredContent([
+        'data' => ['columns' => [['ratio' => '9:16', 'direction' => 'top']]],
+    ]);
+
+    Http::assertSent(fn ($request): bool => $request->url() === 'http://heraldo.test/api/v1/tenants/acme/campaigns/4/production/cells/regenerate'
+        && $request['strategy_id'] === 9
+        && $request['image_index'] === 1
+        && $request['ratio'] === '9:16'
+        && $request['max_usd'] === 1.0);
+
+    Http::assertSent(fn ($request): bool => $request->method() === 'PUT'
+        && $request->url() === 'http://heraldo.test/api/v1/tenants/acme/campaigns/4/production/adaptation-directions'
+        && $request['ratio'] === '9:16'
+        && $request['direction'] === 'top');
+});
+
+it('sends the console agent header and keeps arrays out of the query string', function () {
+    Http::fake([
+        'http://heraldo.test/api/console/v1/orders' => Http::response([
+            'data' => ['id' => 12, 'name' => 'Prueba'],
+        ], 201),
+    ]);
+
+    Heraldo::tool(ConsolaCrearPedido::class, [
+        'tenant_id' => 'acme',
+        'name' => 'Prueba',
+        'campaign_ids_json' => '[4,5]',
+        'agente' => 'Agente de diseño',
+    ])->assertOk()->assertStructuredContent([
+        'data' => ['id' => 12, 'name' => 'Prueba'],
+    ]);
+
+    Http::assertSent(function ($request): bool {
+        $body = $request->data();
+
+        return $request->url() === 'http://heraldo.test/api/console/v1/orders'
+            && $request->hasHeader('Authorization', 'Bearer clave-heraldo')
+            && $request->hasHeader('X-Heraldo-Agent', 'Agente de diseño')
+            && $body['tenant_id'] === 'acme'
+            && $body['name'] === 'Prueba'
+            && $body['campaign_ids'] === [4, 5]
+            && ! array_key_exists('agente', $body);
+    });
+});
+
+it('uploads a console file from a url in the file field', function () {
+    $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==');
+
+    Http::fake([
+        'https://files.test/captura.png' => Http::response($png, 200, ['Content-Type' => 'image/png']),
+        'http://heraldo.test/api/console/v1/orders/12/files' => Http::response([
+            'data' => ['id' => 77, 'name' => 'captura.png'],
+        ], 201),
+    ]);
+
+    Heraldo::tool(ConsolaSubirArchivo::class, [
+        'order_id' => 12,
+        'archivo_url' => 'https://files.test/captura.png',
+        'name' => 'captura.png',
+        'kind' => 'capture',
+        'agente' => 'Agente de diseño',
+    ])->assertOk()->assertStructuredContent([
+        'data' => ['id' => 77, 'name' => 'captura.png'],
+    ]);
+
+    Http::assertSent(fn ($request): bool => $request->url() === 'http://heraldo.test/api/console/v1/orders/12/files'
+        && $request->hasHeader('X-Heraldo-Agent', 'Agente de diseño')
+        && str_contains($request->body(), 'filename="captura.png"')
+        && str_contains($request->body(), 'name="file"')
+        && str_contains($request->body(), 'name="kind"'));
+});
+
+it('shows a console image and rejects another host', function () {
+    $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==');
+    $url = 'https://heraldo-x.co/consola/archivos/abc?signature=1';
+
+    Http::fake([
+        'http://heraldo.test/api/console/v1/files/77' => Http::response([
+            'data' => ['id' => 77, 'mime' => 'image/png', 'url' => $url],
+        ]),
+        $url => Http::response($png, 200, ['Content-Type' => 'image/png']),
+    ]);
+
+    $result = heraldoResult(Heraldo::tool(ConsolaVerArchivo::class, [
+        'file_id' => 77,
+    ])->assertOk());
+
+    $image = collect($result['result']['content'])->firstWhere('type', 'image');
+
+    expect($image['mimeType'])->toBe('image/png')
+        ->and(base64_decode($image['data']))->toBe($png);
+
+    Http::fake([
+        'http://heraldo.test/api/console/v1/files/78' => Http::response([
+            'data' => [
+                'id' => 78,
+                'mime' => 'image/png',
+                'url' => 'https://evil.com/consola/archivos/abc',
+            ],
+        ]),
+    ]);
+
+    $bad = heraldoResult(Heraldo::tool(ConsolaVerArchivo::class, [
+        'file_id' => 78,
+    ])->assertOk());
+
+    expect(collect($bad['result']['content'])->pluck('text')->implode(' '))
+        ->toContain('heraldo-x.co/consola/archivos');
 });
 
 /**

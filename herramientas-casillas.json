@@ -1,0 +1,177 @@
+{
+ "heraldo": "Rutas del parche casillas.patch (paquete-dev-consola). Existen cuando el dev de Heraldo lo publique; antes responden 404.",
+ "base_url": "https://heraldo-x.co/api/v1/tenants/{tenant_id}/campaigns/{campaign_id}/",
+ "llave": "La misma de las herramientas de hoy (Authorization: Bearer, con «Puede operar»).",
+ "respuestas": "Éxito en {data}. Error con message y, a veces, más campos (estimate_usd, santo_balance_usd, ratios, choices): pasarlos tal cual al agente.",
+ "herramientas_nuevas": [
+  {
+   "name": "regenerar-casilla",
+   "description": "Rehace la foto de una sola casilla del paso 2, como «Regenerar» de la página: en la columna base pide a Santo la foto base; en otra columna, la adaptación desde la foto base. Si la casilla está vacía, la genera. Sirve para arreglar una foto rechazada sin rehacer todas. Gasta: exige max_usd; sin max_usd responde 422 con estimate_usd y santo_balance_usd sin pedir nada (la foto base se estima con el modelo más caro de la campaña). Responde 409 sin pedir nada, con un message que dice qué hacer, si: lo estimado supera max_usd o el saldo de Santo; la foto la subió una persona (esa no se pisa: cámbiala con subir-foto o quítala con quitar-foto); la campaña no tiene lote de Santo (primero generar-fotos-base o pedir-adaptaciones); algo se está generando en la campaña o hay un pedido en cola (espera con estado-produccion); en una adaptación, la foto base de la fila no está lista; hay otro pedido a Santo en curso (reintenta en un momento); o la producción está finalizada. Responde 202: el avance se sigue con estado-produccion y la foto nueva se ve con plan-produccion.",
+   "http": {
+    "method": "POST",
+    "path": "production/cells/regenerate",
+    "envio": "json"
+   },
+   "gasta": true,
+   "cambia_datos": true,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "tenant_id": {
+      "type": "string",
+      "description": "id del cliente, de listar-tenants."
+     },
+     "campaign_id": {
+      "type": "integer",
+      "description": "id de la campaña, de listar-campanas o de crear-campana."
+     },
+     "strategy_id": {
+      "type": "integer",
+      "description": "strategy_id de la fila, como sale en plan-produccion (rows)."
+     },
+     "image_index": {
+      "type": "integer",
+      "description": "image_index de la fila (1, 2…), como sale en plan-produccion (rows)."
+     },
+     "ratio": {
+      "type": "string",
+      "description": "La columna, como sale en plan-produccion: «4:5», «9:16». En la columna base es la foto base; en las demás, la adaptación."
+     },
+     "max_usd": {
+      "type": "number",
+      "description": "Tope de gasto en dólares. Si lo estimado lo supera, no se pide nada."
+     }
+    },
+    "required": [
+     "tenant_id",
+     "campaign_id",
+     "strategy_id",
+     "image_index",
+     "ratio"
+    ]
+   }
+  },
+  {
+   "name": "quitar-foto",
+   "description": "Quita la foto de una casilla del paso 2, como «Quitar» de la página: borra la foto, la haya subido una persona o la haya hecho Santo. No gasta. Después se puede subir otra (subir-foto) o generarla (regenerar-casilla). Responde removed_stage (base o adaptation). 404 si la casilla no tiene foto y 409 si se está generando o la producción está finalizada.",
+   "http": {
+    "method": "POST",
+    "path": "production/cells/remove",
+    "envio": "json"
+   },
+   "gasta": false,
+   "cambia_datos": true,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "tenant_id": {
+      "type": "string",
+      "description": "id del cliente, de listar-tenants."
+     },
+     "campaign_id": {
+      "type": "integer",
+      "description": "id de la campaña, de listar-campanas o de crear-campana."
+     },
+     "strategy_id": {
+      "type": "integer",
+      "description": "strategy_id de la fila, como sale en plan-produccion (rows)."
+     },
+     "image_index": {
+      "type": "integer",
+      "description": "image_index de la fila (1, 2…), como sale en plan-produccion (rows)."
+     },
+     "ratio": {
+      "type": "string",
+      "description": "La columna, como sale en plan-produccion: «4:5», «9:16». En la columna base es la foto base; en las demás, la adaptación."
+     }
+    },
+    "required": [
+     "tenant_id",
+     "campaign_id",
+     "strategy_id",
+     "image_index",
+     "ratio"
+    ]
+   }
+  },
+  {
+   "name": "ver-direcciones",
+   "description": "Hacia dónde crece la foto en las adaptaciones de cada columna (el menú del encabezado de la columna en el paso 2). Por columna que no es la base: axis (vertical si crece el alto, horizontal si crece el ancho, none si tiene la misma forma), direction (top, bottom, left o right; null es centrada) y choices (los lados que tienen efecto en esa columna). Solo lee.",
+   "http": {
+    "method": "GET",
+    "path": "production/adaptation-directions",
+    "envio": "query"
+   },
+   "gasta": false,
+   "cambia_datos": false,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "tenant_id": {
+      "type": "string",
+      "description": "id del cliente, de listar-tenants."
+     },
+     "campaign_id": {
+      "type": "integer",
+      "description": "id de la campaña, de listar-campanas o de crear-campana."
+     }
+    },
+    "required": [
+     "tenant_id",
+     "campaign_id"
+    ]
+   }
+  },
+  {
+   "name": "elegir-direccion",
+   "description": "Elige hacia dónde crece la foto en las adaptaciones de una columna: top deja la foto abajo y agrega arriba, bottom la deja arriba, left la deja a la derecha, right la deja a la izquierda. Sin direction (o center), centrada. Solo vale un lado de choices (ver-direcciones); otro responde 422 con los que sirven. Vale para las adaptaciones que se pidan después: para cambiar una que ya está, después usa regenerar-casilla. La columna base no se adapta (422). No gasta.",
+   "http": {
+    "method": "PUT",
+    "path": "production/adaptation-directions",
+    "envio": "json"
+   },
+   "gasta": false,
+   "cambia_datos": true,
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "tenant_id": {
+      "type": "string",
+      "description": "id del cliente, de listar-tenants."
+     },
+     "campaign_id": {
+      "type": "integer",
+      "description": "id de la campaña, de listar-campanas o de crear-campana."
+     },
+     "ratio": {
+      "type": "string",
+      "description": "La columna de adaptación, como sale en ver-direcciones."
+     },
+     "direction": {
+      "type": "string",
+      "enum": [
+       "top",
+       "bottom",
+       "left",
+       "right",
+       "center"
+      ],
+      "description": "El lado hacia donde crece la foto. Sin él, centrada."
+     }
+    },
+    "required": [
+     "tenant_id",
+     "campaign_id",
+     "ratio"
+    ]
+   }
+  }
+ ],
+ "herramientas_que_cambian": [
+  {
+   "name": "plan-produccion",
+   "que_cambia": "Nada en la respuesta.",
+   "agregar_a_la_descripcion": "Para rehacer una sola casilla, regenerar-casilla; para borrarla, quitar-foto. Hacia dónde crece la foto en las adaptaciones: ver-direcciones."
+  }
+ ]
+}

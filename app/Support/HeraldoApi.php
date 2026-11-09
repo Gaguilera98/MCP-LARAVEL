@@ -11,19 +11,28 @@ use Laravel\Mcp\ResponseFactory;
 
 final class HeraldoApi
 {
-    public static function client(): PendingRequest
+    public static function client(?string $agent = null): PendingRequest
     {
-        return Http::timeout(60)
+        $client = Http::timeout(60)
             ->connectTimeout(5)
             ->acceptJson()
             ->withToken((string) config('services.heraldo_api.token'));
+
+        if (is_string($agent) && trim($agent) !== '') {
+            $client = $client->withHeaders(['X-Heraldo-Agent' => trim($agent)]);
+        }
+
+        return $client;
     }
 
     public static function url(string $path): string
     {
-        return rtrim((string) config('services.heraldo_api.base_url'), '/')
-            .'/api/v1/'
-            .ltrim($path, '/');
+        return self::baseUrl('api/v1', $path);
+    }
+
+    public static function consoleUrl(string $path): string
+    {
+        return self::baseUrl('api/console/v1', $path);
     }
 
     /**
@@ -58,6 +67,115 @@ final class HeraldoApi
         return self::send(fn () => self::client()
             ->attach('photo', $contents, $filename)
             ->post(self::url($path), $fields));
+    }
+
+    /**
+     * @param  array<string, mixed>  $query
+     */
+    public static function consoleGet(string $path, array $query = [], ?string $agent = null): Response|ResponseFactory
+    {
+        return self::send(fn () => self::client($agent)->get(self::consoleUrl($path), self::filterQuery($query)));
+    }
+
+    /**
+     * @param  array<string, mixed>  $body
+     */
+    public static function consolePost(string $path, array $body = [], ?string $agent = null): Response|ResponseFactory
+    {
+        return self::send(fn () => self::client($agent)->post(self::consoleUrl($path), $body));
+    }
+
+    /**
+     * @param  array<string, mixed>  $body
+     */
+    public static function consolePut(string $path, array $body = [], ?string $agent = null): Response|ResponseFactory
+    {
+        return self::send(fn () => self::client($agent)->put(self::consoleUrl($path), $body));
+    }
+
+    /**
+     * @param  array<string, mixed>  $body
+     */
+    public static function consolePatch(string $path, array $body = [], ?string $agent = null): Response|ResponseFactory
+    {
+        return self::send(fn () => self::client($agent)->patch(self::consoleUrl($path), $body));
+    }
+
+    /**
+     * @param  array<string, mixed>  $query
+     */
+    public static function consoleDelete(string $path, array $query = [], ?string $agent = null): Response|ResponseFactory
+    {
+        return self::send(fn () => self::client($agent)->delete(self::consoleUrl($path), self::filterQuery($query)));
+    }
+
+    /**
+     * @param  array<string, mixed>  $fields
+     */
+    public static function consolePostFile(
+        string $path,
+        string $contents,
+        string $filename,
+        array $fields = [],
+        ?string $agent = null,
+    ): Response|ResponseFactory {
+        return self::send(fn () => self::client($agent)
+            ->attach('file', $contents, $filename)
+            ->post(self::consoleUrl($path), $fields));
+    }
+
+    /**
+     * @param  array<string, mixed>  $query
+     * @return array<string, mixed>|Response
+     */
+    public static function consoleGetJson(string $path, array $query = [], ?string $agent = null): array|Response
+    {
+        return self::decode(fn () => self::client($agent)->get(self::consoleUrl($path), self::filterQuery($query)));
+    }
+
+    /**
+     * @return array{bytes: string, mime: string}|string
+     */
+    public static function fetchConsoleImage(string $url): array|string
+    {
+        $rejected = self::rejectedConsoleImageUrl($url);
+
+        if ($rejected !== null) {
+            return $rejected;
+        }
+
+        try {
+            $response = Http::timeout(60)
+                ->connectTimeout(5)
+                ->withOptions(['allow_redirects' => false])
+                ->get($url);
+        } catch (ConnectionException $e) {
+            return 'No se pudo abrir la imagen: '.$e->getMessage().' Pedila de nuevo con consola-ver-archivo.';
+        } catch (\Throwable $e) {
+            return 'No se pudo abrir la imagen: '.$e->getMessage().' Pedila de nuevo con consola-ver-archivo.';
+        }
+
+        if ($response->status() === 403 || $response->status() === 404) {
+            return 'El enlace venció o ya no existe ('.$response->status().'). Pedila de nuevo con consola-ver-archivo.';
+        }
+
+        if (! $response->successful()) {
+            return 'No se pudo abrir la imagen ('.$response->status().'). Pedila de nuevo con consola-ver-archivo.';
+        }
+
+        $mime = strtolower(trim(strtok((string) $response->header('Content-Type'), ';') ?: ''));
+
+        if (! in_array($mime, ['image/jpeg', 'image/png', 'image/webp', 'image/gif'], true)) {
+            return 'La respuesta no es una imagen que se pueda mostrar. Pedila de nuevo con consola-ver-archivo.';
+        }
+
+        $bytes = $response->body();
+
+        if ($bytes === '') {
+            return 'La imagen llegó vacía. Pedila de nuevo con consola-ver-archivo.';
+        }
+
+        return ['bytes' => $bytes, 'mime' => $mime];
     }
 
     /**
@@ -246,6 +364,13 @@ final class HeraldoApi
         );
     }
 
+    private static function baseUrl(string $prefix, string $path): string
+    {
+        return rtrim((string) config('services.heraldo_api.base_url'), '/')
+            .'/'.trim($prefix, '/').'/'
+            .ltrim($path, '/');
+    }
+
     private static function rejectedSignedImageUrl(string $url): ?string
     {
         $parts = parse_url($url);
@@ -264,6 +389,25 @@ final class HeraldoApi
 
         if ($scheme !== 'https' || isset($parts['user']) || isset($parts['pass']) || ! $isTenantHost || ! $isPreview) {
             return self::badSignedImageUrl();
+        }
+
+        return null;
+    }
+
+    private static function rejectedConsoleImageUrl(string $url): ?string
+    {
+        $parts = parse_url($url);
+
+        if (! is_array($parts)) {
+            return 'Ese enlace no es un archivo de la consola de Heraldo. Tiene que ser https://heraldo-x.co/consola/archivos/…';
+        }
+
+        $scheme = strtolower((string) ($parts['scheme'] ?? ''));
+        $host = strtolower((string) ($parts['host'] ?? ''));
+        $path = (string) ($parts['path'] ?? '');
+
+        if ($scheme !== 'https' || isset($parts['user']) || isset($parts['pass']) || $host !== 'heraldo-x.co' || ! str_starts_with($path, '/consola/archivos/')) {
+            return 'Ese enlace no es un archivo de la consola de Heraldo. Tiene que ser https://heraldo-x.co/consola/archivos/…';
         }
 
         return null;

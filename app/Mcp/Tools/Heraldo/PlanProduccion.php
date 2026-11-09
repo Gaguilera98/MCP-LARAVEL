@@ -17,7 +17,8 @@ use Laravel\Mcp\Server\Tool;
     'Cada columna de columns es una proporción, como 1:1 o 9:16; la que tiene is_base true es la columna base. '.
     'En cada fila, cells dice por proporción si la casilla está vacía (empty), en proceso o con foto (has_image). '.
     'De acá salen strategy_id, image_index y ratio para subir-foto y usar-columna-base. '.
-    'Cada casilla con foto trae preview_url, para verla con ver-imagen (vence a las 24 h). Para revisar muchas juntas, hoja-fotos.'
+    'Cada casilla con foto trae preview_url, para verla con ver-imagen (vence a las 24 h). Para revisar muchas juntas, hoja-fotos. '.
+    'Para rehacer una sola casilla, regenerar-casilla; para borrarla, quitar-foto. Hacia dónde crece la foto en las adaptaciones: ver-direcciones.'
 )]
 class PlanProduccion extends Tool
 {
