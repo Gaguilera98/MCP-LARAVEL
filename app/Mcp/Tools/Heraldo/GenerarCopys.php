@@ -15,7 +15,7 @@ use Laravel\Mcp\Server\Tool;
 #[Description(
     'La IA escribe varias opciones para cada cuadro de texto marcado con IA (se marcan con configurar-campana). Gasta muy poco y exige max_usd; sin él responde 422 con estimate_usd. '.
     'concept es el concepto de la campaña: si no viene, usa el guardado, y si no hay ninguno responde 422. notes son las reglas extra: trato, largos, lo que no va. '.
-    'Si mandas concept o notes, quedan guardados como en «Configurar concepto». Responde 202 y sigue sola: consulta estado-copys-ia hasta que status sea completed y después usa elegir-copys.'
+    'Si mandas concept o notes, quedan guardados como en «Configurar concepto». Responde 202 y sigue sola: consulta estado-copys-ia mientras status sea queued o processing; con completed, usa elegir-copys.'
 )]
 class GenerarCopys extends Tool
 {

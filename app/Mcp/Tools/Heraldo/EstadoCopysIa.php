@@ -13,7 +13,11 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('estado-copys-ia')]
 #[Description(
-    'En qué va la generación de copys con IA y las opciones de cada cuadro. Consulta hasta que status sea completed. '.
+    'En qué va la generación de copys con IA y las opciones de cada cuadro. '.
+    'status queued o processing: todavía trabaja, volvé a consultar. '.
+    'completed: las opciones están listas. '.
+    'failed: el error dice por qué. '.
+    'vacío (null): no hay generación en curso; no esperes. Si hay options, son de una generación anterior. '.
     'Cada texto trae key (para elegir-copys), producto, ángulo, mensaje, el cuadro (slot), max_length, options (desde 0), selected y text (lo que ya está guardado). Solo lee.'
 )]
 class EstadoCopysIa extends Tool

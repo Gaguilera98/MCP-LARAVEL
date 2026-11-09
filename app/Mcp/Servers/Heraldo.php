@@ -68,7 +68,7 @@ use Laravel\Mcp\Server\Attributes\Version;
     '4. Las fotos: si ya están en otra campaña, traer-fotos (primero con dry_run true). Si no, subir-referencia-santo, configurar-santo y generar-fotos-base, y consultá estado-produccion hasta que terminen. También podés subir-foto a mano. '.
     '5. hoja-fotos para revisarlas. Para ver una de cerca, ver-imagen con el preview_url de plan-produccion. '.
     '6. usar-columna-base y pedir-adaptaciones, y otra vez hoja-fotos. '.
-    '7. Copys: generar-copys, consultá estado-copys-ia hasta que status sea completed, y elegir-copys. Si over_max_length trae cuadros, acortalos con guardar-copys. Para escribir los textos a mano, usá listar-copys y guardar-copys. '.
+    '7. Copys: generar-copys, consultá estado-copys-ia mientras status sea queued o processing; con completed, elegí con elegir-copys. Si status viene vacío, no hay generación en curso: no esperes. Si over_max_length trae cuadros, acortalos con guardar-copys. Para escribir los textos a mano, usá listar-copys y guardar-copys. '.
     '8. enlace-plugin-figma para diseñar los artes en Figma; después importar-figma (primero confirm false, después true). '.
     '9. hoja-piezas, y aprobar o rechazar con revisar-piezas usando los id de tiles. Para ver un arte de cerca, ver-imagen con el preview_url de listar-piezas. '.
     '10. generar-titulares y, cuando termine, excel-titulares. '.
@@ -79,7 +79,7 @@ use Laravel\Mcp\Server\Attributes\Version;
 
     'EN COLA. '.
     'generar-fotos-base, generar-copys, adaptaciones, importar Figma, titulares, capas, videos y ZIP no terminan en la misma llamada: responden queued o un estimado. '.
-    'No digas que está listo: las fotos base se siguen en estado-produccion; los copys, en estado-copys-ia hasta completed; el resto, en estado-produccion (in_progress) o listar-exportaciones. '.
+    'No digas que está listo: las fotos base se siguen en estado-produccion; los copys, en estado-copys-ia mientras estén queued o processing (si status viene vacío, no esperes); el resto, en estado-produccion (in_progress) o listar-exportaciones. '.
 
     'GASTO. '.
     'pedir-adaptaciones, generar-fotos-base, generar-copys, generar-titulares y generar-videos cuestan dinero y exigen max_usd. '.
