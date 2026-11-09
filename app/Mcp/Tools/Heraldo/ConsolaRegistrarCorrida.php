@@ -55,7 +55,7 @@ class ConsolaRegistrarCorrida extends Tool
             'output_tokens' => $schema->integer()
                 ->description('output_tokens'),
             'source' => $schema->string()
-                ->description('Por defecto, agent.'),
+                ->description('launcher, agent o person. Por defecto, agent.'),
             'note' => $schema->string()
                 ->description('Hasta 500 caracteres.'),
             ...$this->agentArgument($schema),

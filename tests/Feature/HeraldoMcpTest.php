@@ -724,6 +724,31 @@ it('uploads a console file from a url in the file field', function () {
         && str_contains($request->body(), 'name="kind"'));
 });
 
+it('keeps console enum and json shapes in the schema text', function () {
+    expect(file_get_contents(base_path('app/Mcp/Tools/Heraldo/ConsolaPreguntar.php')))
+        ->toContain('Lista en JSON, hasta 8')
+        ->toContain('[{"text":"…","category":"legal"}]')
+        ->toContain('marca, legal, texto, foto, diseno o proceso');
+
+    expect(file_get_contents(base_path('app/Mcp/Tools/Heraldo/ConsolaListarPedidos.php')))
+        ->toContain('open, active, paused, delivered o cancelled');
+
+    expect(file_get_contents(base_path('app/Mcp/Tools/Heraldo/ConsolaListarPreguntas.php')))
+        ->toContain('open, answered o cancelled');
+
+    expect(file_get_contents(base_path('app/Mcp/Tools/Heraldo/ConsolaAnotar.php')))
+        ->toContain('note, progress, decision o problem');
+
+    expect(file_get_contents(base_path('app/Mcp/Tools/Heraldo/ConsolaRegistrarCorrida.php')))
+        ->toContain('launcher, agent o person');
+
+    expect(file_get_contents(base_path('app/Mcp/Tools/Heraldo/ConsolaCrearMarca.php')))
+        ->toContain('tu, vos, usted o mixto');
+
+    expect(file_get_contents(base_path('app/Mcp/Tools/Heraldo/ConsolaEditarMarca.php')))
+        ->toContain('tu, vos, usted o mixto');
+});
+
 it('shows a console image and rejects another host', function () {
     $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==');
     $url = 'https://heraldo-x.co/consola/archivos/abc?signature=1';

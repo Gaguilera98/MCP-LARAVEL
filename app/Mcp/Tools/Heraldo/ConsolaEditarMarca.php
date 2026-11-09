@@ -47,7 +47,7 @@ class ConsolaEditarMarca extends Tool
             'instructions' => $schema->string()
                 ->description('instructions'),
             'tone' => $schema->string()
-                ->description('tone'),
+                ->description('Trato: tu, vos, usted o mixto.'),
             'legal_text' => $schema->string()
                 ->description('legal_text'),
             'notes' => $schema->string()

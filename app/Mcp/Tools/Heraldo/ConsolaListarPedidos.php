@@ -38,7 +38,7 @@ class ConsolaListarPedidos extends Tool
     {
         return [
             'status' => $schema->string()
-                ->description('Filtra por estado. Por defecto, open.'),
+                ->description('Filtra por estado: open, active, paused, delivered o cancelled. Por defecto, open.'),
             'tenant_id' => $schema->string()
                 ->description('Solo los de este cliente.'),
             'page' => $schema->integer()

@@ -41,7 +41,7 @@ class ConsolaListarPreguntas extends Tool
                 ->description('id del pedido, de consola-pendientes, consola-listar-pedidos o consola-crear-pedido.')
                 ->required(),
             'status' => $schema->string()
-                ->description('status'),
+                ->description('Filtra por estado: open, answered o cancelled.'),
         ];
     }
 }

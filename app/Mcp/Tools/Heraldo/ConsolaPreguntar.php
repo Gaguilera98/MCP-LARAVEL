@@ -51,13 +51,13 @@ class ConsolaPreguntar extends Tool
             'body' => $schema->string()
                 ->description('El contexto que necesita la persona para responder.'),
             'options_json' => $schema->string()
-                ->description('options'),
+                ->description('Lista en JSON, hasta 8: [{"value":"a","label":"Opción A","recommended":true}]. value es obligatorio; label es lo que ve la persona; recommended va en una sola, la que propone el agente.'),
             'allows_text' => $schema->boolean()
                 ->description('Si la persona puede escribir además de elegir. Por defecto, true.'),
             'file_ids_json' => $schema->string()
-                ->description('file_ids'),
+                ->description('Ids de archivos del pedido (consola-subir-archivo), en JSON: [1,2].'),
             'guidelines_json' => $schema->string()
-                ->description('Solo en approval. Aprendizajes que propones como lineamientos de la marca: cortos (hasta 500 caracteres), concretos y que cambien el próximo pedido. La persona marca cuáles quedan.'),
+                ->description('Solo en approval. Hasta 3, en JSON: [{"text":"…","category":"legal"}]. category: marca, legal, texto, foto, diseno o proceso.'),
             ...$this->agentArgument($schema),
         ];
     }
