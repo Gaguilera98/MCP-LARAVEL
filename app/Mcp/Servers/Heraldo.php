@@ -116,7 +116,8 @@ use Laravel\Mcp\Server\Attributes\Version;
     'consola-ver-pedido trae el pedido entero: respetá siempre guidelines. '.
     'Si necesitás a una persona, consola-preguntar; cuando responde, aparece en consola-pendientes (answers) y la marcás con consola-marcar-leida. '.
     'consola-mover-paso marca el avance. Al entregar, consola-senales y proponé aprendizajes en una aprobación de consola-preguntar. '.
-    'agente va como nombre en la bitácora. consola-subir-archivo y consola-ver-archivo mueven archivos del pedido. '.
+    'En las tools de consola, mandá agente con el nombre que debe verse en la bitácora de Heraldo, por ejemplo «Claude Code · lanzador» o «Agente de diseño». '.
+    'Si no lo mandás, queda el nombre de la llave de Heraldo. consola-subir-archivo y consola-ver-archivo mueven archivos del pedido. '.
 
     'EN COLA. '.
     'generar-fotos-base, generar-copys, adaptaciones, importar Figma, titulares, capas, videos y ZIP no terminan en la misma llamada: responden queued o un estimado. '.

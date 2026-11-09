@@ -251,7 +251,9 @@ it('registers the heraldo tools', function () {
         ->and($instructions)->toContain('listar-recetas')
         ->and($instructions)->toContain('piece_ids_json')
         ->and($instructions)->toContain('consola-pendientes')
-        ->and($instructions)->toContain('regenerar-casilla');
+        ->and($instructions)->toContain('regenerar-casilla')
+        ->and($instructions)->toContain('mandá agente')
+        ->and($instructions)->toContain('bitácora de Heraldo');
 
     $planDescription = (new ReflectionClass(PlanProduccion::class))->getAttributes(Description::class)[0]->newInstance()->value;
 
