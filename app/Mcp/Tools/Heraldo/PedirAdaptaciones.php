@@ -16,7 +16,8 @@ use Laravel\Mcp\Server\Tool;
     'Completa con IA las casillas vacías de la grilla a partir de las fotos de la columna base. Antes tiene que haber columna base (usar-columna-base). '.
     'Gasta dinero. Heraldo exige max_usd: si no lo mandás o lo estimado lo supera, no hace nada y el error trae estimate_usd. '.
     'Usá ese estimado para confirmar con la persona y volvé a llamarla con su tope. '.
-    'Queda en cola: responde cuántas casillas va a adaptar (adaptations) y el estimado; el avance se ve en photos de estado-produccion.'
+    'Queda en cola: responde cuántas casillas va a adaptar (adaptations) y el estimado; el avance se ve en photos de estado-produccion. '.
+    'Si el saldo de Santo no alcanza para lo estimado, responde 409 y no pide nada; los errores traen santo_balance_usd.'
 )]
 class PedirAdaptaciones extends Tool
 {

@@ -117,6 +117,11 @@ trait CallsHeraldo
         return $body;
     }
 
+    protected function hasArgument(Request $request, string $key): bool
+    {
+        return array_key_exists($key, $request->all());
+    }
+
     protected function optionalNumber(Request $request, string $key): ?float
     {
         $value = $request->get($key);

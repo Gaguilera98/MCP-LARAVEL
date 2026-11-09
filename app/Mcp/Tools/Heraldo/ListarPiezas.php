@@ -15,7 +15,8 @@ use Laravel\Mcp\Server\Tool;
 #[Description(
     'Los artes de la campaña, ya importados de Figma. Cada uno trae id (para revisar-piezas), name, platform, format, product, has_image, '.
     'review_status (in_review, approved o rejected), review_note, has_layers, animation (la receta) y video_status. '.
-    'counts resume cuántos hay en cada estado de revisión. Los filtros son opcionales; sin filtros vienen todos.'
+    'counts resume cuántos hay en cada estado de revisión. Los filtros son opcionales; sin filtros vienen todos. '.
+    'Cada arte trae preview_url, para verlo con ver-imagen (vence a las 24 h). Para revisar muchos juntos, hoja-piezas.'
 )]
 class ListarPiezas extends Tool
 {
