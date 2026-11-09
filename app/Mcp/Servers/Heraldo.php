@@ -26,6 +26,7 @@ use App\Mcp\Tools\Heraldo\ListarCopys;
 use App\Mcp\Tools\Heraldo\ListarExportaciones;
 use App\Mcp\Tools\Heraldo\ListarPiezas;
 use App\Mcp\Tools\Heraldo\ListarPresets;
+use App\Mcp\Tools\Heraldo\ListarRecetas;
 use App\Mcp\Tools\Heraldo\ListarTenants;
 use App\Mcp\Tools\Heraldo\ObtenerCampana;
 use App\Mcp\Tools\Heraldo\PedirAdaptaciones;
@@ -72,7 +73,8 @@ use Laravel\Mcp\Server\Attributes\Version;
     '8. enlace-plugin-figma para diseñar los artes en Figma; después importar-figma (primero confirm false, después true). '.
     '9. hoja-piezas, y aprobar o rechazar con revisar-piezas usando los id de tiles. Para ver un arte de cerca, ver-imagen con el preview_url de listar-piezas. '.
     '10. generar-titulares y, cuando termine, excel-titulares. '.
-    '11. Para video: extraer-capas, asignar-receta y generar-videos. '.
+    '11. Para video: extraer-capas; listar-recetas para ver qué hace cada una (y ver-imagen con example_image_url si hace falta); asignar-receta y generar-videos. '.
+    'En asignar-receta y generar-videos, el filtro elige el grupo y piece_ids_json elige piezas concretas. '.
     '12. pedir-exportacion (pieces o videos) y listar-exportaciones para el enlace. '.
     'La campaña siguiente: duplicar-campana y después traer-fotos desde la anterior. '.
     'En cualquier momento, estado-produccion dice en qué paso está la campaña y qué sigue en cola. '.
@@ -99,10 +101,10 @@ use Laravel\Mcp\Server\Attributes\Version;
     'ENLACES. '.
     'subir-foto y subir-referencia-santo reciben foto_url o foto_base64, uno solo. Preferí el enlace. '.
     'excel-titulares y listar-exportaciones devuelven enlaces de descarga: vencen a las 24 horas y sirven para una sola descarga. Pasaselos a la persona. '.
-    'hoja-fotos y hoja-piezas muestran la hoja. ver-imagen muestra una foto o un arte: pasale el preview_url de plan-produccion o de listar-piezas. No armes el enlace. Esos enlaces vencen a las 24 horas: si fallan, pedí de nuevo el plan, las piezas o la hoja. '.
+    'hoja-fotos y hoja-piezas muestran la hoja. ver-imagen muestra una foto, un arte o el ejemplo de una receta: pasale el preview_url de plan-produccion o de listar-piezas, o el example_image_url de listar-recetas. No armes el enlace. Los preview_url vencen a las 24 horas: si fallan, pedí de nuevo el plan, las piezas o la hoja. '.
 
     'ARGUMENTOS JSON. '.
-    'messages_json: ["Post","Story"]. format_ids_json: [1,2]. texts_json: {"<key del cuadro>":"Texto"}. slot_ids_json: [10,11]. '.
+    'messages_json: ["Post","Story"]. format_ids_json: [1,2]. texts_json: {"<key del cuadro>":"Texto"}. slot_ids_json: [10,11]. piece_ids_json: [10,11]. '.
     'all_json y rows_json en configurar-santo. choices_json en elegir-copys: {"<key>":0}. '.
     'copy_slots_json, photo_sources_json y santo_ratios_json en configurar-campana. '.
     'Filtros review, platform, format y product: opcionales en listar-piezas, hoja-piezas, extraer-capas, asignar-receta, generar-videos y pedir-exportacion. '.
@@ -147,6 +149,7 @@ class Heraldo extends Server
         GenerarTitulares::class,
         ExcelTitulares::class,
         ExtraerCapas::class,
+        ListarRecetas::class,
         AsignarReceta::class,
         GenerarVideos::class,
         PedirExportacion::class,

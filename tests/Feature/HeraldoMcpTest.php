@@ -1,6 +1,7 @@
 <?php
 
 use App\Mcp\Servers\Heraldo;
+use App\Mcp\Tools\Heraldo\AsignarReceta;
 use App\Mcp\Tools\Heraldo\ConfigurarCampana;
 use App\Mcp\Tools\Heraldo\CrearCampana;
 use App\Mcp\Tools\Heraldo\ExcelTitulares;
@@ -10,6 +11,7 @@ use App\Mcp\Tools\Heraldo\HojaFotos;
 use App\Mcp\Tools\Heraldo\HojaPiezas;
 use App\Mcp\Tools\Heraldo\ListarPiezas;
 use App\Mcp\Tools\Heraldo\ListarPresets;
+use App\Mcp\Tools\Heraldo\ListarRecetas;
 use App\Mcp\Tools\Heraldo\ListarTenants;
 use App\Mcp\Tools\Heraldo\PedirAdaptaciones;
 use App\Mcp\Tools\Heraldo\SubirFoto;
@@ -232,14 +234,16 @@ it('registers the heraldo tools', function () {
     $tools = $server->getDefaultProperties()['tools'];
     $instructions = $server->getAttributes(Instructions::class)[0]->newInstance()->value;
 
-    expect($tools)->toHaveCount(38)
+    expect($tools)->toHaveCount(39)
         ->and($server->getAttributes(Name::class)[0]->newInstance()->value)->toBe('Heraldo')
         ->and($instructions)->toContain('La llave ya está configurada: no la pidas ni la cambies.')
         ->and($instructions)->toContain('decilo y no reintentes.')
         ->and($instructions)->toContain('ver-campana')
         ->and($instructions)->toContain('generar-fotos-base')
         ->and($instructions)->toContain('estado-copys-ia')
-        ->and($instructions)->toContain('duplicar-campana');
+        ->and($instructions)->toContain('duplicar-campana')
+        ->and($instructions)->toContain('listar-recetas')
+        ->and($instructions)->toContain('piece_ids_json');
 
     foreach ($tools as $class) {
         $description = (new ReflectionClass($class))->getAttributes(Description::class)[0]->newInstance()->value;
@@ -515,6 +519,97 @@ it('uploads a santo reference as webp', function () {
 
     Http::assertSent(fn ($request): bool => $request->url() === 'http://heraldo.test/api/v1/tenants/acme/campaigns/4/production/santo/reference'
         && str_contains($request->body(), 'foto.webp'));
+});
+
+it('lists animation recipes exactly, including an extra field', function () {
+    Http::fake([
+        'http://heraldo.test/api/v1/tenants/acme/animation-recipes' => Http::response([
+            'data' => [
+                'recipes' => [
+                    ['key' => 'revelado-sereno', 'name' => 'Revelado sereno', 'extra' => 'nuevo'],
+                ],
+                'by_objective' => [
+                    'conversion' => ['sobrio' => 'cta-claro'],
+                ],
+            ],
+        ]),
+    ]);
+
+    Heraldo::tool(ListarRecetas::class, ['tenant_id' => 'acme'])
+        ->assertOk()
+        ->assertStructuredContent([
+            'data' => [
+                'recipes' => [
+                    ['key' => 'revelado-sereno', 'name' => 'Revelado sereno', 'extra' => 'nuevo'],
+                ],
+                'by_objective' => [
+                    'conversion' => ['sobrio' => 'cta-claro'],
+                ],
+            ],
+        ]);
+
+    Http::assertSent(fn ($request): bool => $request->method() === 'GET'
+        && $request->url() === 'http://heraldo.test/api/v1/tenants/acme/animation-recipes'
+        && $request->hasHeader('Authorization', 'Bearer clave-heraldo'));
+});
+
+it('sends piece ids when assigning a recipe or generating videos', function () {
+    Http::fake([
+        'http://heraldo.test/api/v1/tenants/acme/campaigns/4/animations/recipe' => Http::response([
+            'data' => ['updated' => 2, 'without_layers' => []],
+        ]),
+        'http://heraldo.test/api/v1/tenants/acme/campaigns/4/animations/videos' => Http::response([
+            'data' => ['queued' => true, 'videos' => 2, 'skipped' => [], 'estimate_usd' => 1.4],
+        ], 202),
+    ]);
+
+    Heraldo::tool(AsignarReceta::class, [
+        'tenant_id' => 'acme',
+        'campaign_id' => 4,
+        'recipe' => 'cta-claro',
+        'piece_ids_json' => '[10,11]',
+    ])->assertOk()->assertStructuredContent([
+        'data' => ['updated' => 2, 'without_layers' => []],
+    ]);
+
+    Heraldo::tool(GenerarVideos::class, [
+        'tenant_id' => 'acme',
+        'campaign_id' => 4,
+        'max_usd' => 3,
+        'piece_ids_json' => '[10,11]',
+    ])->assertOk()->assertStructuredContent([
+        'data' => ['queued' => true, 'videos' => 2, 'skipped' => [], 'estimate_usd' => 1.4],
+    ]);
+
+    Http::assertSent(fn ($request): bool => $request->url() === 'http://heraldo.test/api/v1/tenants/acme/campaigns/4/animations/recipe'
+        && $request['recipe'] === 'cta-claro'
+        && $request['piece_ids'] === [10, 11]);
+
+    Http::assertSent(fn ($request): bool => $request->url() === 'http://heraldo.test/api/v1/tenants/acme/campaigns/4/animations/videos'
+        && $request['max_usd'] === 3.0
+        && $request['piece_ids'] === [10, 11]);
+});
+
+it('shows a recipe example image from heraldo', function () {
+    $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==');
+    $url = 'https://god.heraldo-x.co/vendor/heraldo/recetas-ejemplos/cta-claro.png';
+
+    Http::fake([
+        $url => Http::response($png, 200, ['Content-Type' => 'image/png']),
+    ]);
+
+    $result = heraldoResult(Heraldo::tool(VerImagen::class, [
+        'preview_url' => $url,
+    ])->assertOk());
+
+    $image = collect($result['result']['content'])->firstWhere('type', 'image');
+
+    expect($image['mimeType'])->toBe('image/png')
+        ->and(base64_decode($image['data']))->toBe($png);
+
+    Heraldo::tool(VerImagen::class, [
+        'preview_url' => 'https://evil.com/vendor/heraldo/recetas-ejemplos/cta-claro.png',
+    ])->assertHasErrors(['heraldo-x.co']);
 });
 
 /**

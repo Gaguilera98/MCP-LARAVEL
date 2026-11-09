@@ -258,7 +258,9 @@ final class HeraldoApi
         $host = strtolower((string) ($parts['host'] ?? ''));
         $path = (string) ($parts['path'] ?? '');
         $isTenantHost = str_ends_with($host, '.heraldo-x.co') && $host !== '.heraldo-x.co';
-        $isPreview = str_contains($path, '/signed-preview') || str_contains($path, '/contact-sheet/');
+        $isPreview = str_contains($path, '/signed-preview')
+            || str_contains($path, '/contact-sheet/')
+            || str_starts_with($path, '/vendor/heraldo/recetas-ejemplos/');
 
         if ($scheme !== 'https' || isset($parts['user']) || isset($parts['pass']) || ! $isTenantHost || ! $isPreview) {
             return self::badSignedImageUrl();
@@ -269,7 +271,7 @@ final class HeraldoApi
 
     private static function badSignedImageUrl(): string
     {
-        return 'Ese enlace no es una imagen de Heraldo. Tiene que ser https de un subdominio de heraldo-x.co, con /signed-preview o /contact-sheet/ en la ruta.';
+        return 'Ese enlace no es una imagen de Heraldo. Tiene que ser https de un subdominio de heraldo-x.co, con /signed-preview, /contact-sheet/ o /vendor/heraldo/recetas-ejemplos/ en la ruta.';
     }
 
     private static function askForFreshLink(): string

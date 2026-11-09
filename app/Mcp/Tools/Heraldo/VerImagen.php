@@ -13,8 +13,10 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('ver-imagen')]
 #[Description(
-    'Muestra una foto o un arte de cerca. Recibe un preview_url de plan-produccion o de listar-piezas y devuelve la imagen. '.
-    'El enlace ya viene armado, con el subdominio de ese cliente, y vence a las 24 h: si venció, vuelve a pedir plan-produccion o listar-piezas. Solo lee.'
+    'Muestra una foto, un arte o la imagen de ejemplo de una receta. '.
+    'Recibe un preview_url de plan-produccion o de listar-piezas, o un example_image_url de listar-recetas, y devuelve la imagen. '.
+    'Los preview_url ya vienen armados, con el subdominio de ese cliente, y vencen a las 24 h: si vencieron, vuelve a pedir plan-produccion o listar-piezas. '.
+    'Los example_image_url de las recetas son públicos y no vencen. Solo lee.'
 )]
 class VerImagen extends Tool
 {
@@ -23,7 +25,7 @@ class VerImagen extends Tool
         $url = $request->get('preview_url');
 
         if (! is_string($url) || trim($url) === '') {
-            return Response::error('Indicá preview_url, el de una casilla de plan-produccion o de un arte de listar-piezas.');
+            return Response::error('Indicá preview_url: el de una casilla de plan-produccion, de un arte de listar-piezas, o el example_image_url de listar-recetas.');
         }
 
         $image = HeraldoApi::fetchSignedImage($url);
@@ -42,7 +44,7 @@ class VerImagen extends Tool
     {
         return [
             'preview_url' => $schema->string()
-                ->description('El preview_url de una casilla de plan-produccion o de un arte de listar-piezas.')
+                ->description('El preview_url de una casilla de plan-produccion o de un arte de listar-piezas, o el example_image_url de listar-recetas.')
                 ->required(),
         ];
     }
