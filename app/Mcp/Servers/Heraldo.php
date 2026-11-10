@@ -139,7 +139,8 @@ use Laravel\Mcp\Server\Attributes\Version;
     'Si Heraldo responde que es de solo lectura, o que tu usuario no tiene permiso en ese cliente, dilo y no reintentes. '.
 
     'ENLACES. '.
-    'subir-foto y subir-referencia-santo reciben foto_url o foto_base64, uno solo. Mejor usa el enlace. '.
+    'subir-foto recibe foto_url, foto_base64 o console_file_id, uno solo; si la foto es de un pedido, usa console_file_id. '.
+    'subir-referencia-santo recibe foto_url o foto_base64, uno solo. Mejor usa el enlace. '.
     'excel-titulares y listar-exportaciones devuelven enlaces de descarga: vencen a las 24 horas y sirven para una sola descarga. Pásaselos a la persona. '.
     'hoja-fotos y hoja-piezas muestran la hoja. ver-imagen muestra una foto, un arte o el ejemplo de una receta: pásale el preview_url de plan-produccion o de listar-piezas, o el example_image_url de listar-recetas. No armes el enlace. Los preview_url vencen a las 24 horas: si fallan, pide de nuevo el plan, las piezas o la hoja. '.
 

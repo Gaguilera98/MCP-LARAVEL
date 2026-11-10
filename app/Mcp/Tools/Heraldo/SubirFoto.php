@@ -16,10 +16,12 @@ use Laravel\Mcp\Server\Tool;
 #[Name('subir-foto')]
 #[Description(
     'Pone una foto en una casilla de la grilla de la campaña: una fila (strategy_id + image_index) y una columna (ratio), las tres de plan-produccion. '.
-    'Manda la foto con foto_url o con foto_base64, solo uno de los dos. JPG o PNG, hasta 10 MB. '.
-    'Mejor usa foto_url: un base64 grande puede no entrar en la llamada. '.
+    'Manda la foto con foto_url, foto_base64 o console_file_id, solo uno de los tres. JPG o PNG, hasta 10 MB. '.
+    'Si la foto es un archivo de un pedido de la consola, usa console_file_id: es lo más simple, porque no necesita enlace ni base64. '.
+    'Si no, mejor usa foto_url: un base64 grande puede no entrar en la llamada. '.
     'Queda como foto subida a mano: no gasta. Si la casilla ya tenía foto, la reemplaza. '.
-    'Si la campaña todavía no tenía producción, la crea. Si la proporción no es una columna, el error trae ratios con las válidas.'
+    'Si la campaña todavía no tenía producción, la crea. Si la proporción no es una columna, el error trae ratios con las válidas. '.
+    'Si la respuesta trae ratio_warning, la foto se guardó, pero no tiene la proporción de su columna: díselo a la persona con ese texto o revisa que sea la foto correcta antes de seguir.'
 )]
 class SubirFoto extends Tool
 {
@@ -29,7 +31,26 @@ class SubirFoto extends Tool
 
     public function handle(Request $request): Response|ResponseFactory
     {
-        $photo = $this->photoBytes($request);
+        $sources = $this->photoSources($request);
+
+        if ($sources['count'] !== 1) {
+            return Response::error('Indica foto_url, foto_base64 o console_file_id, una sola.');
+        }
+
+        $cell = [
+            'strategy_id' => (int) $request->get('strategy_id'),
+            'image_index' => (int) $request->get('image_index'),
+            'ratio' => $request->get('ratio'),
+        ];
+
+        if ($sources['console_file_id'] !== null) {
+            return HeraldoApi::post($this->campaignPath($request, 'production/photos'), [
+                ...$cell,
+                'console_file_id' => $sources['console_file_id'],
+            ]);
+        }
+
+        $photo = $this->photoBytes($request, $sources);
 
         if ($photo instanceof Response) {
             return $photo;
@@ -39,11 +60,7 @@ class SubirFoto extends Tool
             $this->campaignPath($request, 'production/photos'),
             $photo['bytes'],
             $photo['filename'],
-            [
-                'strategy_id' => (int) $request->get('strategy_id'),
-                'image_index' => (int) $request->get('image_index'),
-                'ratio' => $request->get('ratio'),
-            ],
+            $cell,
         );
     }
 
@@ -65,29 +82,44 @@ class SubirFoto extends Tool
                 ->description('La proporción de la columna, escrita igual que en columns de plan-produccion, por ejemplo 1:1.')
                 ->required(),
             'foto_url' => $schema->string()
-                ->description('Enlace público que descarga la imagen directo, sin pedir inicio de sesión. Un archivo de Drive tiene que estar compartido con cualquiera que tenga el enlace. No lo combines con foto_base64.'),
+                ->description('Enlace público que descarga la imagen directo, sin pedir inicio de sesión. Un archivo de Drive tiene que estar compartido con cualquiera que tenga el enlace. No lo combines con foto_base64 ni con console_file_id.'),
             'foto_base64' => $schema->string()
-                ->description('Foto en base64, con o sin prefijo data:image. JPG o PNG, hasta 10 MB. No lo combines con foto_url.'),
+                ->description('Foto en base64, con o sin prefijo data:image. JPG o PNG, hasta 10 MB. No lo combines con foto_url ni con console_file_id.'),
+            'console_file_id' => $schema->integer()
+                ->min(1)
+                ->description('id de un archivo de un pedido de la consola, de files en consola-ver-pedido. Heraldo lo lee directo: no hace falta enlace público. Solo vale un archivo de un pedido de este mismo cliente, JPG o PNG de hasta 10 MB. No lo combines con foto_url ni con foto_base64.'),
         ];
     }
 
     /**
-     * @return array{bytes: string, filename: string}|Response
+     * @return array{count: int, has_url: bool, has_encoded: bool, console_file_id: ?int}
      */
-    private function photoBytes(Request $request): array|Response
+    private function photoSources(Request $request): array
     {
         $url = $request->get('foto_url');
         $encoded = $request->get('foto_base64');
+        $consoleFileId = $request->get('console_file_id');
         $hasUrl = is_string($url) && trim($url) !== '';
         $hasEncoded = is_string($encoded) && trim($encoded) !== '';
+        $hasConsoleFile = $consoleFileId !== null && $consoleFileId !== '';
 
-        if ($hasUrl === $hasEncoded) {
-            return Response::error('Indicá foto_url o foto_base64, una sola.');
-        }
+        return [
+            'count' => (int) $hasUrl + (int) $hasEncoded + (int) $hasConsoleFile,
+            'has_url' => $hasUrl,
+            'has_encoded' => $hasEncoded,
+            'console_file_id' => $hasConsoleFile ? (int) $consoleFileId : null,
+        ];
+    }
 
-        if ($hasUrl) {
+    /**
+     * @param  array{count: int, has_url: bool, has_encoded: bool, console_file_id: ?int}  $sources
+     * @return array{bytes: string, filename: string}|Response
+     */
+    private function photoBytes(Request $request, array $sources): array|Response
+    {
+        if ($sources['has_url']) {
             try {
-                $download = Http::timeout(60)->get($url);
+                $download = Http::timeout(60)->get((string) $request->get('foto_url'));
             } catch (\Throwable $e) {
                 return Response::error('No se pudo descargar la foto: '.$e->getMessage());
             }
@@ -98,7 +130,7 @@ class SubirFoto extends Tool
 
             $bytes = $download->body();
         } else {
-            $payload = trim((string) $encoded);
+            $payload = trim((string) $request->get('foto_base64'));
 
             if (str_contains($payload, ',')) {
                 $payload = substr($payload, (int) strpos($payload, ',') + 1);

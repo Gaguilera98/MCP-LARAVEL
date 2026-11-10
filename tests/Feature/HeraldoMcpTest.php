@@ -239,7 +239,60 @@ it('rejects a photo that is not jpg or png or is over 10 mb without calling hera
         'foto_base64' => base64_encode($png),
     ])->assertHasErrors(['una sola']);
 
+    Heraldo::tool(SubirFoto::class, [
+        'tenant_id' => 'acme',
+        'campaign_id' => 4,
+        'strategy_id' => 9,
+        'image_index' => 1,
+        'ratio' => '1:1',
+        'foto_url' => 'https://files.test/a.png',
+        'console_file_id' => 77,
+    ])->assertHasErrors(['una sola']);
+
     Http::assertNothingSent();
+});
+
+it('uploads a photo from a console file id as json and keeps ratio_warning', function () {
+    Http::fake([
+        'http://heraldo.test/api/v1/tenants/acme/campaigns/4/production/photos' => Http::response([
+            'data' => [
+                'saved' => true,
+                'ratio_warning' => 'La foto mide 1600 × 900 px y no tiene la proporción de su columna (1:1).',
+            ],
+        ], 201),
+    ]);
+
+    Heraldo::tool(SubirFoto::class, [
+        'tenant_id' => 'acme',
+        'campaign_id' => 4,
+        'strategy_id' => 9,
+        'image_index' => 1,
+        'ratio' => '1:1',
+        'console_file_id' => 77,
+    ])->assertOk()->assertStructuredContent([
+        'data' => [
+            'saved' => true,
+            'ratio_warning' => 'La foto mide 1600 × 900 px y no tiene la proporción de su columna (1:1).',
+        ],
+    ]);
+
+    Http::assertSent(fn ($request): bool => $request->url() === 'http://heraldo.test/api/v1/tenants/acme/campaigns/4/production/photos'
+        && $request->method() === 'POST'
+        && $request['strategy_id'] === 9
+        && $request['image_index'] === 1
+        && $request['ratio'] === '1:1'
+        && $request['console_file_id'] === 77
+        && ! str_contains($request->body(), 'name="photo"'));
+});
+
+it('describes console_file_id and ratio_warning for subir-foto', function () {
+    $source = file_get_contents(base_path('app/Mcp/Tools/Heraldo/SubirFoto.php'));
+
+    expect($source)
+        ->toContain('usa console_file_id: es lo más simple')
+        ->toContain('Si la respuesta trae ratio_warning')
+        ->toContain('de files en consola-ver-pedido')
+        ->toContain('->min(1)');
 });
 
 it('registers the heraldo tools', function () {
