@@ -41,9 +41,12 @@ class ConsolaRegistrarCorrida extends Tool
                 ->description('id del pedido, de consola-pendientes, consola-listar-pedidos o consola-crear-pedido.')
                 ->required(),
             'step' => $schema->string()
+                ->enum(['order', 'campaigns', 'design', 'content', 'templates', 'plugin', 'review', 'delivery'])
                 ->description('El paso: order (1 Pedido), campaigns (2 Campañas), design (3 Diseño madre), content (4 Fotos y textos), templates (5 Plantillas), plugin (6 Plugin), review (7 Revisión), delivery (8 Entrega).')
                 ->required(),
             'usd' => $schema->number()
+                ->min(0)
+                ->max(10000)
                 ->description('Lo que costó, en dólares.')
                 ->required(),
             'agent' => $schema->string()
@@ -55,8 +58,10 @@ class ConsolaRegistrarCorrida extends Tool
             'output_tokens' => $schema->integer()
                 ->description('output_tokens'),
             'source' => $schema->string()
+                ->enum(['launcher', 'agent', 'person'])
                 ->description('launcher, agent o person. Por defecto, agent.'),
             'note' => $schema->string()
+                ->max(500)
                 ->description('Hasta 500 caracteres.'),
             ...$this->agentArgument($schema),
         ];

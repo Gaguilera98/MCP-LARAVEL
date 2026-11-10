@@ -36,8 +36,10 @@ class UsoCampana extends Tool
         return [
             ...$this->campaignArguments($schema),
             'date_from' => $schema->string()
+                ->format('date')
                 ->description('Desde ese día, en YYYY-MM-DD. No puede ser posterior a date_to.'),
             'date_to' => $schema->string()
+                ->format('date')
                 ->description('Hasta ese día inclusive, en YYYY-MM-DD.'),
         ];
     }

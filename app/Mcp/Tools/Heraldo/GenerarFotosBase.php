@@ -46,6 +46,7 @@ class GenerarFotosBase extends Tool
         return [
             ...$this->campaignArguments($schema),
             'max_usd' => $schema->number()
+                ->min(0)
                 ->description('Tope de gasto en dólares. Si lo estimado lo supera, no se pide nada. Sin este dato no se hace nada y el error trae el estimado.'),
             'only_pending' => $schema->boolean()
                 ->description('true pide solo las casillas sin foto. Por defecto, false.'),

@@ -49,10 +49,13 @@ class GenerarCopys extends Tool
         return [
             ...$this->campaignArguments($schema),
             'max_usd' => $schema->number()
+                ->min(0)
                 ->description('Tope de gasto en dólares. Sin este dato no se hace nada y el error trae el estimado.'),
             'concept' => $schema->string()
+                ->max(20000)
                 ->description('El concepto de la campaña. Hasta 20.000 caracteres. Si no viene, usa el guardado.'),
             'notes' => $schema->string()
+                ->max(2000)
                 ->description('Notas adicionales: trato por región, largos, reglas. Hasta 2.000 caracteres.'),
         ];
     }

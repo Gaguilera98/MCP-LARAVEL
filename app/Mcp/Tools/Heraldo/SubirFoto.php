@@ -16,8 +16,8 @@ use Laravel\Mcp\Server\Tool;
 #[Name('subir-foto')]
 #[Description(
     'Pone una foto en una casilla de la grilla de la campaña: una fila (strategy_id + image_index) y una columna (ratio), las tres de plan-produccion. '.
-    'Mandá la foto con foto_url o con foto_base64, solo uno de los dos. JPG o PNG, hasta 10 MB. '.
-    'Preferí foto_url: un base64 grande puede no entrar en la llamada. '.
+    'Manda la foto con foto_url o con foto_base64, solo uno de los dos. JPG o PNG, hasta 10 MB. '.
+    'Mejor usa foto_url: un base64 grande puede no entrar en la llamada. '.
     'Queda como foto subida a mano: no gasta. Si la casilla ya tenía foto, la reemplaza. '.
     'Si la campaña todavía no tenía producción, la crea. Si la proporción no es una columna, el error trae ratios con las válidas.'
 )]
@@ -58,6 +58,7 @@ class SubirFoto extends Tool
                 ->description('strategy_id de la fila, de rows en plan-produccion.')
                 ->required(),
             'image_index' => $schema->integer()
+                ->min(1)
                 ->description('image_index de la misma fila, de rows en plan-produccion.')
                 ->required(),
             'ratio' => $schema->string()

@@ -14,8 +14,8 @@ use Laravel\Mcp\Server\Tool;
 #[Name('excel-titulares')]
 #[Description(
     'Enlace para bajar el Excel con los textos de publicación de la campaña. No devuelve el archivo: devuelve download_url, filename y expires_at. '.
-    'Pasale el enlace a la persona: vence a las 24 horas y sirve para una sola descarga. Si hace falta otra, llamala de nuevo. '.
-    'Si todavía no hay textos, responde que no hay textos de publicación: primero generar-titulares y esperá a que termine.'
+    'Pásale el enlace a la persona: vence a las 24 horas y sirve para una sola descarga. Si hace falta otra, llámala de nuevo. '.
+    'Si todavía no hay textos, responde que no hay textos de publicación: primero generar-titulares y espera a que termine.'
 )]
 class ExcelTitulares extends Tool
 {

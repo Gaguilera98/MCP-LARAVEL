@@ -4,26 +4,32 @@ use App\Mcp\Servers\Heraldo;
 use App\Mcp\Tools\Heraldo\AsignarReceta;
 use App\Mcp\Tools\Heraldo\ConfigurarCampana;
 use App\Mcp\Tools\Heraldo\ConsolaCrearPedido;
+use App\Mcp\Tools\Heraldo\ConsolaMoverPaso;
 use App\Mcp\Tools\Heraldo\ConsolaSubirArchivo;
 use App\Mcp\Tools\Heraldo\ConsolaVerArchivo;
 use App\Mcp\Tools\Heraldo\CrearCampana;
 use App\Mcp\Tools\Heraldo\ElegirDireccion;
 use App\Mcp\Tools\Heraldo\ExcelTitulares;
 use App\Mcp\Tools\Heraldo\GenerarFotosBase;
+use App\Mcp\Tools\Heraldo\GenerarTitulares;
 use App\Mcp\Tools\Heraldo\GenerarVideos;
 use App\Mcp\Tools\Heraldo\HojaFotos;
 use App\Mcp\Tools\Heraldo\HojaPiezas;
+use App\Mcp\Tools\Heraldo\ListarCampanas;
 use App\Mcp\Tools\Heraldo\ListarPiezas;
 use App\Mcp\Tools\Heraldo\ListarPresets;
 use App\Mcp\Tools\Heraldo\ListarRecetas;
 use App\Mcp\Tools\Heraldo\ListarTenants;
 use App\Mcp\Tools\Heraldo\PedirAdaptaciones;
+use App\Mcp\Tools\Heraldo\PedirExportacion;
 use App\Mcp\Tools\Heraldo\PlanProduccion;
 use App\Mcp\Tools\Heraldo\RegenerarCasilla;
+use App\Mcp\Tools\Heraldo\RevisarPiezas;
 use App\Mcp\Tools\Heraldo\SubirFoto;
 use App\Mcp\Tools\Heraldo\SubirReferenciaSanto;
 use App\Mcp\Tools\Heraldo\TraerFotos;
 use App\Mcp\Tools\Heraldo\VerImagen;
+use Illuminate\JsonSchema\JsonSchemaTypeFactory;
 use Illuminate\Support\Facades\Http;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Instructions;
@@ -243,7 +249,7 @@ it('registers the heraldo tools', function () {
     expect($tools)->toHaveCount(68)
         ->and($server->getAttributes(Name::class)[0]->newInstance()->value)->toBe('Heraldo')
         ->and($instructions)->toContain('La llave ya está configurada: no la pidas ni la cambies.')
-        ->and($instructions)->toContain('decilo y no reintentes.')
+        ->and($instructions)->toContain('dilo y no reintentes.')
         ->and($instructions)->toContain('ver-campana')
         ->and($instructions)->toContain('generar-fotos-base')
         ->and($instructions)->toContain('estado-copys-ia')
@@ -252,7 +258,7 @@ it('registers the heraldo tools', function () {
         ->and($instructions)->toContain('piece_ids_json')
         ->and($instructions)->toContain('consola-pendientes')
         ->and($instructions)->toContain('regenerar-casilla')
-        ->and($instructions)->toContain('mandá agente')
+        ->and($instructions)->toContain('manda agente')
         ->and($instructions)->toContain('bitácora de Heraldo');
 
     $planDescription = (new ReflectionClass(PlanProduccion::class))->getAttributes(Description::class)[0]->newInstance()->value;
@@ -749,6 +755,60 @@ it('keeps console enum and json shapes in the schema text', function () {
 
     expect(file_get_contents(base_path('app/Mcp/Tools/Heraldo/ConsolaEditarMarca.php')))
         ->toContain('tu, vos, usted o mixto');
+});
+
+it('exposes fixed enums and bounds in tool schemas', function () {
+    $schema = new JsonSchemaTypeFactory;
+
+    expect((new ListarPiezas)->schema($schema)['review']->toArray()['enum'])
+        ->toBe(['all', 'in_review', 'approved', 'rejected', 'reviewed']);
+
+    expect((new RevisarPiezas)->schema($schema)['status']->toArray()['enum'])
+        ->toBe(['approved', 'rejected', 'in_review']);
+
+    expect((new PedirExportacion)->schema($schema)['type']->toArray()['enum'])
+        ->toBe(['pieces', 'videos']);
+
+    expect((new AsignarReceta)->schema($schema)['style']->toArray()['enum'])
+        ->toBe(['sobrio', 'dinamico', 'impacto']);
+
+    $options = (new GenerarTitulares)->schema($schema)['options']->toArray();
+    expect($options['minimum'])->toBe(1)->and($options['maximum'])->toBe(5);
+
+    $listar = (new ListarCampanas)->schema($schema);
+    expect($listar['page']->toArray()['minimum'])->toBe(1)
+        ->and($listar['per_page']->toArray()['minimum'])->toBe(1)
+        ->and($listar['per_page']->toArray()['maximum'])->toBe(100);
+
+    $mover = (new ConsolaMoverPaso)->schema($schema);
+    expect($mover['step']->toArray()['enum'])
+        ->toBe(['order', 'campaigns', 'design', 'content', 'templates', 'review', 'delivery'])
+        ->and($mover['state']->toArray()['enum'])
+        ->toBe(['pending', 'agent', 'done', 'skipped']);
+
+    expect((new ElegirDireccion)->schema($schema)['direction']->toArray()['enum'])
+        ->toBe(['top', 'bottom', 'left', 'right', 'center']);
+
+    expect((new PedirAdaptaciones)->schema($schema)['max_usd']->toArray()['minimum'])->toBe(0);
+});
+
+it('uses tú in tool descriptions and keeps the two BP phrases', function () {
+    $voseo = '/(?<!\p{L})(volvé|usá|usás|mandá|mandás|indicás|escribí|seguí|llamal[ao]|armá|corregí|mostrale|pasale|pasaselo|esperá|podés|respetá|dividilos|empezá|mirala|confirmá|preferí|generá|acá)(?!\p{L})/iu';
+
+    $server = new ReflectionClass(Heraldo::class);
+    $instructions = $server->getAttributes(Instructions::class)[0]->newInstance()->value;
+    expect(preg_match($voseo, $instructions))->toBe(0);
+
+    foreach ($server->getDefaultProperties()['tools'] as $class) {
+        $description = (new ReflectionClass($class))->getAttributes(Description::class)[0]->newInstance()->value;
+        expect(preg_match($voseo, $description))->toBe(0, "voseo en {$class}");
+    }
+
+    $mover = (new ReflectionClass(ConsolaMoverPaso::class))->getAttributes(Description::class)[0]->newInstance()->value;
+    $adaptaciones = (new ReflectionClass(PedirAdaptaciones::class))->getAttributes(Description::class)[0]->newInstance()->value;
+
+    expect($mover)->toContain('se marca skipped en cuanto se sabe')
+        ->and($adaptaciones)->toContain('cuéntalas en plan-produccion de esta campaña');
 });
 
 it('shows a console image and rejects another host', function () {

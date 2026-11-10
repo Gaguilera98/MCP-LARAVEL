@@ -49,6 +49,7 @@ class HojaPiezas extends Tool
             ...$this->campaignArguments($schema),
             ...$this->filterArguments($schema),
             'page' => $schema->integer()
+                ->min(1)
                 ->description('La página, desde 1, de a 24 artes.'),
         ];
     }

@@ -45,6 +45,7 @@ class DuplicarCampana extends Tool
         return [
             ...$this->campaignArguments($schema),
             'name' => $schema->string()
+                ->max(255)
                 ->description('Nombre de la campaña nueva, hasta 255 caracteres. Sin él, se llama «… (copia)».'),
             'copy_texts' => $schema->boolean()
                 ->description('false para no copiar los textos. Por defecto, true.'),

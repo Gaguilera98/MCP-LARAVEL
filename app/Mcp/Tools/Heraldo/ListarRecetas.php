@@ -13,8 +13,8 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('listar-recetas')]
 #[Description(
-    'Las recetas de animación y qué hace cada una: key, nombre, objetivo (reconocimiento, consideración, conversión o bumper), estilo (sobrio, dinamico o impacto), descripción, duraciones (seconds y default_seconds), example_video_url y example_image_url (mirala con ver-imagen). '.
-    'styles trae sobrio, dinamico e impacto. by_objective dice qué receta toma cada pieza al usar style en asignar-receta. Llamala antes de asignar-receta. Solo lee.'
+    'Las recetas de animación y qué hace cada una: key, nombre, objetivo (reconocimiento, consideración, conversión o bumper), estilo (sobrio, dinamico o impacto), descripción, duraciones (seconds y default_seconds), example_video_url y example_image_url (mírala con ver-imagen). '.
+    'styles trae sobrio, dinamico e impacto. by_objective dice qué receta toma cada pieza al usar style en asignar-receta. Llámala antes de asignar-receta. Solo lee.'
 )]
 class ListarRecetas extends Tool
 {

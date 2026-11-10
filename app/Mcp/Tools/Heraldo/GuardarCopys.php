@@ -13,10 +13,10 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('guardar-copys')]
 #[Description(
-    'Escribe textos en los cuadros de copy de la campaña. Podés mandar solo algunos: los que no mandás quedan como estaban. '.
+    'Escribe textos en los cuadros de copy de la campaña. Puedes mandar solo algunos: los que no mandas quedan como estaban. '.
     'Un texto vacío se ignora. Si alguna clave no es de esta campaña, no se guarda nada y el error dice cuáles. '.
-    'Respetá max_length de cada cuadro: los que se pasan se guardan igual y vuelven en over_max_length. '.
-    'Un cuadro que recibe texto escrito acá deja de generarse con IA.'
+    'Respeta max_length de cada cuadro: los que se pasan se guardan igual y vuelven en over_max_length. '.
+    'Un cuadro que recibe texto escrito aquí deja de generarse con IA.'
 )]
 class GuardarCopys extends Tool
 {

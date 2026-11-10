@@ -42,13 +42,14 @@ trait CallsHeraldo
     {
         return [
             'review' => $schema->string()
-                ->description('Qué artes entran según su revisión: all (todos), in_review, approved, rejected o reviewed (aprobados y rechazados). Si no lo indicás, entran todos; en pedir-exportacion, solo approved.'),
+                ->enum(['all', 'in_review', 'approved', 'rejected', 'reviewed'])
+                ->description('Qué artes entran según su revisión: all (todos), in_review, approved, rejected o reviewed (aprobados y rechazados). Si no lo indicas, entran todos; en pedir-exportacion, solo approved.'),
             'platform' => $schema->string()
-                ->description('Solo los artes de esa plataforma. Escribí el nombre tal como viene en platform de listar-piezas.'),
+                ->description('Solo los artes de esa plataforma. Escribe el nombre tal como viene en platform de listar-piezas.'),
             'format' => $schema->string()
-                ->description('Solo los artes de ese formato. Escribí el nombre tal como viene en format de listar-piezas.'),
+                ->description('Solo los artes de ese formato. Escribe el nombre tal como viene en format de listar-piezas.'),
             'product' => $schema->string()
-                ->description('Solo los artes de ese producto. Escribí el nombre tal como viene en product de listar-piezas.'),
+                ->description('Solo los artes de ese producto. Escribe el nombre tal como viene en product de listar-piezas.'),
         ];
     }
 

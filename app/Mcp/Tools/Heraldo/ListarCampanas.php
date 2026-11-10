@@ -36,9 +36,12 @@ class ListarCampanas extends Tool
         return [
             ...$this->tenantArguments($schema),
             'page' => $schema->integer()
-                ->description('Número de página. Empieza en 1; si no lo indicás, es la 1.'),
+                ->min(1)
+                ->description('Número de página. Empieza en 1; si no lo indicas, es la 1.'),
             'per_page' => $schema->integer()
-                ->description('Cuántas campañas por página, de 1 a 100. Si no lo indicás, son 25.'),
+                ->min(1)
+                ->max(100)
+                ->description('Cuántas campañas por página, de 1 a 100. Si no lo indicas, son 25.'),
         ];
     }
 }

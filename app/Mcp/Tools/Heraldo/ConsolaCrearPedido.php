@@ -41,11 +41,13 @@ class ConsolaCrearPedido extends Tool
                 ->description('id del cliente, de listar-tenants.')
                 ->required(),
             'name' => $schema->string()
+                ->max(250)
                 ->description('Nombre del pedido. Hasta 250 caracteres.')
                 ->required(),
             'brand_id' => $schema->integer()
                 ->description('La ficha de marca, del mismo cliente.'),
             'due_on' => $schema->string()
+                ->format('date')
                 ->description('Plazo, AAAA-MM-DD.'),
             'summary' => $schema->string()
                 ->description('El resumen del pedido en Markdown: campañas, piezas, fotos, lo que falta confirmar.'),

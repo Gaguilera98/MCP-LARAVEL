@@ -41,8 +41,10 @@ class ConsolaEditarPedido extends Tool
                 ->description('id del pedido, de consola-pendientes, consola-listar-pedidos o consola-crear-pedido.')
                 ->required(),
             'name' => $schema->string()
+                ->max(250)
                 ->description('name'),
             'due_on' => $schema->string()
+                ->format('date')
                 ->description('due_on'),
             'summary' => $schema->string()
                 ->description('summary'),

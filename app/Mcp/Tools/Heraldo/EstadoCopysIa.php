@@ -14,7 +14,7 @@ use Laravel\Mcp\Server\Tool;
 #[Name('estado-copys-ia')]
 #[Description(
     'En qué va la generación de copys con IA y las opciones de cada cuadro. '.
-    'status queued o processing: todavía trabaja, volvé a consultar. '.
+    'status queued o processing: todavía trabaja, vuelve a consultar. '.
     'completed: las opciones están listas. '.
     'failed: el error dice por qué. '.
     'vacío (null): no hay generación en curso; no esperes. Si hay options, son de una generación anterior. '.

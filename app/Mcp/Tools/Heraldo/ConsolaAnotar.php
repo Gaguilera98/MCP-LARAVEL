@@ -41,11 +41,14 @@ class ConsolaAnotar extends Tool
                 ->description('id del pedido, de consola-pendientes, consola-listar-pedidos o consola-crear-pedido.')
                 ->required(),
             'text' => $schema->string()
+                ->max(2000)
                 ->description('Hasta 2.000 caracteres.')
                 ->required(),
             'step' => $schema->string()
+                ->enum(['order', 'campaigns', 'design', 'content', 'templates', 'plugin', 'review', 'delivery'])
                 ->description('El paso: order (1 Pedido), campaigns (2 Campañas), design (3 Diseño madre), content (4 Fotos y textos), templates (5 Plantillas), plugin (6 Plugin), review (7 Revisión), delivery (8 Entrega).'),
             'kind' => $schema->string()
+                ->enum(['note', 'progress', 'decision', 'problem'])
                 ->description('note, progress, decision o problem. Por defecto, note.'),
             ...$this->agentArgument($schema),
         ];

@@ -41,16 +41,27 @@ class ConsolaEstimar extends Tool
                 ->description('id del pedido, de consola-pendientes, consola-listar-pedidos o consola-crear-pedido.')
                 ->required(),
             'base_images' => $schema->integer()
+                ->min(0)
+                ->max(100000)
                 ->description('Imágenes base que se generan con IA (una por producto y proporción). Las fotos que manda el cliente no cuentan.'),
             'adaptations' => $schema->integer()
+                ->min(0)
+                ->max(100000)
                 ->description('Adaptaciones de tamaño con IA.'),
             'copy_texts' => $schema->integer()
+                ->min(0)
+                ->max(100000)
                 ->description('Textos que escribe la IA (copys).'),
             'pieces' => $schema->integer()
+                ->min(0)
+                ->max(100000)
                 ->description('Piezas finales (para los textos de publicación).'),
             'videos' => $schema->integer()
+                ->min(0)
+                ->max(100000)
                 ->description('Videos que se animan.'),
             'note' => $schema->string()
+                ->max(500)
                 ->description('De dónde salen las cantidades, en una línea. Hasta 500 caracteres.'),
             ...$this->agentArgument($schema),
         ];

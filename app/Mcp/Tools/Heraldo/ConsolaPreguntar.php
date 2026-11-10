@@ -41,14 +41,18 @@ class ConsolaPreguntar extends Tool
                 ->description('id del pedido, de consola-pendientes, consola-listar-pedidos o consola-crear-pedido.')
                 ->required(),
             'step' => $schema->string()
+                ->enum(['order', 'campaigns', 'design', 'content', 'templates', 'plugin', 'review', 'delivery'])
                 ->description('El paso: order (1 Pedido), campaigns (2 Campañas), design (3 Diseño madre), content (4 Fotos y textos), templates (5 Plantillas), plugin (6 Plugin), review (7 Revisión), delivery (8 Entrega).')
                 ->required(),
             'kind' => $schema->string()
-                ->description('Por defecto, decision.'),
+                ->enum(['decision', 'approval', 'task', 'data'])
+                ->description('decision, approval, task o data. Por defecto, decision.'),
             'title' => $schema->string()
+                ->max(250)
                 ->description('La pregunta, corta. Hasta 250 caracteres.')
                 ->required(),
             'body' => $schema->string()
+                ->max(20000)
                 ->description('El contexto que necesita la persona para responder.'),
             'options_json' => $schema->string()
                 ->description('Lista en JSON, hasta 8: [{"value":"a","label":"Opción A","recommended":true}]. value es obligatorio; label es lo que ve la persona; recommended va en una sola, la que propone el agente.'),

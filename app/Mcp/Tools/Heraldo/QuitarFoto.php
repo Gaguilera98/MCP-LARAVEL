@@ -36,9 +36,11 @@ class QuitarFoto extends Tool
         return [
             ...$this->campaignArguments($schema),
             'strategy_id' => $schema->integer()
+                ->min(1)
                 ->description('strategy_id de la fila, como sale en plan-produccion (rows).')
                 ->required(),
             'image_index' => $schema->integer()
+                ->min(1)
                 ->description('image_index de la fila (1, 2…), como sale en plan-produccion (rows).')
                 ->required(),
             'ratio' => $schema->string()

@@ -14,10 +14,11 @@ use Laravel\Mcp\Server\Tool;
 #[Name('pedir-adaptaciones')]
 #[Description(
     'Completa con IA las casillas vacías de la grilla a partir de las fotos de la columna base. Antes tiene que haber columna base (usar-columna-base). '.
-    'Gasta dinero. Heraldo exige max_usd: si no lo mandás o lo estimado lo supera, no hace nada y el error trae estimate_usd. '.
-    'Usá ese estimado para confirmar con la persona y volvé a llamarla con su tope. '.
+    'Gasta dinero. Heraldo exige max_usd: si no lo mandas o lo estimado lo supera, no hace nada y el error trae estimate_usd. '.
+    'Usa ese estimado para confirmar con la persona y vuelve a llamarla con su tope. '.
     'Queda en cola: responde cuántas casillas va a adaptar (adaptations) y el estimado; el avance se ve en photos de estado-produccion. '.
-    'Si el saldo de Santo no alcanza para lo estimado, responde 409 y no pide nada; los errores traen santo_balance_usd.'
+    'Si el saldo de Santo no alcanza para lo estimado, responde 409 y no pide nada; los errores traen santo_balance_usd. '.
+    'Las adaptaciones son las casillas vacías de las columnas que no son la base, en las filas que ya tienen foto base: cuéntalas en plan-produccion de esta campaña antes de prever el gasto, porque cada cliente tiene sus propias columnas.'
 )]
 class PedirAdaptaciones extends Tool
 {
@@ -43,6 +44,7 @@ class PedirAdaptaciones extends Tool
         return [
             ...$this->campaignArguments($schema),
             'max_usd' => $schema->number()
+                ->min(0)
                 ->description('Tope de gasto en dólares que aprobó la persona. Sin este dato no se hace nada.'),
         ];
     }

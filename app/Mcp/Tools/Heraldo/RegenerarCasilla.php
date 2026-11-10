@@ -43,15 +43,18 @@ class RegenerarCasilla extends Tool
         return [
             ...$this->campaignArguments($schema),
             'strategy_id' => $schema->integer()
+                ->min(1)
                 ->description('strategy_id de la fila, como sale en plan-produccion (rows).')
                 ->required(),
             'image_index' => $schema->integer()
+                ->min(1)
                 ->description('image_index de la fila (1, 2…), como sale en plan-produccion (rows).')
                 ->required(),
             'ratio' => $schema->string()
                 ->description('La columna, como sale en plan-produccion: «4:5», «9:16». En la columna base es la foto base; en las demás, la adaptación.')
                 ->required(),
             'max_usd' => $schema->number()
+                ->min(0)
                 ->description('Tope de gasto en dólares. Si lo estimado lo supera, no se pide nada.'),
         ];
     }

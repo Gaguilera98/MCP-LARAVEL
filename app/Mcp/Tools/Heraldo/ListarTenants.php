@@ -13,7 +13,7 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('listar-tenants')]
 #[Description(
-    'Clientes de Heraldo. Empezá siempre por acá. Cada cliente trae id, name y domains: ese id es el tenant_id de todas las demás herramientas.'
+    'Clientes de Heraldo. Empieza siempre por aquí. Cada cliente trae id, name y domains: ese id es el tenant_id de todas las demás herramientas.'
 )]
 class ListarTenants extends Tool
 {

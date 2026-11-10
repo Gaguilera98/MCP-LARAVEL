@@ -55,6 +55,7 @@ class HojaFotos extends Tool
             'ratio' => $schema->string()
                 ->description('La columna, como en columns de plan-produccion. Sin él, la base.'),
             'page' => $schema->integer()
+                ->min(1)
                 ->description('La página, desde 1, de a 24 fotos.'),
         ];
     }

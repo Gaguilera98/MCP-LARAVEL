@@ -41,6 +41,7 @@ class ConsolaCrearMarca extends Tool
                 ->description('id del cliente, de listar-tenants.')
                 ->required(),
             'name' => $schema->string()
+                ->max(250)
                 ->description('name')
                 ->required(),
             'figma_links_json' => $schema->string()
@@ -48,6 +49,7 @@ class ConsolaCrearMarca extends Tool
             'instructions' => $schema->string()
                 ->description('instructions'),
             'tone' => $schema->string()
+                ->enum(['tu', 'vos', 'usted', 'mixto'])
                 ->description('Trato: tu, vos, usted o mixto.'),
             'legal_text' => $schema->string()
                 ->description('legal_text'),

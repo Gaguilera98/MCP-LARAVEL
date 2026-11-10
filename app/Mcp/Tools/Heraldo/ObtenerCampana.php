@@ -14,7 +14,7 @@ use Laravel\Mcp\Server\Tool;
 #[Name('obtener-campana')]
 #[Description(
     'Resumen de una campaña: sus piezas por formato y cuántas están aprobadas, en revisión o rechazadas. '.
-    'Para saber en qué paso va la producción y qué sigue, usá estado-produccion.'
+    'Para saber en qué paso va la producción y qué sigue, usa estado-produccion.'
 )]
 class ObtenerCampana extends Tool
 {

@@ -38,12 +38,16 @@ class ConsolaListarPedidos extends Tool
     {
         return [
             'status' => $schema->string()
+                ->enum(['open', 'active', 'paused', 'delivered', 'cancelled'])
                 ->description('Filtra por estado: open, active, paused, delivered o cancelled. Por defecto, open.'),
             'tenant_id' => $schema->string()
                 ->description('Solo los de este cliente.'),
             'page' => $schema->integer()
-                ->description('page'),
+                ->min(1)
+                ->description('Número de página. Empieza en 1.'),
             'per_page' => $schema->integer()
+                ->min(1)
+                ->max(100)
                 ->description('Hasta 100. Por defecto, 25.'),
         ];
     }

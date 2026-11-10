@@ -16,7 +16,7 @@ use Laravel\Mcp\Server\Tool;
     'Aprueba o rechaza artes de la campaña. Cada cambio queda en el historial del arte. '.
     'Para rechazar hace falta note: qué hay que cambiar. '.
     'Con slot_ids_json cambia solo esos artes. Sin slot_ids_json cambia todos los que están en revisión, o todos los que tienen imagen si only_in_review es false. '.
-    'Confirmá con la persona antes de cambiar varios a la vez. Responde updated (cuántos cambió) y pieces (el nuevo resumen).'
+    'Confirma con la persona antes de cambiar varios a la vez. Responde updated (cuántos cambió) y pieces (el nuevo resumen).'
 )]
 class RevisarPiezas extends Tool
 {
@@ -59,14 +59,16 @@ class RevisarPiezas extends Tool
         return [
             ...$this->campaignArguments($schema),
             'status' => $schema->string()
+                ->enum(['approved', 'rejected', 'in_review'])
                 ->description('approved (aprobar), rejected (rechazar) o in_review (volver a revisión).')
                 ->required(),
             'note' => $schema->string()
+                ->max(2000)
                 ->description('Comentario de la revisión. Obligatorio para rechazar: qué hay que cambiar.'),
             'slot_ids_json' => $schema->string()
-                ->description('Los id de los artes, de listar-piezas, en JSON: [10,11]. Si no lo indicás, aplica a varios según only_in_review.'),
+                ->description('Los id de los artes, de listar-piezas, en JSON: [10,11]. Si no lo indicas, aplica a varios según only_in_review.'),
             'only_in_review' => $schema->boolean()
-                ->description('Sin slot_ids_json: true cambia solo los que están en revisión; false, todos los que tienen imagen. Si no lo indicás, es true.'),
+                ->description('Sin slot_ids_json: true cambia solo los que están en revisión; false, todos los que tienen imagen. Si no lo indicas, es true.'),
         ];
     }
 }

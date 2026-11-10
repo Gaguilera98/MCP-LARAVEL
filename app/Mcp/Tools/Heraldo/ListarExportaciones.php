@@ -14,8 +14,8 @@ use Laravel\Mcp\Server\Tool;
 #[Name('listar-exportaciones')]
 #[Description(
     'El último ZIP de piezas (pieces) y el último de videos (videos) que pediste en esta campaña, con su estado. Los que pidió otra persona no aparecen. '.
-    'Cuando está listo trae download_url: pasaselo a la persona; vence a las 24 horas y sirve para una sola descarga. '.
-    'Si sigue en cola o procesando, volvé a consultar en un rato. Si viene vacío, no hay ninguno pedido: usá pedir-exportacion.'
+    'Cuando está listo trae download_url: pásaselo a la persona; vence a las 24 horas y sirve para una sola descarga. '.
+    'Si sigue en cola o procesando, vuelve a consultar en un rato. Si viene vacío, no hay ninguno pedido: usa pedir-exportacion.'
 )]
 class ListarExportaciones extends Tool
 {

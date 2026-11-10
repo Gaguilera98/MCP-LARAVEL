@@ -55,10 +55,11 @@ class ConfigurarCampana extends Tool
             ...$this->campaignArguments($schema),
             'description' => $schema->string()
                 ->nullable()
-                ->description('El concepto de la campaña. Hasta 20.000 caracteres. null lo borra. Si no lo mandás, no se toca.'),
+                ->max(20000)
+                ->description('El concepto de la campaña. Hasta 20.000 caracteres. null lo borra. Si no lo mandas, no se toca.'),
             'intention' => $schema->string()
                 ->nullable()
-                ->description('La intención, hasta 255 caracteres. null la borra. Si no la mandás, no se toca.'),
+                ->description('La intención, hasta 255 caracteres. null la borra. Si no la mandas, no se toca.'),
             'copy_slots_json' => $schema->string()
                 ->description('JSON de cuadros que ya existen: [{"key":"<key de ver-campana>","max_length":80,"generate_with_ai":true}]. No agrega, quita ni renombra cuadros.'),
             'photo_sources_json' => $schema->string()

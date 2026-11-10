@@ -15,7 +15,7 @@ use Laravel\Mcp\Server\Tool;
 #[Description(
     'Los cuadros de texto de la campaña (copys): uno por producto × ángulo × mensaje × cuadro. '.
     'Cada uno trae key, product, variation, angle, message, slot_name, max_length y text (lo que ya está escrito; vacío si falta). '.
-    'completion dice cuántos faltan. La key es la que usás en guardar-copys.'
+    'completion dice cuántos faltan. La key es la que usas en guardar-copys.'
 )]
 class ListarCopys extends Tool
 {

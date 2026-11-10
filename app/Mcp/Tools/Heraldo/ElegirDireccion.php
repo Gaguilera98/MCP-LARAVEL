@@ -44,6 +44,7 @@ class ElegirDireccion extends Tool
                 ->description('La columna de adaptación, como sale en ver-direcciones.')
                 ->required(),
             'direction' => $schema->string()
+                ->enum(['top', 'bottom', 'left', 'right', 'center'])
                 ->description('El lado hacia donde crece la foto: top, bottom, left, right o center. Sin él, centrada.'),
         ];
     }

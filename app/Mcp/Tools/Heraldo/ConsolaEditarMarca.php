@@ -41,12 +41,14 @@ class ConsolaEditarMarca extends Tool
                 ->description('brand_id')
                 ->required(),
             'name' => $schema->string()
+                ->max(250)
                 ->description('name'),
             'figma_links_json' => $schema->string()
                 ->description('Enlaces de Figma: cada uno {label, url}. Solo https.'),
             'instructions' => $schema->string()
                 ->description('instructions'),
             'tone' => $schema->string()
+                ->enum(['tu', 'vos', 'usted', 'mixto'])
                 ->description('Trato: tu, vos, usted o mixto.'),
             'legal_text' => $schema->string()
                 ->description('legal_text'),

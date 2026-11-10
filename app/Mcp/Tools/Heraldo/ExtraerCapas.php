@@ -14,7 +14,7 @@ use Laravel\Mcp\Server\Tool;
 #[Name('extraer-capas')]
 #[Description(
     'Lee desde Figma las capas de cada arte (foto, titular, logo, CTA…). Es el primer paso para animar: sin capas no hay receta ni video. '.
-    'No gasta. Queda en cola: seguí in_progress.layer_extraction en estado-produccion; después listar-piezas muestra has_layers. '.
+    'No gasta. Queda en cola: sigue in_progress.layer_extraction en estado-produccion; después listar-piezas muestra has_layers. '.
     'Sin filtros toma todos los artes importados de Figma. Las animaciones tienen que estar habilitadas para ese cliente.'
 )]
 class ExtraerCapas extends Tool

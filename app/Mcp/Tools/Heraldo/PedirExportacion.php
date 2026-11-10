@@ -14,7 +14,7 @@ use Laravel\Mcp\Server\Tool;
 #[Name('pedir-exportacion')]
 #[Description(
     'Arma un ZIP para descargar. type pieces: las imágenes de los artes. type videos: los MP4 que ya están listos. '.
-    'Si no indicás review, entra solo lo aprobado. No gasta. Solo puede haber un ZIP de cada tipo armándose a la vez. '.
+    'Si no indicas review, entra solo lo aprobado. No gasta. Solo puede haber un ZIP de cada tipo armándose a la vez. '.
     'Queda en cola: responde cuántos archivos lleva (files), y el enlace aparece en listar-exportaciones cuando está listo.'
 )]
 class PedirExportacion extends Tool
@@ -38,6 +38,7 @@ class PedirExportacion extends Tool
         return [
             ...$this->campaignArguments($schema),
             'type' => $schema->string()
+                ->enum(['pieces', 'videos'])
                 ->description('pieces (imágenes de los artes) o videos (MP4).')
                 ->required(),
             ...$this->filterArguments($schema),

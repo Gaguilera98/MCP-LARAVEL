@@ -13,14 +13,14 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('asignar-receta')]
 #[Description(
-    'Elige cómo se anima cada arte. Mandá recipe o style, uno solo. '.
+    'Elige cómo se anima cada arte. Manda recipe o style, uno solo. '.
     'style elige la receta según el objetivo de cada arte: sobrio, dinamico o impacto. Es la opción más simple. '.
     'recipe pone la misma receta a todos los artes del alcance. '.
     'Para reconocimiento: revelado-sereno, escena-viva, golpe-de-marca. Para consideración: producto-protagonista, beneficio-en-foco, comparativo. '.
     'Para conversión: cta-claro, cta-con-pulso, urgencia. Para YouTube de 6 segundos: bumper-de-marca. '.
     'El filtro (review, platform, format, product) elige el grupo. piece_ids_json elige piezas concretas: los id de listar-piezas, hasta 500. '.
     'Las que no tienen capas vuelven en without_layers. Una pieza de otra campaña da 422 y no se toca nada. '.
-    'Solo toca artes con capas (extraer-capas). No gasta. Si el arte ya tenía video, queda desactualizado: generá ese video de nuevo. '.
+    'Solo toca artes con capas (extraer-capas). No gasta. Si el arte ya tenía video, queda desactualizado: genera ese video de nuevo. '.
     'Responde updated: cuántos artes quedaron con la receta. Para ver qué hace cada una, listar-recetas.'
 )]
 class AsignarReceta extends Tool
@@ -64,13 +64,14 @@ class AsignarReceta extends Tool
         return [
             ...$this->campaignArguments($schema),
             'style' => $schema->string()
+                ->enum(['sobrio', 'dinamico', 'impacto'])
                 ->description('sobrio, dinamico o impacto. Elige la receta según el objetivo de cada arte. No lo combines con recipe.'),
             'recipe' => $schema->string()
                 ->description('Una receta para todos: revelado-sereno, escena-viva, golpe-de-marca, producto-protagonista, beneficio-en-foco, comparativo, cta-claro, cta-con-pulso, urgencia o bumper-de-marca. No lo combines con style.'),
             'seconds' => $schema->integer()
-                ->description('Duración del video: 6, 10 o 15 segundos. Si no lo indicás, o la receta no admite esa duración, son 6.'),
+                ->description('Duración del video: 6, 10 o 15 segundos. Si no lo indicas, o la receta no admite esa duración, son 6.'),
             'piece_ids_json' => $schema->string()
-                ->description('Piezas concretas (id de listar-piezas), en JSON de hasta 500: [10,11]. Si no lo mandás, la receta va a las piezas del filtro.'),
+                ->description('Piezas concretas (id de listar-piezas), en JSON de hasta 500: [10,11]. Si no lo mandas, la receta va a las piezas del filtro.'),
             ...$this->filterArguments($schema),
         ];
     }

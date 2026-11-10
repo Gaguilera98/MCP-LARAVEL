@@ -17,7 +17,7 @@ use Laravel\Mcp\Server\Tool;
     'all vale para todas las filas; rows, para una fila (strategy_id e image_index de plan-produccion) y manda sobre all. Lo que no se manda queda como estaba. '.
     'La respuesta trae warnings, por ejemplo cuando el modelo no acepta una proporción y Santo la entrega en otra: muéstralos tal cual. '.
     'mode disenador_grafico (Diseñador) pide reference y prompt. director_de_arte (Director) pide talent_id y prompt. '.
-    'En la práctica usá Diseñador: la lista de talentos no está disponible.'
+    'En la práctica usa Diseñador: la lista de talentos no está disponible.'
 )]
 class ConfigurarSanto extends Tool
 {

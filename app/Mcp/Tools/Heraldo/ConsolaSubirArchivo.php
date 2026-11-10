@@ -116,8 +116,10 @@ class ConsolaSubirArchivo extends Tool
                 ->description('Nombre del archivo con su extensión.'),
             'mime' => $schema->string(),
             'step' => $schema->string()
+                ->enum(['order', 'campaigns', 'design', 'content', 'templates', 'plugin', 'review', 'delivery'])
                 ->description('El paso: order (1 Pedido), campaigns (2 Campañas), design (3 Diseño madre), content (4 Fotos y textos), templates (5 Plantillas), plugin (6 Plugin), review (7 Revisión), delivery (8 Entrega).'),
             'kind' => $schema->string()
+                ->enum(['client', 'summary', 'capture', 'other'])
                 ->description('client, summary, capture u other.'),
             ...$this->agentArgument($schema),
         ];

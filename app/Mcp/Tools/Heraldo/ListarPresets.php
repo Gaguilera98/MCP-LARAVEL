@@ -13,7 +13,7 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('listar-presets')]
 #[Description(
-    'Presets publicados del cliente: las plantillas para crear una campaña. Llamalo antes de crear-campana. '.
+    'Presets publicados del cliente: las plantillas para crear una campaña. Llámalo antes de crear-campana. '.
     'Cada preset trae id (es el preset_id), messages (los nombres de mensaje que se pueden marcar), formats (id y name de cada formato), '.
     'copy_slots (los cuadros de texto) y sheet_template: el CSV de ejemplo con las columnas que tiene que llevar la hoja de productos.'
 )]
