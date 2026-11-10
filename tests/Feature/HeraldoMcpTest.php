@@ -7,6 +7,7 @@ use App\Mcp\Tools\Heraldo\ConsolaCrearPedido;
 use App\Mcp\Tools\Heraldo\ConsolaMoverPaso;
 use App\Mcp\Tools\Heraldo\ConsolaSubirArchivo;
 use App\Mcp\Tools\Heraldo\ConsolaVerArchivo;
+use App\Mcp\Tools\Heraldo\ConsolaVincularCampanas;
 use App\Mcp\Tools\Heraldo\CrearCampana;
 use App\Mcp\Tools\Heraldo\ElegirDireccion;
 use App\Mcp\Tools\Heraldo\ExcelTitulares;
@@ -310,6 +311,57 @@ it('includes the extra error fields so the agent can show the estimate', functio
         'tenant_id' => 'acme',
         'campaign_id' => 4,
     ])->assertHasErrors(['422', 'Indicá max_usd para confirmar el gasto.', 'Detalle: {"estimate_usd":2.4}']);
+});
+
+it('rounds noisy floats in error details', function () {
+    Http::fake([
+        '*' => Http::response([
+            'message' => 'Saldo insuficiente.',
+            'estimate_usd' => 0.056000000000000001165734175856414367444813251495361328125,
+            'santo_balance_usd' => 45.98700000000000187583282240666449069976806640625,
+        ], 422),
+    ]);
+
+    Heraldo::tool(RegenerarCasilla::class, [
+        'tenant_id' => 'acme',
+        'campaign_id' => 4,
+        'strategy_id' => 1,
+        'image_index' => 1,
+        'ratio' => '1:1',
+    ])->assertHasErrors([
+        '422',
+        'Saldo insuficiente.',
+        'Detalle: {"estimate_usd":0.056,"santo_balance_usd":45.987}',
+    ]);
+});
+
+it('sends buzz_urls when linking console campaigns', function () {
+    Http::fake([
+        'http://heraldo.test/api/console/v1/orders/12/campaigns' => Http::response([
+            'data' => ['linked' => [44], 'order' => ['id' => 12]],
+        ], 201),
+    ]);
+
+    Heraldo::tool(ConsolaVincularCampanas::class, [
+        'order_id' => 12,
+        'campaign_ids_json' => '[44,45]',
+        'buzz_urls_json' => '{"44":"https://www.figma.com/file/abc","45":null}',
+        'agente' => 'Agente de diseño',
+    ])->assertOk()->assertStructuredContent([
+        'data' => ['linked' => [44], 'order' => ['id' => 12]],
+    ]);
+
+    Http::assertSent(fn ($request): bool => $request->url() === 'http://heraldo.test/api/console/v1/orders/12/campaigns'
+        && $request->hasHeader('X-Heraldo-Agent', 'Agente de diseño')
+        && $request['campaign_ids'] === [44, 45]
+        && $request['buzz_urls'] === ['44' => 'https://www.figma.com/file/abc', '45' => null]);
+});
+
+it('describes campaign_ids_json and buzz_urls_json for linking', function () {
+    expect(file_get_contents(base_path('app/Mcp/Tools/Heraldo/ConsolaVincularCampanas.php')))
+        ->toContain('Los ids de las campañas que se vinculan, como lista JSON')
+        ->toContain('buzz_urls_json')
+        ->toContain('la persona lo abre desde el paso 6');
 });
 
 it('copies photos and keeps every field heraldo returns', function () {

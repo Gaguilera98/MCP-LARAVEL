@@ -340,7 +340,10 @@ final class HeraldoApi
             $detail = is_array($decoded) ? array_diff_key($decoded, ['message' => true]) : [];
 
             if ($detail !== []) {
-                $json = (string) json_encode($detail, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                $json = (string) json_encode(
+                    self::sanitizeErrorDetail($detail),
+                    JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+                );
                 $text .= ' Detalle: '.(strlen($json) > 4000 ? substr($json, 0, 4000).'…' : $json);
             }
 
@@ -350,6 +353,22 @@ final class HeraldoApi
         } catch (\Throwable $e) {
             return Response::error('Error inesperado: '.$e->getMessage());
         }
+    }
+
+    /**
+     * Redondea floats del detalle de error para que no salgan con decimales basura al re-encodear.
+     */
+    private static function sanitizeErrorDetail(mixed $value): mixed
+    {
+        if (is_array($value)) {
+            return array_map(self::sanitizeErrorDetail(...), $value);
+        }
+
+        if (is_float($value)) {
+            return round($value, 6);
+        }
+
+        return $value;
     }
 
     /**
