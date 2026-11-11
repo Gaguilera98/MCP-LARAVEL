@@ -37,6 +37,7 @@ class ConfigurarCampana extends Tool
             'copy_slots_json' => 'copy_slots',
             'photo_sources_json' => 'photo_sources',
             'santo_ratios_json' => 'santo_ratios',
+            'file_names_json' => 'file_names',
         ]);
 
         if ($body instanceof Response || $body instanceof ResponseFactory) {
@@ -66,6 +67,8 @@ class ConfigurarCampana extends Tool
                 ->description('JSON { format_id: format_id del formato dueño de la foto, o null }. Las opciones están en photo_source_options de ver-campana.'),
             'santo_ratios_json' => $schema->string()
                 ->description('JSON { format_id: proporción de santo_ratio_options, o "" para el catálogo }. Solo en formatos que usan su propia foto.'),
+            'file_names_json' => $schema->string()
+                ->description('Cómo se llaman los archivos que se entregan (ZIP de artes y de videos, descarga y Excel de textos), como objeto JSON: {"template": "BPD_{codigo}_{angulo}_{medida}", "text": "Segmento A", "lowercase": false}. template lleva piezas entre llaves y texto fijo; las piezas son {campana}, {codigo}, {producto}, {variacion}, {angulo}, {mensaje}, {plataforma}, {objetivo}, {formato}, {medida}, {proporcion}, {foto}, {texto}, {fecha} y {pieza}. text es lo que va en {texto}. Lo que no mandas queda como estaba; template null vuelve a la plantilla del cliente. Si los nombres se pueden repetir, suma {formato}, {foto} o {pieza}.'),
         ];
     }
 }

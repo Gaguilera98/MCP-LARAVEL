@@ -11,6 +11,7 @@ use App\Mcp\Tools\Heraldo\ConsolaVincularCampanas;
 use App\Mcp\Tools\Heraldo\CrearCampana;
 use App\Mcp\Tools\Heraldo\ElegirDireccion;
 use App\Mcp\Tools\Heraldo\ExcelTitulares;
+use App\Mcp\Tools\Heraldo\GenerarCopys;
 use App\Mcp\Tools\Heraldo\GenerarFotosBase;
 use App\Mcp\Tools\Heraldo\GenerarTitulares;
 use App\Mcp\Tools\Heraldo\GenerarVideos;
@@ -474,6 +475,78 @@ it('sends a null intention and leaves description untouched', function () {
             && ! array_key_exists('description', $request->data())
             && $request['copy_slots'] === [['key' => 'c1', 'generate_with_ai' => true]];
     });
+});
+
+it('sends single_sentence when generating copys', function () {
+    Http::fake([
+        'http://heraldo.test/api/v1/tenants/acme/campaigns/4/copies/generate' => Http::response([
+            'data' => ['queued' => true, 'single_sentence' => true],
+        ], 202),
+    ]);
+
+    Heraldo::tool(GenerarCopys::class, [
+        'tenant_id' => 'acme',
+        'campaign_id' => 4,
+        'max_usd' => 1,
+        'concept' => 'Para vos que mueves tu platita',
+        'single_sentence' => true,
+    ])->assertOk()->assertStructuredContent([
+        'data' => ['queued' => true, 'single_sentence' => true],
+    ]);
+
+    Http::assertSent(fn ($request): bool => $request->url() === 'http://heraldo.test/api/v1/tenants/acme/campaigns/4/copies/generate'
+        && $request['max_usd'] === 1.0
+        && $request['concept'] === 'Para vos que mueves tu platita'
+        && $request['single_sentence'] === true);
+});
+
+it('sends file_names when configuring a campaign', function () {
+    Http::fake([
+        'http://heraldo.test/api/v1/tenants/acme/campaigns/4/setup' => Http::response([
+            'data' => [
+                'file_names' => [
+                    'template' => 'BPD_{codigo}_{medida}',
+                    'source' => 'campaign',
+                ],
+            ],
+        ]),
+    ]);
+
+    Heraldo::tool(ConfigurarCampana::class, [
+        'tenant_id' => 'acme',
+        'campaign_id' => 4,
+        'file_names_json' => '{"template":"BPD_{codigo}_{medida}","text":"Segmento A","lowercase":false}',
+    ])->assertOk()->assertStructuredContent([
+        'data' => [
+            'file_names' => [
+                'template' => 'BPD_{codigo}_{medida}',
+                'source' => 'campaign',
+            ],
+        ],
+    ]);
+
+    Http::assertSent(fn ($request): bool => $request->url() === 'http://heraldo.test/api/v1/tenants/acme/campaigns/4/setup'
+        && $request['file_names'] === [
+            'template' => 'BPD_{codigo}_{medida}',
+            'text' => 'Segmento A',
+            'lowercase' => false,
+        ]);
+});
+
+it('describes single_sentence and file_names for packages G and H', function () {
+    expect(file_get_contents(base_path('app/Mcp/Tools/Heraldo/GenerarCopys.php')))
+        ->toContain('single_sentence')
+        ->toContain('forman UNA sola frase');
+
+    expect(file_get_contents(base_path('app/Mcp/Tools/Heraldo/EstadoCopysIa.php')))
+        ->toContain('single_sentence dice si los cuadros');
+
+    expect(file_get_contents(base_path('app/Mcp/Tools/Heraldo/ConfigurarCampana.php')))
+        ->toContain('file_names_json')
+        ->toContain('template null vuelve a la plantilla del cliente');
+
+    expect(file_get_contents(base_path('app/Mcp/Tools/Heraldo/VerCampana.php')))
+        ->toContain('file_names dice cómo se llaman los archivos');
 });
 
 it('asks for the base photo estimate without spending when max usd is missing', function () {

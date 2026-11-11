@@ -38,6 +38,14 @@ class GenerarCopys extends Tool
             }
         }
 
+        if ($this->hasArgument($request, 'single_sentence')) {
+            $singleSentence = $this->optionalBool($request, 'single_sentence');
+
+            if ($singleSentence !== null) {
+                $body['single_sentence'] = $singleSentence;
+            }
+        }
+
         return HeraldoApi::post($this->campaignPath($request, 'copies/generate'), $body);
     }
 
@@ -57,6 +65,8 @@ class GenerarCopys extends Tool
             'notes' => $schema->string()
                 ->max(2000)
                 ->description('Notas adicionales: trato por región, largos, reglas. Hasta 2.000 caracteres.'),
+            'single_sentence' => $schema->boolean()
+                ->description('true si los cuadros de un mismo mensaje forman UNA sola frase que se lee seguida (por ejemplo, titular «Para vos que» y subtitular «mueves tu platita»): la opción N de cada cuadro continúa la del cuadro anterior. false la apaga. Si no lo mandas, queda como estaba. Se guarda en la campaña, como el interruptor de «Configurar concepto».'),
         ];
     }
 }

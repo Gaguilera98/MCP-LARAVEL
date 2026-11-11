@@ -18,6 +18,7 @@ use Laravel\Mcp\Server\Tool;
     'completed: las opciones están listas. '.
     'failed: el error dice por qué. '.
     'vacío (null): no hay generación en curso; no esperes. Si hay options, son de una generación anterior. '.
+    'single_sentence dice si los cuadros de un mismo mensaje se escriben como una sola frase. '.
     'Cada texto trae key (para elegir-copys), producto, ángulo, mensaje, el cuadro (slot), max_length, options (desde 0), selected y text (lo que ya está guardado). Solo lee.'
 )]
 class EstadoCopysIa extends Tool
