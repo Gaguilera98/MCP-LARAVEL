@@ -533,6 +533,15 @@ it('sends file_names when configuring a campaign', function () {
         ]);
 });
 
+it('describes rejected as pedir ajuste like the Heraldo screen', function () {
+    expect(file_get_contents(base_path('app/Mcp/Tools/Heraldo/RevisarPiezas.php')))
+        ->toContain('Aprueba artes o pide ajustes')
+        ->toContain('status rejected (en Heraldo se ve como «Ajuste pedido»)');
+
+    expect(file_get_contents(base_path('app/Mcp/Tools/Heraldo/ListarPiezas.php')))
+        ->toContain('rejected (en Heraldo, «Ajuste pedido»)');
+});
+
 it('describes single_sentence and file_names for packages G and H', function () {
     expect(file_get_contents(base_path('app/Mcp/Tools/Heraldo/GenerarCopys.php')))
         ->toContain('single_sentence')

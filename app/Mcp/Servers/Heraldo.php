@@ -103,7 +103,7 @@ use Laravel\Mcp\Server\Attributes\Version;
     '6. usar-columna-base y pedir-adaptaciones, y otra vez hoja-fotos. '.
     '7. Copys: generar-copys, consulta estado-copys-ia mientras status sea queued o processing; con completed, elige con elegir-copys. Si status viene vacío, no hay generación en curso: no esperes. Si over_max_length trae cuadros, acórtalos con guardar-copys. Para escribir los textos a mano, usa listar-copys y guardar-copys. '.
     '8. enlace-plugin-figma para diseñar los artes en Figma; después importar-figma (primero confirm false, después true). '.
-    '9. hoja-piezas, y aprobar o rechazar con revisar-piezas usando los id de tiles. Para ver un arte de cerca, ver-imagen con el preview_url de listar-piezas. '.
+    '9. hoja-piezas, y aprobar o pedir ajustes con revisar-piezas usando los id de tiles. Para ver un arte de cerca, ver-imagen con el preview_url de listar-piezas. '.
     '10. generar-titulares y, cuando termine, excel-titulares. '.
     '11. Para video: extraer-capas; listar-recetas para ver qué hace cada una (y ver-imagen con example_image_url si hace falta); asignar-receta y generar-videos. '.
     'En asignar-receta y generar-videos, el filtro elige el grupo y piece_ids_json elige piezas concretas. '.
@@ -128,7 +128,7 @@ use Laravel\Mcp\Server\Attributes\Version;
     'Si no sabes cuánto cuesta, llámala sin max_usd: no hace nada y el error trae estimate_usd. '.
     'Si el saldo de Santo no alcanza para generar-fotos-base, pedir-adaptaciones o regenerar-casilla, no se pide nada; el error trae santo_balance_usd. '.
     'Muéstrale ese número a la persona y llámala de nuevo con el tope que apruebe. '.
-    'Confirma también antes de crear la campaña de verdad, de aprobar o rechazar artes en bloque y de pedir un ZIP. '.
+    'Confirma también antes de crear la campaña de verdad, de aprobar o pedir ajustes en artes en bloque y de pedir un ZIP. '.
 
     'ERRORES. '.
     'Un error trae el código, el mensaje de Heraldo y, si hay, el detalle (por ejemplo la lista de errores de la hoja o los valores válidos). '.
