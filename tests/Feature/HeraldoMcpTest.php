@@ -533,6 +533,14 @@ it('sends file_names when configuring a campaign', function () {
         ]);
 });
 
+it('lists gpt-image-2.6 models in configurar-santo', function () {
+    expect(file_get_contents(base_path('app/Mcp/Tools/Heraldo/ConfigurarSanto.php')))
+        ->toContain('openai/gpt-image-2.6-sunburst')
+        ->toContain('openai/gpt-image-2.6-flare')
+        ->toContain('2.5: solo si la campaña ya lo usa')
+        ->toContain('4:5 no');
+});
+
 it('describes rejected as pedir ajuste like the Heraldo screen', function () {
     expect(file_get_contents(base_path('app/Mcp/Tools/Heraldo/RevisarPiezas.php')))
         ->toContain('Aprueba artes o pide ajustes')
