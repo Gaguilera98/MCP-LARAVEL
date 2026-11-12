@@ -16,7 +16,7 @@ use Laravel\Mcp\Server\Tool;
     'Aprueba artes o pide ajustes. Para pedir un ajuste usa status rejected (en Heraldo se ve como «Ajuste pedido») con note: qué hay que cambiar. '.
     'Cada cambio queda en el historial del arte. '.
     'Con slot_ids_json cambia solo esos artes. Sin slot_ids_json cambia todos los que están en revisión, o todos los que tienen imagen si only_in_review es false. '.
-    'Confirma con la persona antes de cambiar varios a la vez. Responde updated (cuántos cambió) y pieces (el nuevo resumen).'
+    'Confirma con la persona antes de cambiar varios a la vez. Responde updated (solo los que cambiaron), unchanged (los que ya estaban así: aprobar lo ya aprobado no suma otra línea al historial) y pieces (el nuevo resumen).'
 )]
 class RevisarPiezas extends Tool
 {

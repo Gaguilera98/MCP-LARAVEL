@@ -114,7 +114,7 @@ class HeraldoMcpSmokeCommand extends Command
             if (isset($args['review'])) {
                 $this->ok(
                     $name.' review enum',
-                    ($args['review']->toArray()['enum'] ?? null) === ['all', 'in_review', 'approved', 'rejected', 'reviewed'],
+                    ($args['review']->toArray()['enum'] ?? null) === ['all', 'in_review', 'approved', 'rejected', 'reviewed', 'ai_flagged'],
                     'review sin enum'
                 );
             }

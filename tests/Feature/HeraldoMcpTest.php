@@ -550,6 +550,21 @@ it('describes rejected as pedir ajuste like the Heraldo screen', function () {
         ->toContain('rejected (en Heraldo, «Ajuste pedido»)');
 });
 
+it('describes ai review flags on listar-piezas and unchanged on revisar-piezas', function () {
+    expect(file_get_contents(base_path('app/Mcp/Tools/Heraldo/CallsHeraldo.php')))
+        ->toContain("'ai_flagged'")
+        ->toContain('los que marcó la IA y siguen en revisión: mirar primero');
+
+    expect(file_get_contents(base_path('app/Mcp/Tools/Heraldo/ListarPiezas.php')))
+        ->toContain('ai_look_first (la IA lo marcó y sigue en revisión)')
+        ->toContain('ai_reasons (los motivos)')
+        ->toContain('counts.ai_look_first');
+
+    expect(file_get_contents(base_path('app/Mcp/Tools/Heraldo/RevisarPiezas.php')))
+        ->toContain('updated (solo los que cambiaron)')
+        ->toContain('unchanged (los que ya estaban así');
+});
+
 it('describes single_sentence and file_names for packages G and H', function () {
     expect(file_get_contents(base_path('app/Mcp/Tools/Heraldo/GenerarCopys.php')))
         ->toContain('single_sentence')
@@ -956,7 +971,7 @@ it('exposes fixed enums and bounds in tool schemas', function () {
     $schema = new JsonSchemaTypeFactory;
 
     expect((new ListarPiezas)->schema($schema)['review']->toArray()['enum'])
-        ->toBe(['all', 'in_review', 'approved', 'rejected', 'reviewed']);
+        ->toBe(['all', 'in_review', 'approved', 'rejected', 'reviewed', 'ai_flagged']);
 
     expect((new RevisarPiezas)->schema($schema)['status']->toArray()['enum'])
         ->toBe(['approved', 'rejected', 'in_review']);

@@ -42,8 +42,8 @@ trait CallsHeraldo
     {
         return [
             'review' => $schema->string()
-                ->enum(['all', 'in_review', 'approved', 'rejected', 'reviewed'])
-                ->description('Qué artes entran según su revisión: all (todos), in_review, approved, rejected o reviewed (aprobados y rechazados). Si no lo indicas, entran todos; en pedir-exportacion, solo approved.'),
+                ->enum(['all', 'in_review', 'approved', 'rejected', 'reviewed', 'ai_flagged'])
+                ->description('Qué artes entran según su revisión: all (todos), in_review, approved, rejected, reviewed (aprobados y rechazados) o ai_flagged (los que marcó la IA y siguen en revisión: mirar primero). Si no lo indicas, entran todos; en pedir-exportacion, solo approved.'),
             'platform' => $schema->string()
                 ->description('Solo los artes de esa plataforma. Escribe el nombre tal como viene en platform de listar-piezas.'),
             'format' => $schema->string()
