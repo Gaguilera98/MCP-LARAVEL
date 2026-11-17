@@ -41,6 +41,8 @@ return [
     */
     'zalo_api' => [
         'base_url' => rtrim(env('ZALO_API_BASE_URL', 'http://localhost:8000'), '/'),
+        // Las herramientas nuevas lo leen de acá; con config:cache, env() fuera de config devuelve null.
+        'token' => env('ZALO_API_TOKEN'),
     ],
 
     /*

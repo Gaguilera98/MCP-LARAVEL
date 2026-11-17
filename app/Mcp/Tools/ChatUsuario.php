@@ -44,6 +44,11 @@ class ChatUsuario extends Tool
             }
 
             $includeMessages = $request->get('include_messages');
+            $wantsMessages = $includeMessages === true || filter_var($includeMessages, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) === true;
+            // Con mensajes, la API de Zalo trae como mucho 10 conversaciones por página (fase 8a).
+            if ($wantsMessages && isset($query['per_page'])) {
+                $query['per_page'] = min(10, max(1, (int) $query['per_page']));
+            }
             if ($includeMessages !== null) {
                 if (is_bool($includeMessages)) {
                     $query['include_messages'] = $includeMessages ? '1' : '0';
@@ -113,7 +118,7 @@ class ChatUsuario extends Tool
             'page' => $schema->integer()
                 ->description('Página de conversaciones (por defecto: 1).'),
             'per_page' => $schema->integer()
-                ->description('Conversaciones por página (por defecto: 25, máximo: 100).'),
+                ->description('Conversaciones por página (por defecto: 25, máximo: 100; con include_messages=true, máximo 10).'),
             'include_messages' => $schema->boolean()
                 ->description('Si true, cada conversación incluye messages (role, content, etc.). Por defecto false en la API si no se envía.'),
             'has_attachments' => $schema->boolean()

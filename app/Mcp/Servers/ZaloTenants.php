@@ -21,9 +21,11 @@ use App\Mcp\Tools\GetAccountFilters;
 use App\Mcp\Tools\GetAccountChat;
 use App\Mcp\Tools\GetAccountUsageByUser;
 use App\Mcp\Tools\ListarModelos;
+use App\Mcp\Tools\ConsultasApiZalo;
+use App\Mcp\Tools\CambiosTenant;
 
 #[Name('Zalo Tenants')]
-#[Version('0.0.7')]
+#[Version('0.0.8')]
 #[Instructions(
     'API bajo /api/v1 con Bearer (ZALO_API_BASE_URL, ZALO_API_TOKEN). Fechas de filtro en query: YYYY-MM-DD. '.
     'Nombres de argumentos: tools bulk get_account_* usan tenantId y accountId (camelCase). El resto (listar-*, generaciones-usuario, chat-usuario, uso-cuenta-tenant, listar-modelos) usan tenant_id, account_id (snake_case). '.
@@ -48,6 +50,8 @@ use App\Mcp\Tools\ListarModelos;
     'Adjuntos contables: cada conversación trae attachments_summary {count, by_type:{image,document}, total_bytes}; meta.summary igual + conversations_with_attachments. Filtrar con has_attachments=true|false sin include_messages (una llamada para contar PDFs/imágenes en un periodo). '.
     'Costos: uso-cuenta-tenant by_model[] usa platform = nombre del proveedor del catálogo (como listar-modelos: Google, OpenAI); no el slug runtime (gemini/openai). integrity{} compara historial creativo vs usage (imagen/video/prompt) a nivel cuenta y fechas; no cambia con page de by-user. Chat y presentaciones no entran. '.
     'get_account_filters: llamar antes de bulks para ids y nombres válidos. '.
+    'Datos por cuenta (desde la fase 8a de Zalo): generaciones, chat e integrity de una cuenta traen solo lo hecho en esa cuenta, aunque el usuario esté en varias. Con include_messages=true el chat se pagina de a 10. Ids de cuenta, usuario, formulario y envío numéricos (si no, 404). '.
+    'Registros (solo con el token del equipo): consultas-api-zalo (quién consultó la API, qué y cómo respondió; incluye 403) y cambios-tenant (quién cambió configuraciones, modelos, precios, cuentas, límites o estado de usuarios, y cuándo; claves como [secreto]). Fechas date_from/date_to YYYY-MM-DD. '.
     'Flujo formulario: listar-tenants → listar-formularios-tenant → listar-usuarios-formulario-tenant (assigned_users) → listar-envios-formulario-tenant u obtener-envio-formulario-tenant. '.
     'listar-envios-formulario-tenant: la API no pagina envíos; en tenants con mucho volumen la respuesta puede ser muy grande. '.
     'Tras cambiar tools PHP locales: reiniciar MCP (toggle o Reload Window). Prod (zalo-tenants-prod) puede ir atrasado hasta redeploy.'
@@ -70,6 +74,8 @@ class ZaloTenants extends Server
         GetAccountChat::class,
         GetAccountUsageByUser::class,
         ListarModelos::class,
+        ConsultasApiZalo::class,
+        CambiosTenant::class,
     ];
 
     protected array $resources = [
