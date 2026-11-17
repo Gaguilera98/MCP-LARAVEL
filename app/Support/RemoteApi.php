@@ -79,9 +79,8 @@ final class RemoteApi
     {
         $state = [];
         foreach (self::SERVICES as $service => $meta) {
-            $state[$service.'_base_url'] = trim((string) (self::row($service)?->base_url ?? ''));
-            $state[$service.'_token'] = '';
-            $state[$service.'_clear_token'] = false;
+            $state[$service.'_base_url'] = self::url($service);
+            $state[$service.'_token'] = self::token($service);
         }
 
         return $state;
@@ -96,13 +95,7 @@ final class RemoteApi
 
         $row = ServiceConnection::query()->firstOrNew(['service' => $service]);
         $row->base_url = trim((string) $baseUrl) === '' ? null : rtrim(trim((string) $baseUrl), '/');
-
-        if ($clearToken) {
-            $row->token = null;
-        }
-        if (is_string($token) && trim($token) !== '') {
-            $row->token = trim($token);
-        }
+        $row->token = ($clearToken || ! is_string($token) || trim($token) === '') ? null : trim($token);
 
         if ($row->base_url === null && self::blank($row->token)) {
             if ($row->exists) {

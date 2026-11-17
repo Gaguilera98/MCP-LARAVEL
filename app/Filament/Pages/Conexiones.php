@@ -8,7 +8,6 @@ use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
@@ -65,19 +64,15 @@ class Conexiones extends Page
                 ->schema([
                     TextInput::make($service.'_base_url')
                         ->label('URL')
-                        ->placeholder(fn (): string => RemoteApi::envUrl($service))
-                        ->helperText('Vacía usa la del entorno.')
+                        ->helperText('Es la que se está usando. Si la borrás, vuelve la del entorno.')
                         ->maxLength(255),
                     TextInput::make($service.'_token')
                         ->label('Token')
                         ->password()
                         ->revealable()
-                        ->helperText('Vacío conserva el actual.')
+                        ->copyable(copyMessage: 'Copiado', copyMessageDuration: 1500)
+                        ->helperText('El ojo la muestra o la oculta. Si la borrás, vuelve la del entorno.')
                         ->maxLength(2000),
-                    Toggle::make($service.'_clear_token')
-                        ->label('Volver al token del entorno')
-                        ->visible(fn (): bool => RemoteApi::hasPanelToken($service))
-                        ->columnSpanFull(),
                 ]);
         }
 
@@ -109,7 +104,7 @@ class Conexiones extends Page
                 $service,
                 is_string($data[$service.'_base_url'] ?? null) ? $data[$service.'_base_url'] : null,
                 is_string($data[$service.'_token'] ?? null) ? $data[$service.'_token'] : null,
-                (bool) ($data[$service.'_clear_token'] ?? false),
+                false,
             );
         }
 

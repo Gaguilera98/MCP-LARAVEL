@@ -22,7 +22,7 @@ it('uses the environment when the panel has nothing', function () {
         ->and(RemoteApi::token('zalo'))->toBe('token-entorno');
 });
 
-it('lets the panel override the environment and keep a blank token', function () {
+it('lets the panel override the environment and clears a blank token', function () {
     Schema::create('service_connections', function (Blueprint $table) {
         $table->id();
         $table->string('service')->unique();
@@ -39,9 +39,12 @@ it('lets the panel override the environment and keep a blank token', function ()
         ->and(RemoteApi::hint('zalo'))->toContain('panel')
         ->and(RemoteApi::hint('zalo'))->toContain('anel');
 
+    expect(RemoteApi::formState()['zalo_base_url'])->toBe('http://desde-panel.test')
+        ->and(RemoteApi::formState()['zalo_token'])->toBe('token-panel');
+
     RemoteApi::persist('zalo', 'http://desde-panel.test', '', false);
 
-    expect(RemoteApi::token('zalo'))->toBe('token-panel');
+    expect(RemoteApi::token('zalo'))->toBe('token-entorno');
 
     RemoteApi::persist('zalo', '', '', true);
 
