@@ -2,6 +2,8 @@
 
 namespace App\Mcp\Tools;
 
+use App\Support\RemoteApi;
+
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Http;
 use Laravel\Mcp\Request;
@@ -28,7 +30,7 @@ class UsoCuentaTenant extends Tool
             $dateFrom = $request->get('date_from');
             $dateTo = $request->get('date_to');
 
-            $url = config('services.zalo_api.base_url')
+            $url = RemoteApi::url('zalo')
                 .'/api/v1/tenants/'.$tenantId.'/accounts/'.$accountId.'/usage';
 
             $query = [];
@@ -43,7 +45,7 @@ class UsoCuentaTenant extends Tool
                 ->withHeaders([
                     'Accept' => '*/*',
                     'Connection' => 'keep-alive',
-                    'Authorization' => 'Bearer '.env('ZALO_API_TOKEN'),
+                    'Authorization' => 'Bearer '.RemoteApi::token('zalo'),
                 ])
                 ->get($url, $query);
 

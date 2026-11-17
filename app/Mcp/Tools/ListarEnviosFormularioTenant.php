@@ -2,6 +2,8 @@
 
 namespace App\Mcp\Tools;
 
+use App\Support\RemoteApi;
+
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Http;
 use Laravel\Mcp\Request;
@@ -20,7 +22,7 @@ class ListarEnviosFormularioTenant extends Tool
         try {
             $tenantId = $request->get('tenant_id');
             $formId = $request->get('form_id');
-            $url = config('services.zalo_api.base_url')
+            $url = RemoteApi::url('zalo')
                 .'/api/v1/tenants/'.$tenantId.'/forms/'.$formId.'/submissions';
 
             $response = Http::timeout(15)
@@ -28,7 +30,7 @@ class ListarEnviosFormularioTenant extends Tool
                 ->withHeaders([
                     'Accept' => '*/*',
                     'Connection' => 'keep-alive',
-                    'Authorization' => 'Bearer '.env('ZALO_API_TOKEN'),
+                    'Authorization' => 'Bearer '.RemoteApi::token('zalo'),
                 ])
                 ->get($url);
 

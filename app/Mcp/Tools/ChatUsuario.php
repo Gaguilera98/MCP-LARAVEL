@@ -2,6 +2,8 @@
 
 namespace App\Mcp\Tools;
 
+use App\Support\RemoteApi;
+
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Http;
 use Laravel\Mcp\Request;
@@ -22,7 +24,7 @@ class ChatUsuario extends Tool
             $accountId = $request->get('account_id');
             $userId    = $request->get('user_id');
 
-            $url = config('services.zalo_api.base_url')
+            $url = RemoteApi::url('zalo')
                 .'/api/v1/tenants/'.$tenantId
                 .'/accounts/'.$accountId
                 .'/users/'.$userId
@@ -75,7 +77,7 @@ class ChatUsuario extends Tool
                 ->withHeaders([
                     'Accept'        => '*/*',
                     'Connection'    => 'keep-alive',
-                    'Authorization' => 'Bearer '.env('ZALO_API_TOKEN'),
+                    'Authorization' => 'Bearer '.RemoteApi::token('zalo'),
                 ])
                 ->get($url, $query);
 

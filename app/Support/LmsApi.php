@@ -234,17 +234,17 @@ final class LmsApi
         return Http::timeout(60)
             ->connectTimeout(10)
             ->acceptJson()
-            ->withToken((string) config('services.lms_api.token'));
+            ->withToken(RemoteApi::token('lms'));
     }
 
     private static function url(string $path): string
     {
-        return rtrim((string) config('services.lms_api.base_url'), '/').'/api/v1/'.ltrim($path, '/');
+        return RemoteApi::url('lms').'/api/v1/'.ltrim($path, '/');
     }
 
     private static function missingKey(): bool
     {
-        return trim((string) config('services.lms_api.token')) === '';
+        return trim(RemoteApi::token('lms')) === '';
     }
 
     private static function failureMessage(HttpResponse $response): string

@@ -16,12 +16,12 @@ final class MailingApi
         return Http::timeout(30)
             ->connectTimeout(5)
             ->acceptJson()
-            ->withToken((string) config('services.mailing_api.token'));
+            ->withToken(RemoteApi::token('mailing'));
     }
 
     public static function url(string $path): string
     {
-        return rtrim((string) config('services.mailing_api.base_url'), '/')
+        return RemoteApi::url('mailing')
             .'/api/v1/'
             .ltrim($path, '/');
     }

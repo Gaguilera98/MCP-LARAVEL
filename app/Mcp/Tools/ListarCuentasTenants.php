@@ -2,6 +2,8 @@
 
 namespace App\Mcp\Tools;
 
+use App\Support\RemoteApi;
+
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
@@ -22,14 +24,14 @@ class ListarCuentasTenants extends Tool
     {
         try {
             $tenant_id = $request->get('tenant_id');
-            $url = config('services.zalo_api.base_url').'/api/v1/tenants/'.$tenant_id.'/accounts';
+            $url = RemoteApi::url('zalo').'/api/v1/tenants/'.$tenant_id.'/accounts';
 
             $response = Http::timeout(15)
                 ->connectTimeout(5)
                 ->withHeaders([
                     'Accept'     => '*/*',
                     'Connection' => 'keep-alive',
-                    'Authorization' => 'Bearer '.env('ZALO_API_TOKEN'),
+                    'Authorization' => 'Bearer '.RemoteApi::token('zalo'),
                 ])
                 ->get($url);
 

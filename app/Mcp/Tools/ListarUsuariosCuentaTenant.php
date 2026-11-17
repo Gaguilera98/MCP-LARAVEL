@@ -2,6 +2,8 @@
 
 namespace App\Mcp\Tools;
 
+use App\Support\RemoteApi;
+
 use App\Support\CreditLimitEnricher;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Http;
@@ -36,7 +38,7 @@ class ListarUsuariosCuentaTenant extends Tool
         try {
             $tenantId  = $request->get('tenant_id');
             $accountId = $request->get('account_id');
-            $url = config('services.zalo_api.base_url')
+            $url = RemoteApi::url('zalo')
                 .'/api/v1/tenants/'.$tenantId.'/accounts/'.$accountId.'/users';
 
             $query = [];
@@ -52,7 +54,7 @@ class ListarUsuariosCuentaTenant extends Tool
                 ->withHeaders([
                     'Accept'        => '*/*',
                     'Connection'    => 'keep-alive',
-                    'Authorization' => 'Bearer '.env('ZALO_API_TOKEN'),
+                    'Authorization' => 'Bearer '.RemoteApi::token('zalo'),
                 ])
                 ->get($url, $query);
 

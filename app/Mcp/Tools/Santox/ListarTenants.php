@@ -2,6 +2,8 @@
 
 namespace App\Mcp\Tools\Santox;
 
+use App\Support\RemoteApi;
+
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Http;
 use Laravel\Mcp\Request;
@@ -18,14 +20,14 @@ class ListarTenants extends Tool
     public function handle(Request $request): Response|ResponseFactory
     {
         try {
-            $url = config('services.santox_api.base_url').'/api/v1/tenants';
+            $url = RemoteApi::url('santox').'/api/v1/tenants';
 
             $response = Http::timeout(15)
                 ->connectTimeout(5)
                 ->withHeaders([
                     'Accept' => 'application/json',
                     'Connection' => 'keep-alive',
-                    'Authorization' => 'Bearer '.config('services.santox_api.token'),
+                    'Authorization' => 'Bearer '.RemoteApi::token('santox'),
                 ])
                 ->get($url);
 

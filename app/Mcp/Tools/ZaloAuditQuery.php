@@ -2,6 +2,8 @@
 
 namespace App\Mcp\Tools;
 
+use App\Support\RemoteApi;
+
 use Illuminate\Support\Facades\Http;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
@@ -50,13 +52,13 @@ final class ZaloAuditQuery
      */
     public static function get(string $path, array $query, string $key): Response|ResponseFactory
     {
-        $url = config('services.zalo_api.base_url').$path;
+        $url = RemoteApi::url('zalo').$path;
 
         try {
             $response = Http::timeout(15)
                 ->connectTimeout(5)
                 ->acceptJson()
-                ->withToken((string) config('services.zalo_api.token'))
+                ->withToken(RemoteApi::token('zalo'))
                 ->get($url, $query);
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
             return Response::error('No se pudo conectar a la API: '.$e->getMessage());

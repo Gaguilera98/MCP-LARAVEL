@@ -2,6 +2,8 @@
 
 namespace App\Mcp\Tools;
 
+use App\Support\RemoteApi;
+
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
@@ -21,14 +23,14 @@ class ListarTenants extends Tool
     public function handle(Request $request): Response|ResponseFactory
     {
         try {
-            $url = config('services.zalo_api.base_url').'/api/v1/tenants/';
+            $url = RemoteApi::url('zalo').'/api/v1/tenants/';
 
             $response = Http::timeout(15)
                 ->connectTimeout(5)
                 ->withHeaders([
                     'Accept'     => '*/*',
                     'Connection' => 'keep-alive',
-                    'Authorization' => 'Bearer '.env('ZALO_API_TOKEN'),
+                    'Authorization' => 'Bearer '.RemoteApi::token('zalo'),
                 ])
                 ->get($url);
 

@@ -16,7 +16,7 @@ final class HeraldoApi
         $client = Http::timeout(60)
             ->connectTimeout(5)
             ->acceptJson()
-            ->withToken((string) config('services.heraldo_api.token'));
+            ->withToken(RemoteApi::token('heraldo'));
 
         if (is_string($agent) && trim($agent) !== '') {
             $client = $client->withHeaders(['X-Heraldo-Agent' => trim($agent)]);
@@ -385,7 +385,7 @@ final class HeraldoApi
 
     private static function baseUrl(string $prefix, string $path): string
     {
-        return rtrim((string) config('services.heraldo_api.base_url'), '/')
+        return RemoteApi::url('heraldo')
             .'/'.trim($prefix, '/').'/'
             .ltrim($path, '/');
     }

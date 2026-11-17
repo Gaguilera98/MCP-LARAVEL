@@ -2,6 +2,8 @@
 
 namespace App\Mcp\Tools;
 
+use App\Support\RemoteApi;
+
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Http;
 use Laravel\Mcp\Request;
@@ -19,7 +21,7 @@ class ListarModelos extends Tool
     {
         try {
             $tenantId = $request->get('tenant_id');
-            $url = config('services.zalo_api.base_url').'/api/v1/tenants/'.$tenantId.'/models';
+            $url = RemoteApi::url('zalo').'/api/v1/tenants/'.$tenantId.'/models';
 
             $query = [];
             foreach (['status', 'model_type'] as $key) {
@@ -34,7 +36,7 @@ class ListarModelos extends Tool
                 ->withHeaders([
                     'Accept' => '*/*',
                     'Connection' => 'keep-alive',
-                    'Authorization' => 'Bearer '.env('ZALO_API_TOKEN'),
+                    'Authorization' => 'Bearer '.RemoteApi::token('zalo'),
                 ])
                 ->get($url, $query);
 
