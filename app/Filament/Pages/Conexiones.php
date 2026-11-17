@@ -64,7 +64,16 @@ class Conexiones extends Page
                 ->schema([
                     TextInput::make($service.'_base_url')
                         ->label('URL')
-                        ->helperText('Es la que se está usando. Si la borrás, vuelve la del entorno.')
+                        ->helperText('Si la borrás, o queda igual a la del entorno, sigue la del entorno.')
+                        ->rule(fn (): \Closure => function (string $attribute, mixed $value, \Closure $fail): void {
+                            $value = trim((string) $value);
+                            if ($value === '') {
+                                return;
+                            }
+                            if (filter_var($value, FILTER_VALIDATE_URL) === false || preg_match('#^https?://#i', $value) !== 1) {
+                                $fail('La URL tiene que empezar con http:// o https://.');
+                            }
+                        })
                         ->maxLength(255),
                     TextInput::make($service.'_token')
                         ->label('Token')
@@ -78,7 +87,7 @@ class Conexiones extends Page
                             'data-lpignore' => 'true',
                             'data-form-type' => 'other',
                         ])
-                        ->helperText('El ojo la muestra o la oculta. Si la borrás, vuelve la del entorno.')
+                        ->helperText('El ojo la muestra o la oculta. Si la borrás, o queda igual a la del entorno, sigue la del entorno.')
                         ->maxLength(2000),
                 ]);
         }
@@ -105,14 +114,24 @@ class Conexiones extends Page
     public function save(): void
     {
         $data = $this->form->getState();
+        $saved = true;
 
         foreach (array_keys(RemoteApi::SERVICES) as $service) {
-            RemoteApi::persist(
+            $saved = RemoteApi::persist(
                 $service,
                 is_string($data[$service.'_base_url'] ?? null) ? $data[$service.'_base_url'] : null,
                 is_string($data[$service.'_token'] ?? null) ? $data[$service.'_token'] : null,
                 false,
-            );
+            ) && $saved;
+        }
+
+        if (! $saved) {
+            Notification::make()
+                ->danger()
+                ->title('No se pudo guardar. Falta la tabla de conexiones.')
+                ->send();
+
+            return;
         }
 
         $this->form->fill(RemoteApi::formState());

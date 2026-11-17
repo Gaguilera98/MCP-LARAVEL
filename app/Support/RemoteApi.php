@@ -50,14 +50,19 @@ final class RemoteApi
 
     public static function hint(string $service): string
     {
+        $url = self::url($service);
+        $urlLine = $url === ''
+            ? 'Sin URL.'
+            : 'URL del '.(self::savedUrl($service) !== '' ? 'panel' : 'entorno').'.';
+
         $token = self::token($service);
         if ($token === '') {
-            return 'Sin token. Cargalo acá o en el entorno.';
+            return $urlLine.' Sin token. Cargalo acá o en el entorno.';
         }
 
         $where = self::savedToken($service) !== '' ? 'panel' : 'entorno';
 
-        return 'Token del '.$where.', termina en '.substr($token, -4).'.';
+        return $urlLine.' Token del '.$where.', termina en '.substr($token, -4).'.';
     }
 
     public static function envUrl(string $service): string
@@ -86,16 +91,21 @@ final class RemoteApi
         return $state;
     }
 
-    public static function persist(string $service, ?string $baseUrl, ?string $token, bool $clearToken): void
+    public static function persist(string $service, ?string $baseUrl, ?string $token, bool $clearToken): bool
     {
         self::assertService($service);
         if (! self::tableReady()) {
-            return;
+            return false;
+        }
+
+        $baseUrl = self::overrideUrl($service, $baseUrl);
+        if ($baseUrl !== null && ! self::validUrl($baseUrl)) {
+            throw new \InvalidArgumentException('La URL tiene que empezar con http:// o https://.');
         }
 
         $row = ServiceConnection::query()->firstOrNew(['service' => $service]);
-        $row->base_url = trim((string) $baseUrl) === '' ? null : rtrim(trim((string) $baseUrl), '/');
-        $row->token = ($clearToken || ! is_string($token) || trim($token) === '') ? null : trim($token);
+        $row->base_url = $baseUrl;
+        $row->token = self::overrideToken($service, $token, $clearToken);
 
         if ($row->base_url === null && self::blank($row->token)) {
             if ($row->exists) {
@@ -103,11 +113,13 @@ final class RemoteApi
             }
             self::forget();
 
-            return;
+            return true;
         }
 
         $row->save();
         self::forget();
+
+        return true;
     }
 
     public static function forget(): void
@@ -115,6 +127,48 @@ final class RemoteApi
         self::$rows = [];
         self::$loaded = false;
         self::$tableReady = null;
+    }
+
+    private static function savedUrl(string $service): string
+    {
+        return trim((string) (self::row($service)?->base_url ?? ''));
+    }
+
+    /**
+     * Igual al entorno, o vacío, no es un reemplazo: se guarda vacío y sigue mandando el .env.
+     */
+    private static function overrideUrl(string $service, ?string $baseUrl): ?string
+    {
+        $baseUrl = trim((string) $baseUrl);
+        if ($baseUrl === '') {
+            return null;
+        }
+
+        $baseUrl = rtrim($baseUrl, '/');
+
+        return $baseUrl === self::envUrl($service) ? null : $baseUrl;
+    }
+
+    private static function overrideToken(string $service, ?string $token, bool $clearToken): ?string
+    {
+        if ($clearToken || ! is_string($token)) {
+            return null;
+        }
+
+        $token = trim($token);
+        if ($token === '') {
+            return null;
+        }
+
+        $env = trim((string) config('services.'.self::SERVICES[$service]['config'].'.token'));
+
+        return $token === $env ? null : $token;
+    }
+
+    private static function validUrl(string $url): bool
+    {
+        return filter_var($url, FILTER_VALIDATE_URL) !== false
+            && preg_match('#^https?://#i', $url) === 1;
     }
 
     private static function savedToken(string $service): string
