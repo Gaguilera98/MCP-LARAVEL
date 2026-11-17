@@ -6,7 +6,9 @@ use App\Filament\Resources\McpApiKeys\Pages\CreateMcpApiKey;
 use App\Filament\Resources\McpApiKeys\Pages\ListMcpApiKeys;
 use App\Filament\Resources\McpApiKeys\Schemas\McpApiKeyForm;
 use App\Filament\Resources\McpApiKeys\Tables\McpApiKeysTable;
+use App\Models\User;
 use BackedEnum;
+use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -29,6 +31,14 @@ class McpApiKeyResource extends Resource
     protected static ?string $pluralModelLabel = 'API Keys';
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+
+        return $user instanceof User
+            && $user->canAccessPanel(Filament::getCurrentOrDefaultPanel());
+    }
 
     public static function form(Schema $schema): Schema
     {
