@@ -71,6 +71,13 @@ class Conexiones extends Page
                         ->password()
                         ->revealable()
                         ->copyable(copyMessage: 'Copiado', copyMessageDuration: 1500)
+                        ->autocomplete(false)
+                        ->extraInputAttributes([
+                            'autocomplete' => 'off',
+                            'data-1p-ignore' => 'true',
+                            'data-lpignore' => 'true',
+                            'data-form-type' => 'other',
+                        ])
                         ->helperText('El ojo la muestra o la oculta. Si la borrás, vuelve la del entorno.')
                         ->maxLength(2000),
                 ]);
