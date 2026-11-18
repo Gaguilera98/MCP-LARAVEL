@@ -23,9 +23,11 @@ use App\Mcp\Tools\GetAccountUsageByUser;
 use App\Mcp\Tools\ListarModelos;
 use App\Mcp\Tools\ConsultasApiZalo;
 use App\Mcp\Tools\CambiosTenant;
+use App\Mcp\Tools\ResumenModerador;
+use App\Mcp\Tools\RevisionesModerador;
 
 #[Name('Zalo Tenants')]
-#[Version('0.0.9')]
+#[Version('0.1.0')]
 #[Instructions(
     'API bajo /api/v1 con Bearer (ZALO_API_BASE_URL, ZALO_API_TOKEN). Fechas de filtro en query: YYYY-MM-DD. '.
     'Nombres de argumentos: tools bulk get_account_* usan tenantId y accountId (camelCase). El resto (listar-*, generaciones-usuario, chat-usuario, uso-cuenta-tenant, listar-modelos) usan tenant_id, account_id (snake_case). '.
@@ -52,6 +54,7 @@ use App\Mcp\Tools\CambiosTenant;
     'get_account_filters: llamar antes de bulks para ids y nombres válidos. '.
     'Datos por cuenta (desde la fase 8a de Zalo): generaciones, chat e integrity de una cuenta traen solo lo hecho en esa cuenta, aunque el usuario esté en varias. Con include_messages=true el chat se pagina de a 10. Ids de cuenta, usuario, formulario y envío numéricos (si no, 404). '.
     'Registros (solo con el token del equipo): consultas-api-zalo (quién consultó la API, qué y cómo respondió; incluye 403) y cambios-tenant (quién cambió configuraciones, modelos, precios, cuentas, límites o estado de usuarios, y cuándo; claves como [secreto]). Fechas date_from/date_to YYYY-MM-DD. '.
+    'Moderador (fase 8b, solo con el token del equipo): resumen-moderador (qué se marcó en un período, por categoría, herramienta, cuenta y persona, y cuánto costó; lo paga God) y revisiones-moderador (cada revisión; verdict=flag para los avisos). Lee todo en segundo plano y no frena a nadie; sus categorías son señales de «posible», no dictamen legal. Las tags de cada revisión son la base de la biblioteca de la organización (8d). '.
     'Flujo formulario: listar-tenants → listar-formularios-tenant → listar-usuarios-formulario-tenant (assigned_users) → listar-envios-formulario-tenant u obtener-envio-formulario-tenant. '.
     'Páginas (desde el cierre de la 8a): listar-cuentas-tenants, listar-usuarios-formulario-tenant y listar-envios-formulario-tenant van de a 200 (page, per_page hasta 200); meta trae total y last_page. get_account_generations lee hasta 3000 ítems del historial: si meta.truncated es true, acotá con date_from/date_to. '.
     'Parámetros: una fecha que no es YYYY-MM-DD, un id de filtro no numérico o un parámetro repetido como lista dan 422 con el motivo. En el chat, una imagen incrustada (data:) sale con url null, embedded true y embedded_bytes. '.
@@ -77,6 +80,8 @@ class ZaloTenants extends Server
         ListarModelos::class,
         ConsultasApiZalo::class,
         CambiosTenant::class,
+        RevisionesModerador::class,
+        ResumenModerador::class,
     ];
 
     protected array $resources = [
