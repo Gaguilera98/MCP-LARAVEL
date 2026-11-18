@@ -40,7 +40,7 @@ class ResumenModerador extends Tool
             'tenant_id' => $schema->string()->description('UUID del tenant.')->required(),
             'date_from' => $schema->string()->description('Desde (YYYY-MM-DD, inclusive).'),
             'date_to' => $schema->string()->description('Hasta (YYYY-MM-DD, inclusive).'),
-            'phase' => $schema->string()->enum(['input', 'output', 'turn'])->description('Solo este momento.'),
+            'phase' => $schema->string()->enum(['input', 'output', 'turn', 'provider'])->description('Solo este momento (provider = rechazos del proveedor).'),
             'tool' => $schema->string()->enum(['image-generator', 'image-editor', 'video-generator', 'video-editor', 'chat'])->description('Solo esta herramienta.'),
             'account_id' => $schema->string()->description('Solo esta cuenta (id numérico).'),
         ];
