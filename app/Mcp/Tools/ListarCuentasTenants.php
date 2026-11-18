@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Http;
 use Laravel\Mcp\ResponseFactory;
 
 #[Name('listar-cuentas-tenants')]
-#[Description('Permite obtener la lista de cuentas de un tenant de Zalo mediante el id del tenant deseado.')]
+#[Description('Cuentas de un tenant de Zalo, con cantidad de usuarios activos e inactivos, de a 200 por página. meta trae page, per_page, total y last_page.')]
 class ListarCuentasTenants extends Tool
 {
     /**
@@ -33,7 +33,10 @@ class ListarCuentasTenants extends Tool
                     'Connection' => 'keep-alive',
                     'Authorization' => 'Bearer '.RemoteApi::token('zalo'),
                 ])
-                ->get($url);
+                ->get($url, array_filter([
+                    'page' => $request->get('page'),
+                    'per_page' => $request->get('per_page') !== null ? min((int) $request->get('per_page'), 200) : null,
+                ], fn ($value) => $value !== null && $value !== ''));
 
             if ($response->successful()) {
                 $data = $response->json('data') ?? [];
@@ -41,6 +44,7 @@ class ListarCuentasTenants extends Tool
                 return Response::structured([
                     'cuentas' => $data,
                     'count'   => count($data),
+                    'meta'    => $response->json('meta'),
                 ]);
             }
 
@@ -70,6 +74,10 @@ class ListarCuentasTenants extends Tool
                 'tenant_id' => $schema->string()
                     ->description('Id del tenant que se desea listar las cuentas.')
                     ->required(),
+                'page' => $schema->integer()
+                    ->description('Página, desde 1. Por defecto 1.'),
+                'per_page' => $schema->integer()
+                    ->description('Cuántas por página, hasta 200. Por defecto 200.'),
             ];
         
     }

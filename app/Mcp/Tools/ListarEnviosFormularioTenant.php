@@ -14,7 +14,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('listar-envios-formulario-tenant')]
-#[Description('Lista todos los envíos (submissions) de un formulario; la API no pagina y puede devolver un payload muy grande en tenants con alto volumen.')]
+#[Description('Envíos (submissions) de un formulario, de a 200 por página. meta trae page, per_page, total y last_page: si last_page es mayor que 1, pedí las siguientes con page.')]
 class ListarEnviosFormularioTenant extends Tool
 {
     public function handle(Request $request): Response|ResponseFactory
@@ -32,14 +32,18 @@ class ListarEnviosFormularioTenant extends Tool
                     'Connection' => 'keep-alive',
                     'Authorization' => 'Bearer '.RemoteApi::token('zalo'),
                 ])
-                ->get($url);
+                ->get($url, array_filter([
+                    'page' => $request->get('page'),
+                    'per_page' => $request->get('per_page') !== null ? min((int) $request->get('per_page'), 200) : null,
+                ], fn ($value) => $value !== null && $value !== ''));
 
             if ($response->successful()) {
                 $data = $response->json('data') ?? [];
 
                 return Response::structured([
                     'envios' => $data,
-                    'count' => count($data),
+                    'count' => count($data['submissions'] ?? []),
+                    'meta' => $response->json('meta'),
                 ]);
             }
 
@@ -68,6 +72,10 @@ class ListarEnviosFormularioTenant extends Tool
             'form_id' => $schema->string()
                 ->description('Id del formulario.')
                 ->required(),
+            'page' => $schema->integer()
+                ->description('Página, desde 1. Por defecto 1.'),
+            'per_page' => $schema->integer()
+                ->description('Cuántos por página, hasta 200. Por defecto 200.'),
         ];
     }
 }

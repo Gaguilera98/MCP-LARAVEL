@@ -78,17 +78,47 @@ final class RemoteApi
     }
 
     /**
-     * @return array<string, string>
+     * Estado inicial del formulario de Conexiones.
+     *
+     * El token nunca va al navegador: el campo arranca vacío y la sección muestra solo los últimos
+     * cuatro caracteres (hint). Antes iba el token completo, también el del entorno, con el ojo y el
+     * botón de copiar: cualquiera con sesión en el panel se llevaba los tokens de todos los servicios.
+     *
+     * @return array<string, string|bool>
      */
     public static function formState(): array
     {
         $state = [];
         foreach (self::SERVICES as $service => $meta) {
             $state[$service.'_base_url'] = self::url($service);
-            $state[$service.'_token'] = self::token($service);
+            $state[$service.'_token'] = '';
+            $state[$service.'_clear_token'] = false;
         }
 
         return $state;
+    }
+
+    /**
+     * Qué token guardar a partir de lo que llegó del formulario.
+     * - Escrito: ese.
+     * - Vacío: el que ya estaba guardado en el panel (vacío ya no borra, porque el campo arranca vacío).
+     * - Con "borrar": ninguno, y vuelve a mandar el del entorno.
+     */
+    public static function tokenToSave(string $service, ?string $typed, bool $clear): ?string
+    {
+        self::assertService($service);
+        if ($clear) {
+            return null;
+        }
+
+        $typed = trim((string) $typed);
+        if ($typed !== '') {
+            return $typed;
+        }
+
+        $saved = self::savedToken($service);
+
+        return $saved !== '' ? $saved : null;
     }
 
     public static function persist(string $service, ?string $baseUrl, ?string $token, bool $clearToken): bool

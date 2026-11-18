@@ -8,6 +8,7 @@ use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
@@ -75,11 +76,11 @@ class Conexiones extends Page
                             }
                         })
                         ->maxLength(255),
+                    // El token no se muestra ni se copia: el campo arranca vacío (RemoteApi::formState).
                     TextInput::make($service.'_token')
-                        ->label('Token')
+                        ->label('Token nuevo')
                         ->password()
-                        ->revealable()
-                        ->copyable(copyMessage: 'Copiado', copyMessageDuration: 1500)
+                        ->placeholder('Vacío: queda el que está')
                         ->autocomplete(false)
                         ->extraInputAttributes([
                             'autocomplete' => 'off',
@@ -87,8 +88,12 @@ class Conexiones extends Page
                             'data-lpignore' => 'true',
                             'data-form-type' => 'other',
                         ])
-                        ->helperText('El ojo la muestra o la oculta. Si la borrás, o queda igual a la del entorno, sigue la del entorno.')
+                        ->helperText('Escribilo solo para cambiarlo. Si es igual al del entorno, sigue el del entorno.')
                         ->maxLength(2000),
+                    Toggle::make($service.'_clear_token')
+                        ->label('Borrar el token del panel')
+                        ->helperText('Vuelve a usar el del entorno.')
+                        ->visible(fn (): bool => RemoteApi::hasPanelToken($service)),
                 ]);
         }
 
@@ -117,11 +122,16 @@ class Conexiones extends Page
         $saved = true;
 
         foreach (array_keys(RemoteApi::SERVICES) as $service) {
+            $clear = (bool) ($data[$service.'_clear_token'] ?? false);
             $saved = RemoteApi::persist(
                 $service,
                 is_string($data[$service.'_base_url'] ?? null) ? $data[$service.'_base_url'] : null,
-                is_string($data[$service.'_token'] ?? null) ? $data[$service.'_token'] : null,
-                false,
+                RemoteApi::tokenToSave(
+                    $service,
+                    is_string($data[$service.'_token'] ?? null) ? $data[$service.'_token'] : null,
+                    $clear,
+                ),
+                $clear,
             ) && $saved;
         }
 

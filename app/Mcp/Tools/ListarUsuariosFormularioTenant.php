@@ -16,7 +16,7 @@ use Laravel\Mcp\Server\Tool;
 #[Name('listar-usuarios-formulario-tenant')]
 #[Description(
     'Usuarios elegibles de un formulario publicado según asignaciones del tenant (cuenta + reglas empresa/área/cargo; misma lógica que el portal). '.
-    'Devuelve account_id, account_name, assigned_users[] (id, name, email) y total. Sin paginación. '.
+    'Devuelve account_id, account_name, assigned_users[] (id, name, email) y total, de a 200 por página (meta: page, per_page, total, last_page). '.
     'No equivale a listar-usuarios-cuenta-tenant: aquí aplica el alcance del formulario. '.
     '422 si el formulario no tiene cuenta asignada. Conviene llamarla tras listar-formularios-tenant y antes de listar-envios-formulario-tenant o evaluar envíos.'
 )]
@@ -40,7 +40,10 @@ class ListarUsuariosFormularioTenant extends Tool
                     'Connection'    => 'keep-alive',
                     'Authorization' => 'Bearer '.RemoteApi::token('zalo'),
                 ])
-                ->get($url);
+                ->get($url, array_filter([
+                    'page' => $request->get('page'),
+                    'per_page' => $request->get('per_page') !== null ? min((int) $request->get('per_page'), 200) : null,
+                ], fn ($value) => $value !== null && $value !== ''));
 
             if ($response->successful()) {
                 return Response::structured($response->json());
@@ -71,6 +74,10 @@ class ListarUsuariosFormularioTenant extends Tool
             'form_id' => $schema->string()
                 ->description('Id numérico del formulario publicado.')
                 ->required(),
+            'page' => $schema->integer()
+                ->description('Página, desde 1. Por defecto 1.'),
+            'per_page' => $schema->integer()
+                ->description('Cuántos por página, hasta 200. Por defecto 200.'),
         ];
     }
 }
