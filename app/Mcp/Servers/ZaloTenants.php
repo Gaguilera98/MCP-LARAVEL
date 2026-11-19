@@ -27,7 +27,7 @@ use App\Mcp\Tools\ResumenModerador;
 use App\Mcp\Tools\RevisionesModerador;
 
 #[Name('Zalo Tenants')]
-#[Version('0.1.1')]
+#[Version('0.1.2')]
 #[Instructions(
     'API bajo /api/v1 con Bearer (ZALO_API_BASE_URL, ZALO_API_TOKEN). Fechas de filtro en query: YYYY-MM-DD. '.
     'Nombres de argumentos: tools bulk get_account_* usan tenantId y accountId (camelCase). El resto (listar-*, generaciones-usuario, chat-usuario, uso-cuenta-tenant, listar-modelos) usan tenant_id, account_id (snake_case). '.

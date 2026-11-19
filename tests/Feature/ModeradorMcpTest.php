@@ -38,6 +38,18 @@ it('lists the flagged reviews of a tenant', function () {
     });
 });
 
+it('passes the severity to the api', function () {
+    Http::fake(['http://zalo.test/*' => Http::response(['data' => [], 'meta' => []])]);
+
+    ZaloTenants::tool(RevisionesModerador::class, ['tenant_id' => 't-1', 'verdict' => 'flag', 'severity' => 'alta'])->assertOk();
+
+    Http::assertSent(function ($request): bool {
+        parse_str((string) parse_url($request->url(), PHP_URL_QUERY), $query);
+
+        return $query === ['verdict' => 'flag', 'severity' => 'alta'];
+    });
+});
+
 it('asks the summary without paging', function () {
     Http::fake(['http://zalo.test/*' => Http::response(['data' => ['total' => 0]])]);
 

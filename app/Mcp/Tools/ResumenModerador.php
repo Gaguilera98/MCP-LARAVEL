@@ -13,7 +13,7 @@ use Laravel\Mcp\Server\Tool;
 #[Name('resumen-moderador')]
 #[Description(
     'Qué marcó el moderador en un período y cuánto costó (GET /api/v1/tenants/{tenant_id}/content-reviews/summary). '.
-    'Trae total, by_verdict, by_phase, by_tool, flagged_by_category, flagged_by_account, flagged_top_users (las 10 personas con más avisos) y '.
+    'Trae total, by_verdict, by_phase, by_tool, flagged_by_category, flagged_by_severity (alta = urgente, media = para el informe), flagged_by_account, flagged_top_users (las 10 personas con más avisos) y '.
     'cost {reviews_billed, provider_cost_usd (lo que pagó God al proveedor), charged_to_client_usd (lo que se le cobró al cliente: 0 mientras God pague la revisión)}. '.
     'Sirve para ajustar el reglamento: si una categoría marca de más o de menos. Después, revisiones-moderador con los mismos filtros para ver cada caso. Solo con el token del equipo (*).'
 )]
